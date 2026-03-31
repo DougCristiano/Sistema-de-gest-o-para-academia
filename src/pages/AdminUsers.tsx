@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -18,19 +18,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { UserPlus , Edit, Trash2 } from "lucide-react";
+import { Edit, Search, Trash2, UserPlus } from "lucide-react";
 import { mockUsers } from "../data/mockData";
-import { PROFILE_NAMES, ProfileType } from "../types";
+import { profilesService } from "../services/profiles.service";
 
 export const AdminUsers: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [serviceOptions, setServiceOptions] = useState(() => profilesService.getServicesAsOptions());
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
     role: "teacher" as "manager" | "teacher",
-    profiles: [] as ProfileType[],
+    profiles: [] as string[],
   });
+
+  useEffect(() => {
+    setServiceOptions(profilesService.getServicesAsOptions());
+  }, [isDialogOpen]);
 
   const filteredUsers = mockUsers.filter(
     (user) =>
@@ -50,12 +55,12 @@ export const AdminUsers: React.FC = () => {
     });
   };
 
-  const toggleProfile = (profile: ProfileType) => {
+  const toggleProfile = (profileId: string) => {
     setNewUser((prev) => ({
       ...prev,
-      profiles: prev.profiles.includes(profile)
-        ? prev.profiles.filter((p) => p !== profile)
-        : [...prev.profiles, profile],
+      profiles: prev.profiles.includes(profileId)
+        ? prev.profiles.filter((p) => p !== profileId)
+        : [...prev.profiles, profileId],
     }));
   };
 
@@ -117,29 +122,24 @@ export const AdminUsers: React.FC = () => {
               <div>
                 <Label>Serviços</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {(
-                    [
-                      "huron-areia",
-                      "huron-personal",
-                      "huron-recovery",
-                      "htri",
-                      "avitta",
-                    ] as ProfileType[]
-                  ).map((profile) => (
+                  {serviceOptions.map((service) => (
                     <button
-                      key={profile}
+                      key={service.value}
                       type="button"
-                      onClick={() => toggleProfile(profile)}
+                      onClick={() => toggleProfile(service.value)}
                       className={`px-3 py-1 rounded-full text-sm transition-all ${
-                        newUser.profiles.includes(profile)
+                        newUser.profiles.includes(service.value)
                           ? "bg-green-500 text-white"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
-                      {PROFILE_NAMES[profile]}
+                      {service.label}
                     </button>
                   ))}
                 </div>
+                {serviceOptions.length === 0 && (
+                  <p className="text-xs text-amber-700 mt-2">Nenhum serviço ativo disponível.</p>
+                )}
               </div>
               <Button onClick={handleCreateUser} className="w-full">
                 Criar Usuário
@@ -178,7 +178,7 @@ export const AdminUsers: React.FC = () => {
                     </Badge>
                     {user.profiles.map((profile) => (
                       <Badge key={profile} variant="secondary">
-                        {PROFILE_NAMES[profile]}
+                        {profilesService.getServiceName(profile)}
                       </Badge>
                     ))}
                   </div>

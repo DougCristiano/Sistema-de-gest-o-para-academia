@@ -16,6 +16,7 @@ import {
   GraduationCap,
   CalendarPlus,
   UserCircle,
+  Briefcase,
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import { PROFILE_NAMES } from "../types";
@@ -41,6 +42,7 @@ export const Layout: React.FC = () => {
         return [
           { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
           { icon: Users, label: "Gerenciar Usuários", path: "/admin/users" },
+          { icon: Briefcase, label: "Gerenciar Servicos", path: "/admin/services" },
           {
             icon: GraduationCap,
             label: "Matriculados",

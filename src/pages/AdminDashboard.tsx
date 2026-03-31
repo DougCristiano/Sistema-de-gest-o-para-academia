@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StatCard } from "../components/StatCard";
-import { Users , TrendingUp , GraduationCap } from "lucide-react";
+import { Calendar, DollarSign, GraduationCap, TrendingUp, Users } from "lucide-react";
 import { Card } from "../components/ui/card";
 import { Tabs , TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Badge } from "../components/ui/badge";

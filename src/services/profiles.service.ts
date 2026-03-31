@@ -17,20 +17,293 @@ import { ProfileConfigSchema } from "../schemas";
  * Todos os dados são validados com Zod antes de retornar
  */
 
+export interface ServiceCatalogItem {
+  id: string;
+  name: string;
+  color: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const SERVICES_STORAGE_KEY = "huron_services_catalog";
+
+const SERVICE_COLOR_PALETTE = [
+  "#22c55e",
+  "#3b82f6",
+  "#eab308",
+  "#92400e",
+  "#8b5cf6",
+  "#0ea5e9",
+  "#f97316",
+  "#14b8a6",
+  "#ec4899",
+];
+
+const BASE_PROFILE_IDS: ProfileType[] = [
+  "huron-areia",
+  "huron-personal",
+  "huron-recovery",
+  "htri",
+  "avitta",
+];
+
+const DEFAULT_SERVICE_CATALOG: ServiceCatalogItem[] = BASE_PROFILE_IDS.map((id) => {
+  const now = new Date().toISOString();
+  return {
+    id,
+    name: PROFILE_NAMES[id],
+    color: PROFILE_COLORS[id],
+    active: true,
+    createdAt: now,
+    updatedAt: now,
+  };
+});
+
+const canUseStorage = (): boolean => {
+  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+};
+
+const normalizeServiceId = (value: string): string => {
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-");
+
+  return normalized || "servico";
+};
+
+const parseServiceCatalog = (raw: string | null): ServiceCatalogItem[] | null => {
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return null;
+    }
+
+    const now = new Date().toISOString();
+
+    const sanitized = parsed
+      .filter((item): item is Record<string, unknown> => !!item && typeof item === "object")
+      .map((item) => ({
+        id: typeof item.id === "string" ? item.id : "",
+        name: typeof item.name === "string" ? item.name : "",
+        color: typeof item.color === "string" ? item.color : SERVICE_COLOR_PALETTE[0],
+        active: typeof item.active === "boolean" ? item.active : true,
+        createdAt: typeof item.createdAt === "string" ? item.createdAt : now,
+        updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : now,
+      }))
+      .filter((item) => item.id.length > 0 && item.name.trim().length > 0);
+
+    return sanitized.length > 0 ? sanitized : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveServiceCatalog = (catalog: ServiceCatalogItem[]): void => {
+  if (!canUseStorage()) {
+    return;
+  }
+
+  window.localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(catalog));
+};
+
+const readServiceCatalog = (): ServiceCatalogItem[] => {
+  if (!canUseStorage()) {
+    return [...DEFAULT_SERVICE_CATALOG];
+  }
+
+  const stored = parseServiceCatalog(window.localStorage.getItem(SERVICES_STORAGE_KEY));
+  if (stored) {
+    return stored;
+  }
+
+  saveServiceCatalog(DEFAULT_SERVICE_CATALOG);
+  return [...DEFAULT_SERVICE_CATALOG];
+};
+
 export const profilesService = {
   /**
    * Valida dados da configuração de perfil com Zod
    * @throws Error se dados são inválidos
    */
   _validateProfileConfig: (config: unknown): ProfileConfig => {
-    return ProfileConfigSchema.parse(config);
+    return ProfileConfigSchema.parse(config) as ProfileConfig;
+  },
+
+  /**
+   * Retorna catálogo completo de serviços (ativos e inativos)
+   */
+  getServiceCatalog: (): ServiceCatalogItem[] => {
+    return readServiceCatalog().sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  },
+
+  /**
+   * Retorna apenas serviços ativos
+   */
+  getActiveServiceCatalog: (): ServiceCatalogItem[] => {
+    return profilesService.getServiceCatalog().filter((service) => service.active);
+  },
+
+  /**
+   * Retorna um serviço por id
+   */
+  getServiceById: (serviceId: string): ServiceCatalogItem | undefined => {
+    return profilesService.getServiceCatalog().find((service) => service.id === serviceId);
+  },
+
+  /**
+   * Retorna nome exibível de um serviço por id
+   */
+  getServiceName: (serviceId: string): string => {
+    const catalogService = profilesService.getServiceById(serviceId);
+    if (catalogService) {
+      return catalogService.name;
+    }
+
+    const legacyName = PROFILE_NAMES[serviceId as ProfileType];
+    return legacyName || serviceId;
+  },
+
+  /**
+   * Cria novo serviço no catálogo
+   */
+  createService: (name: string): ServiceCatalogItem => {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      throw new Error("O nome do serviço é obrigatório.");
+    }
+
+    const catalog = readServiceCatalog();
+    const duplicatedName = catalog.some(
+      (service) => service.name.trim().toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (duplicatedName) {
+      throw new Error("Já existe um serviço com esse nome.");
+    }
+
+    const baseId = normalizeServiceId(trimmedName);
+    let id = baseId;
+    let suffix = 2;
+    while (catalog.some((service) => service.id === id)) {
+      id = `${baseId}-${suffix}`;
+      suffix += 1;
+    }
+
+    const now = new Date().toISOString();
+    const service: ServiceCatalogItem = {
+      id,
+      name: trimmedName,
+      color: SERVICE_COLOR_PALETTE[catalog.length % SERVICE_COLOR_PALETTE.length],
+      active: true,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const updatedCatalog = [...catalog, service];
+    saveServiceCatalog(updatedCatalog);
+    return service;
+  },
+
+  /**
+   * Atualiza nome de serviço existente
+   */
+  updateServiceName: (serviceId: string, name: string): ServiceCatalogItem => {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      throw new Error("O nome do serviço é obrigatório.");
+    }
+
+    const catalog = readServiceCatalog();
+    const target = catalog.find((service) => service.id === serviceId);
+
+    if (!target) {
+      throw new Error("Serviço não encontrado.");
+    }
+
+    const duplicatedName = catalog.some(
+      (service) =>
+        service.id !== serviceId &&
+        service.name.trim().toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (duplicatedName) {
+      throw new Error("Já existe um serviço com esse nome.");
+    }
+
+    const now = new Date().toISOString();
+    const updatedCatalog = catalog.map((service) =>
+      service.id === serviceId ? { ...service, name: trimmedName, updatedAt: now } : service
+    );
+
+    saveServiceCatalog(updatedCatalog);
+    return updatedCatalog.find((service) => service.id === serviceId) as ServiceCatalogItem;
+  },
+
+  /**
+   * Define status ativo/inativo de um serviço
+   */
+  setServiceActive: (serviceId: string, active: boolean): ServiceCatalogItem => {
+    const catalog = readServiceCatalog();
+    const target = catalog.find((service) => service.id === serviceId);
+
+    if (!target) {
+      throw new Error("Serviço não encontrado.");
+    }
+
+    const now = new Date().toISOString();
+    const updatedCatalog = catalog.map((service) =>
+      service.id === serviceId ? { ...service, active, updatedAt: now } : service
+    );
+
+    saveServiceCatalog(updatedCatalog);
+    return updatedCatalog.find((service) => service.id === serviceId) as ServiceCatalogItem;
+  },
+
+  /**
+   * Atalho para inativar serviço
+   */
+  deactivateService: (serviceId: string): ServiceCatalogItem => {
+    return profilesService.setServiceActive(serviceId, false);
+  },
+
+  /**
+   * Atalho para reativar serviço
+   */
+  reactivateService: (serviceId: string): ServiceCatalogItem => {
+    return profilesService.setServiceActive(serviceId, true);
+  },
+
+  /**
+   * Retorna opções para selects e filtros
+   */
+  getServicesAsOptions: (onlyActive = true) => {
+    const catalog = onlyActive
+      ? profilesService.getActiveServiceCatalog()
+      : profilesService.getServiceCatalog();
+
+    return catalog.map((service) => ({
+      value: service.id,
+      label: service.name,
+      color: service.color,
+      active: service.active,
+    }));
   },
 
   /**
    * Retorna lista de todos os perfis
    */
   getAllProfiles: (): ProfileType[] => {
-    return ["huron-areia", "huron-personal", "huron-recovery", "htri", "avitta"];
+    return [...BASE_PROFILE_IDS];
   },
 
   /**
@@ -190,14 +463,7 @@ export const profilesService = {
    * Valida se um perfil existe
    */
   isValidProfile: (profile: ProfileType | string): profile is ProfileType => {
-    const validProfiles: ProfileType[] = [
-      "huron-areia",
-      "huron-personal",
-      "huron-recovery",
-      "htri",
-      "avitta",
-    ];
-    return validProfiles.includes(profile as ProfileType);
+    return BASE_PROFILE_IDS.includes(profile as ProfileType);
   },
 
   /**
