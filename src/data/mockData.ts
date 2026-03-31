@@ -1,10 +1,4 @@
-import {
-  User,
-  Appointment,
-  NewsPost,
-  ProfileType,
-  DashboardStats,
-} from "../types";
+import { User, Appointment, NewsPost, ProfileType, DashboardStats } from "../types";
 
 export interface MockAthlete {
   id: string;
@@ -307,13 +301,7 @@ export const mockUsers: User[] = [
     name: "Carlos Silva",
     email: "carlos@academia.com",
     role: "admin",
-    profiles: [
-      "huron-areia",
-      "huron-personal",
-      "huron-recovery",
-      "htri",
-      "avitta",
-    ],
+    profiles: ["huron-areia", "huron-personal", "huron-recovery", "htri", "avitta"],
     studentProfiles: ["htri"],
     cpf: "123.456.789-00",
     phone: "(11) 99999-0001",
@@ -623,13 +611,7 @@ export const mockNews: NewsPost[] = [
     content:
       "Aproveite nossa promoção especial de março. Novos alunos ganham 20% de desconto no primeiro mês em todos os perfis. Traga um amigo e ganhe ainda mais benefícios! 💪🔥",
     type: "promotion",
-    profiles: [
-      "huron-areia",
-      "huron-personal",
-      "huron-recovery",
-      "htri",
-      "avitta",
-    ],
+    profiles: ["huron-areia", "huron-personal", "huron-recovery", "htri", "avitta"],
     date: new Date(2026, 2, 1),
     image:
       "https://images.unsplash.com/photo-1772206605293-3fadeaa944e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmaXRuZXNzJTIwY2xhc3MlMjBncm91cCUyMGV4ZXJjaXNlfGVufDF8fHx8MTc3MjgyNTA1OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
@@ -705,8 +687,7 @@ export const mockNews: NewsPost[] = [
         authorId: "teacher-4",
         authorName: "Fernanda Alves",
         authorRole: "teacher",
-        content:
-          "A Dra. Camila é excelente! Recomendo demais para todos os alunos.",
+        content: "A Dra. Camila é excelente! Recomendo demais para todos os alunos.",
         date: new Date(2026, 2, 3, 11, 20),
         likes: 6,
         likedByMe: false,
@@ -719,13 +700,7 @@ export const mockNews: NewsPost[] = [
     content:
       "A partir de segunda-feira, 10/03, estaremos funcionando das 6h às 23h para melhor atendê-los. O novo horário estendido foi pensado para quem treina cedo ou no final do dia. Bora treinar! 💪",
     type: "announcement",
-    profiles: [
-      "huron-areia",
-      "huron-personal",
-      "huron-recovery",
-      "htri",
-      "avitta",
-    ],
+    profiles: ["huron-areia", "huron-personal", "huron-recovery", "htri", "avitta"],
     date: new Date(2026, 2, 5),
     authorId: "admin-1",
     authorName: "Carlos Silva",
@@ -739,8 +714,7 @@ export const mockNews: NewsPost[] = [
         authorId: "student-1",
         authorName: "João Pedro",
         authorRole: "student",
-        content:
-          "Finalmente! Agora consigo treinar depois do trabalho tranquilo 🎉",
+        content: "Finalmente! Agora consigo treinar depois do trabalho tranquilo 🎉",
         date: new Date(2026, 2, 5, 12, 0),
         likes: 12,
         likedByMe: true,
@@ -750,8 +724,7 @@ export const mockNews: NewsPost[] = [
         authorId: "manager-2",
         authorName: "Roberto Lima",
         authorRole: "manager",
-        content:
-          "Ótima novidade! A equipe do Personal já está preparada para os novos horários.",
+        content: "Ótima novidade! A equipe do Personal já está preparada para os novos horários.",
         date: new Date(2026, 2, 5, 13, 30),
         likes: 7,
         likedByMe: false,
@@ -771,8 +744,7 @@ export const mockNews: NewsPost[] = [
         authorId: "teacher-2",
         authorName: "Mariana Souza",
         authorRole: "teacher",
-        content:
-          "Estou disponível nos novos horários para quem precisar de aulas de recovery!",
+        content: "Estou disponível nos novos horários para quem precisar de aulas de recovery!",
         date: new Date(2026, 2, 5, 16, 45),
         likes: 9,
         likedByMe: false,

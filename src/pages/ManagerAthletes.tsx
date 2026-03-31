@@ -27,28 +27,11 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { PROFILE_NAMES, PROFILE_COLORS } from "../types";
-import {
-  mockAthletes,
-  mockCheckInHistory,
-  MockAthlete,
-} from "../data/mockData";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { mockAthletes, mockCheckInHistory, MockAthlete } from "../data/mockData";
+import { BarChart , XAxis , CartesianGrid , ResponsiveContainer } from "recharts";
 
 type StatusFilter = "todos" | "ativo" | "inativo" | "pendente";
-type SortField =
-  | "name"
-  | "checkInsThisMonth"
-  | "totalSessions"
-  | "streak"
-  | "lastCheckIn";
+type SortField = "name" | "checkInsThisMonth" | "totalSessions" | "streak" | "lastCheckIn";
 type SortDir = "asc" | "desc";
 
 const STATUS_CONFIG = {
@@ -80,18 +63,12 @@ export const ManagerAthletes: React.FC = () => {
   const { currentProfile } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
-  const [expandedAthleteId, setExpandedAthleteId] = useState<string | null>(
-    null,
-  );
+  const [expandedAthleteId, setExpandedAthleteId] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  const profileColor = currentProfile
-    ? PROFILE_COLORS[currentProfile]
-    : "#92400e";
-  const profileName = currentProfile
-    ? PROFILE_NAMES[currentProfile]
-    : "Serviço";
+  const profileColor = currentProfile ? PROFILE_COLORS[currentProfile] : "#92400e";
+  const profileName = currentProfile ? PROFILE_NAMES[currentProfile] : "Serviço";
 
   // Filter athletes for this manager's profile
   const profileAthletes = useMemo(() => {
@@ -103,7 +80,7 @@ export const ManagerAthletes: React.FC = () => {
         (a) =>
           a.name.toLowerCase().includes(term) ||
           a.email.toLowerCase().includes(term) ||
-          a.teacher.toLowerCase().includes(term),
+          a.teacher.toLowerCase().includes(term)
       );
     }
 
@@ -128,8 +105,7 @@ export const ManagerAthletes: React.FC = () => {
           cmp = a.streak - b.streak;
           break;
         case "lastCheckIn":
-          cmp =
-            (a.lastCheckIn?.getTime() || 0) - (b.lastCheckIn?.getTime() || 0);
+          cmp = (a.lastCheckIn?.getTime() || 0) - (b.lastCheckIn?.getTime() || 0);
           break;
       }
       return sortDir === "desc" ? -cmp : cmp;
@@ -149,19 +125,13 @@ export const ManagerAthletes: React.FC = () => {
 
   // Stats
   const totalAthletes = profileAthletes.length;
-  const activeAthletes = profileAthletes.filter(
-    (a) => a.status === "ativo",
-  ).length;
+  const activeAthletes = profileAthletes.filter((a) => a.status === "ativo").length;
   const trainingNow = profileAthletes.filter((a) => a.isTrainingNow).length;
-  const totalCheckInsMonth = profileAthletes.reduce(
-    (sum, a) => sum + a.checkInsThisMonth,
-    0,
-  );
-  const avgCheckIns =
-    totalAthletes > 0 ? Math.round(totalCheckInsMonth / totalAthletes) : 0;
+  const totalCheckInsMonth = profileAthletes.reduce((sum, a) => sum + a.checkInsThisMonth, 0);
+  const avgCheckIns = totalAthletes > 0 ? Math.round(totalCheckInsMonth / totalAthletes) : 0;
 
   const formatDate = (date: Date | null) => {
-    if (!date) return "—";
+    if (!date) {return "—";}
     return date.toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
@@ -170,7 +140,7 @@ export const ManagerAthletes: React.FC = () => {
   };
 
   const formatDateTime = (date: Date | null) => {
-    if (!date) return "—";
+    if (!date) {return "—";}
     return (
       date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) +
       " às " +
@@ -180,22 +150,22 @@ export const ManagerAthletes: React.FC = () => {
 
   const getCheckInTrend = (current: number, previous: number) => {
     if (current > previous)
-      return {
+      {return {
         icon: TrendingUp,
         color: "text-green-600",
         label: `+${current - previous}`,
-      };
+      };}
     if (current < previous)
-      return {
+      {return {
         icon: TrendingDown,
         color: "text-red-500",
         label: `${current - previous}`,
-      };
+      };}
     return { icon: Minus, color: "text-gray-400", label: "0" };
   };
 
   const completionRate = (a: MockAthlete) => {
-    if (a.totalSessions === 0) return 0;
+    if (a.totalSessions === 0) {return 0;}
     return Math.round((a.completedSessions / a.totalSessions) * 100);
   };
 
@@ -208,10 +178,7 @@ export const ManagerAthletes: React.FC = () => {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <div
-            className="w-4 h-4 rounded-full"
-            style={{ backgroundColor: profileColor }}
-          />
+          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: profileColor }} />
           <h1 className="text-3xl font-bold">Atletas</h1>
         </div>
         <p className="text-gray-600">
@@ -226,10 +193,7 @@ export const ManagerAthletes: React.FC = () => {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div
-              className="p-2.5 rounded-lg"
-              style={{ backgroundColor: `${profileColor}15` }}
-            >
+            <div className="p-2.5 rounded-lg" style={{ backgroundColor: `${profileColor}15` }}>
               <Users className="w-5 h-5" style={{ color: profileColor }} />
             </div>
             <div>
@@ -287,10 +251,7 @@ export const ManagerAthletes: React.FC = () => {
             <div>
               <p className="text-xs text-gray-500">Média Check-ins</p>
               <p className="text-xl font-bold">
-                {avgCheckIns}{" "}
-                <span className="text-sm text-gray-400 font-normal">
-                  / atleta
-                </span>
+                {avgCheckIns} <span className="text-sm text-gray-400 font-normal">/ atleta</span>
               </p>
             </div>
           </div>
@@ -299,10 +260,7 @@ export const ManagerAthletes: React.FC = () => {
 
       {/* Currently Training */}
       {trainingNow > 0 && (
-        <Card
-          className="p-5 border-2"
-          style={{ borderColor: `${profileColor}40` }}
-        >
+        <Card className="p-5 border-2" style={{ borderColor: `${profileColor}40` }}>
           <div className="flex items-center gap-2 mb-4">
             <span className="relative flex h-3 w-3">
               <span
@@ -358,11 +316,7 @@ export const ManagerAthletes: React.FC = () => {
         </h2>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={mockCheckInHistory}>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#e5e7eb"
-              vertical={false}
-            />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
             <XAxis dataKey="month" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip
@@ -373,12 +327,7 @@ export const ManagerAthletes: React.FC = () => {
               }}
               labelStyle={{ fontWeight: "bold" }}
             />
-            <Bar
-              dataKey="checkIns"
-              fill={profileColor}
-              radius={[8, 8, 0, 0]}
-              name="Check-ins"
-            />
+            <Bar dataKey="checkIns" fill={profileColor} radius={[8, 8, 0, 0]} name="Check-ins" />
           </BarChart>
         </ResponsiveContainer>
       </Card>
@@ -396,38 +345,31 @@ export const ManagerAthletes: React.FC = () => {
             />
           </div>
           <div className="flex gap-2">
-            {(["todos", "ativo", "inativo", "pendente"] as StatusFilter[]).map(
-              (status) => (
-                <button
-                  key={status}
-                  onClick={() => setStatusFilter(status)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
-                    statusFilter === status
-                      ? "text-white border-transparent shadow-sm"
-                      : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                  }`}
-                  style={
-                    statusFilter === status
-                      ? { backgroundColor: profileColor }
-                      : undefined
-                  }
-                >
-                  {status === "todos" ? "Todos" : STATUS_CONFIG[status].label}
-                  {status !== "todos" && (
-                    <span className="ml-1.5 text-xs opacity-80">
-                      (
-                      {
-                        mockAthletes.filter(
-                          (a) =>
-                            a.profile === currentProfile && a.status === status,
-                        ).length
-                      }
-                      )
-                    </span>
-                  )}
-                </button>
-              ),
-            )}
+            {(["todos", "ativo", "inativo", "pendente"] as StatusFilter[]).map((status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
+                  statusFilter === status
+                    ? "text-white border-transparent shadow-sm"
+                    : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                }`}
+                style={statusFilter === status ? { backgroundColor: profileColor } : undefined}
+              >
+                {status === "todos" ? "Todos" : STATUS_CONFIG[status].label}
+                {status !== "todos" && (
+                  <span className="ml-1.5 text-xs opacity-80">
+                    (
+                    {
+                      mockAthletes.filter(
+                        (a) => a.profile === currentProfile && a.status === status
+                      ).length
+                    }
+                    )
+                  </span>
+                )}
+              </button>
+            ))}
           </div>
         </div>
       </Card>
@@ -486,19 +428,13 @@ export const ManagerAthletes: React.FC = () => {
           <div className="divide-y divide-gray-100">
             {profileAthletes.map((athlete) => {
               const isExpanded = expandedAthleteId === athlete.id;
-              const trend = getCheckInTrend(
-                athlete.checkInsThisMonth,
-                athlete.checkInsLastMonth,
-              );
+              const trend = getCheckInTrend(athlete.checkInsThisMonth, athlete.checkInsLastMonth);
               const TrendIcon = trend.icon;
               const rate = completionRate(athlete);
               const statusCfg = STATUS_CONFIG[athlete.status];
 
               return (
-                <div
-                  key={athlete.id}
-                  className="transition-colors hover:bg-gray-50/50"
-                >
+                <div key={athlete.id} className="transition-colors hover:bg-gray-50/50">
                   {/* Main Row */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 px-6 py-4 items-center">
                     {/* Athlete Info */}
@@ -518,31 +454,21 @@ export const ManagerAthletes: React.FC = () => {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-sm truncate">
-                          {athlete.name}
-                        </p>
-                        <p className="text-xs text-gray-500 truncate">
-                          {athlete.teacher}
-                        </p>
+                        <p className="font-medium text-sm truncate">{athlete.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{athlete.teacher}</p>
                       </div>
                     </div>
 
                     {/* Status */}
                     <div className="col-span-1 flex justify-center">
-                      <Badge className={`${statusCfg.color} text-xs`}>
-                        {statusCfg.label}
-                      </Badge>
+                      <Badge className={`${statusCfg.color} text-xs`}>{statusCfg.label}</Badge>
                     </div>
 
                     {/* Check-ins This Month */}
                     <div className="col-span-2 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <span className="text-lg font-bold">
-                          {athlete.checkInsThisMonth}
-                        </span>
-                        <span
-                          className={`flex items-center gap-0.5 text-xs ${trend.color}`}
-                        >
+                        <span className="text-lg font-bold">{athlete.checkInsThisMonth}</span>
+                        <span className={`flex items-center gap-0.5 text-xs ${trend.color}`}>
                           <TrendIcon className="w-3.5 h-3.5" />
                           {trend.label}
                         </span>
@@ -555,9 +481,7 @@ export const ManagerAthletes: React.FC = () => {
                     {/* Total Sessions */}
                     <div className="col-span-2 text-center">
                       <p className="font-bold">{athlete.completedSessions}</p>
-                      <p className="text-xs text-gray-400">
-                        {rate}% aproveitamento
-                      </p>
+                      <p className="text-xs text-gray-400">{rate}% aproveitamento</p>
                     </div>
 
                     {/* Streak */}
@@ -565,17 +489,13 @@ export const ManagerAthletes: React.FC = () => {
                       <Flame
                         className={`w-4 h-4 ${athlete.streak >= 10 ? "text-orange-500" : athlete.streak >= 4 ? "text-amber-400" : "text-gray-300"}`}
                       />
-                      <span className="font-bold text-sm">
-                        {athlete.streak}
-                      </span>
+                      <span className="font-bold text-sm">{athlete.streak}</span>
                       <span className="text-xs text-gray-400">sem</span>
                     </div>
 
                     {/* Last Check-in */}
                     <div className="col-span-2 text-center">
-                      <p className="text-sm">
-                        {formatDateTime(athlete.lastCheckIn)}
-                      </p>
+                      <p className="text-sm">{formatDateTime(athlete.lastCheckIn)}</p>
                     </div>
 
                     {/* Actions */}
@@ -583,9 +503,7 @@ export const ManagerAthletes: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() =>
-                          setExpandedAthleteId(isExpanded ? null : athlete.id)
-                        }
+                        onClick={() => setExpandedAthleteId(isExpanded ? null : athlete.id)}
                         className="h-8 px-2"
                       >
                         {isExpanded ? (
@@ -641,17 +559,13 @@ export const ManagerAthletes: React.FC = () => {
                               <p className="text-lg font-bold text-green-600">
                                 {athlete.completedSessions}
                               </p>
-                              <p className="text-xs text-gray-500">
-                                Realizadas
-                              </p>
+                              <p className="text-xs text-gray-500">Realizadas</p>
                             </div>
                             <div className="p-3 rounded-lg bg-white border border-gray-200 text-center">
                               <p className="text-lg font-bold text-amber-600">
                                 {athlete.cancelledSessions}
                               </p>
-                              <p className="text-xs text-gray-500">
-                                Canceladas
-                              </p>
+                              <p className="text-xs text-gray-500">Canceladas</p>
                             </div>
                             <div className="p-3 rounded-lg bg-white border border-gray-200 text-center">
                               <p className="text-lg font-bold text-red-500">
@@ -660,10 +574,7 @@ export const ManagerAthletes: React.FC = () => {
                               <p className="text-xs text-gray-500">Faltas</p>
                             </div>
                             <div className="p-3 rounded-lg bg-white border border-gray-200 text-center">
-                              <p
-                                className="text-lg font-bold"
-                                style={{ color: profileColor }}
-                              >
+                              <p className="text-lg font-bold" style={{ color: profileColor }}>
                                 {athlete.totalSessions}
                               </p>
                               <p className="text-xs text-gray-500">Total</p>
@@ -678,13 +589,8 @@ export const ManagerAthletes: React.FC = () => {
                           </h4>
                           <div className="p-4 rounded-lg bg-white border border-gray-200">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm text-gray-600">
-                                Taxa de conclusão
-                              </span>
-                              <span
-                                className="text-lg font-bold"
-                                style={{ color: profileColor }}
-                              >
+                              <span className="text-sm text-gray-600">Taxa de conclusão</span>
+                              <span className="text-lg font-bold" style={{ color: profileColor }}>
                                 {rate}%
                               </span>
                             </div>
@@ -703,24 +609,15 @@ export const ManagerAthletes: React.FC = () => {
                                   <Flame
                                     className={`w-4 h-4 ${athlete.streak >= 10 ? "text-orange-500" : "text-gray-400"}`}
                                   />
-                                  <span className="text-lg font-bold">
-                                    {athlete.streak}
-                                  </span>
+                                  <span className="text-lg font-bold">{athlete.streak}</span>
                                 </div>
-                                <p className="text-xs text-gray-500">
-                                  Semanas seguidas
-                                </p>
+                                <p className="text-xs text-gray-500">Semanas seguidas</p>
                               </div>
                               <div className="text-center">
-                                <p
-                                  className="text-lg font-bold"
-                                  style={{ color: profileColor }}
-                                >
+                                <p className="text-lg font-bold" style={{ color: profileColor }}>
                                   {athlete.checkInsThisMonth}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                  Check-ins este mês
-                                </p>
+                                <p className="text-xs text-gray-500">Check-ins este mês</p>
                               </div>
                             </div>
                           </div>
@@ -738,8 +635,7 @@ export const ManagerAthletes: React.FC = () => {
       {/* Summary Footer */}
       <div className="text-center text-sm text-gray-500">
         Exibindo {profileAthletes.length} de{" "}
-        {mockAthletes.filter((a) => a.profile === currentProfile).length}{" "}
-        atletas do {profileName}
+        {mockAthletes.filter((a) => a.profile === currentProfile).length} atletas do {profileName}
       </div>
     </div>
   );

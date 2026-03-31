@@ -89,9 +89,7 @@ export const Login: React.FC = () => {
         </form>
 
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-600 mb-3 text-center">
-            Login rápido para demonstração:
-          </p>
+          <p className="text-sm text-gray-600 mb-3 text-center">Login rápido para demonstração:</p>
           <div className="space-y-2">
             <Button
               type="button"

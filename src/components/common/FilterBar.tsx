@@ -1,13 +1,7 @@
 import React from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select , SelectItem , SelectValue } from "../ui/select";
 import { Search, X } from "lucide-react";
 
 interface FilterConfig {
@@ -92,11 +86,7 @@ export function FilterBar({
             )}
 
             {filters[config.key] && onFilterRemove && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onFilterRemove(config.key)}
-              >
+              <Button size="sm" variant="ghost" onClick={() => onFilterRemove(config.key)}>
                 <X className="w-4 h-4" />
               </Button>
             )}
@@ -104,11 +94,7 @@ export function FilterBar({
         ))}
 
         {showClearButton && hasActiveFilters && onClearAll && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onClearAll}
-          >
+          <Button variant="outline" size="sm" onClick={onClearAll}>
             Limpar Filtros
           </Button>
         )}

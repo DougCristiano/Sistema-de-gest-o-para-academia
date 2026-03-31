@@ -35,9 +35,9 @@ import { PROFILE_NAMES, ProfileType } from "../types";
 export const AdminNews: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<
-    "all" | "promotion" | "event" | "announcement"
-  >("all");
+  const [filterType, setFilterType] = useState<"all" | "promotion" | "event" | "announcement">(
+    "all"
+  );
   const [newNews, setNewNews] = useState({
     title: "",
     content: "",
@@ -75,7 +75,7 @@ export const AdminNews: React.FC = () => {
       (n) =>
         !searchTerm ||
         n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        n.content.toLowerCase().includes(searchTerm.toLowerCase()),
+        n.content.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
   return (
@@ -84,9 +84,7 @@ export const AdminNews: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold mb-1">Feed de Notícias</h1>
-          <p className="text-gray-500 text-sm">
-            Gerencie publicações da comunidade Huron
-          </p>
+          <p className="text-gray-500 text-sm">Gerencie publicações da comunidade Huron</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -105,9 +103,7 @@ export const AdminNews: React.FC = () => {
                 <Input
                   id="title"
                   value={newNews.title}
-                  onChange={(e) =>
-                    setNewNews({ ...newNews, title: e.target.value })
-                  }
+                  onChange={(e) => setNewNews({ ...newNews, title: e.target.value })}
                   placeholder="Ex: Promoção de Verão"
                 />
               </div>
@@ -116,9 +112,7 @@ export const AdminNews: React.FC = () => {
                 <Textarea
                   id="content"
                   value={newNews.content}
-                  onChange={(e) =>
-                    setNewNews({ ...newNews, content: e.target.value })
-                  }
+                  onChange={(e) => setNewNews({ ...newNews, content: e.target.value })}
                   placeholder="Escreva sua publicação aqui..."
                   rows={4}
                 />
@@ -127,18 +121,16 @@ export const AdminNews: React.FC = () => {
                 <Label>Imagem (opcional)</Label>
                 <div className="mt-2 border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-[#22c55e]/50 transition-colors cursor-pointer">
                   <ImagePlus className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                  <p className="text-sm text-gray-400">
-                    Clique para adicionar uma imagem
-                  </p>
+                  <p className="text-sm text-gray-400">Clique para adicionar uma imagem</p>
                 </div>
               </div>
               <div>
                 <Label htmlFor="type">Tipo</Label>
                 <Select
                   value={newNews.type}
-                  onValueChange={(
-                    value: "promotion" | "event" | "announcement",
-                  ) => setNewNews({ ...newNews, type: value })}
+                  onValueChange={(value: "promotion" | "event" | "announcement") =>
+                    setNewNews({ ...newNews, type: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -244,9 +236,9 @@ export const AdminNews: React.FC = () => {
         </div>
         <Select
           value={filterType}
-          onValueChange={(
-            value: "all" | "promotion" | "event" | "announcement",
-          ) => setFilterType(value)}
+          onValueChange={(value: "all" | "promotion" | "event" | "announcement") =>
+            setFilterType(value)
+          }
         >
           <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="Filtrar por tipo" />
@@ -266,14 +258,10 @@ export const AdminNews: React.FC = () => {
           <div className="text-center">
             <Newspaper className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-1 text-gray-700">
-              {searchTerm
-                ? "Nenhum resultado encontrado"
-                : "Nenhuma publicação"}
+              {searchTerm ? "Nenhum resultado encontrado" : "Nenhuma publicação"}
             </h3>
             <p className="text-gray-400 text-sm">
-              {searchTerm
-                ? "Tente buscar com outros termos"
-                : "Crie sua primeira publicação"}
+              {searchTerm ? "Tente buscar com outros termos" : "Crie sua primeira publicação"}
             </p>
           </div>
         </Card>

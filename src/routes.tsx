@@ -1,22 +1,61 @@
 import { createBrowserRouter, Navigate } from "react-router";
+import { lazy, Suspense } from "react";
 import { RootLayout } from "./components/RootLayout";
 import { Layout } from "./components/Layout";
+import { LoadingFallback } from "./components/LoadingFallback";
 import { Login } from "./pages/Login";
-import { AdminDashboard } from "./pages/AdminDashboard";
-import { AdminUsers } from "./pages/AdminUsers";
-import { AdminEnrolled } from "./pages/AdminEnrolled";
-import { AdminNews } from "./pages/AdminNews";
-import { AdminAppointments } from "./pages/AdminAppointments";
-import { ManagerDashboard } from "./pages/ManagerDashboard";
-import { ManagerProfileConfig } from "./pages/ManagerProfileConfig";
-import { ManagerAthletes } from "./pages/ManagerAthletes";
-import { TeacherSchedule } from "./pages/TeacherSchedule";
-import { TeacherStudents } from "./pages/TeacherStudents";
-import { StudentDashboard } from "./pages/StudentDashboard";
-import { StudentBooking } from "./pages/StudentBooking";
-import { StudentAppointments } from "./pages/StudentAppointments";
-import { StudentNews } from "./pages/StudentNews";
-import { MyProfile } from "./pages/MyProfile";
+
+// Lazy-loaded pages for code splitting and better performance
+const AdminDashboard = lazy(() =>
+  import("./pages/AdminDashboard").then((m) => ({ default: m.AdminDashboard }))
+);
+const AdminUsers = lazy(() =>
+  import("./pages/AdminUsers").then((m) => ({ default: m.AdminUsers }))
+);
+const AdminEnrolled = lazy(() =>
+  import("./pages/AdminEnrolled").then((m) => ({ default: m.AdminEnrolled }))
+);
+const AdminNews = lazy(() => import("./pages/AdminNews").then((m) => ({ default: m.AdminNews })));
+const AdminAppointments = lazy(() =>
+  import("./pages/AdminAppointments").then((m) => ({ default: m.AdminAppointments }))
+);
+const ManagerDashboard = lazy(() =>
+  import("./pages/ManagerDashboard").then((m) => ({ default: m.ManagerDashboard }))
+);
+const ManagerProfileConfig = lazy(() =>
+  import("./pages/ManagerProfileConfig").then((m) => ({ default: m.ManagerProfileConfig }))
+);
+const ManagerAthletes = lazy(() =>
+  import("./pages/ManagerAthletes").then((m) => ({ default: m.ManagerAthletes }))
+);
+const TeacherSchedule = lazy(() =>
+  import("./pages/TeacherSchedule").then((m) => ({ default: m.TeacherSchedule }))
+);
+const TeacherStudents = lazy(() =>
+  import("./pages/TeacherStudents").then((m) => ({ default: m.TeacherStudents }))
+);
+const StudentDashboard = lazy(() =>
+  import("./pages/StudentDashboard").then((m) => ({ default: m.StudentDashboard }))
+);
+const StudentBooking = lazy(() =>
+  import("./pages/StudentBooking").then((m) => ({ default: m.StudentBooking }))
+);
+const StudentAppointments = lazy(() =>
+  import("./pages/StudentAppointments").then((m) => ({ default: m.StudentAppointments }))
+);
+const StudentNews = lazy(() =>
+  import("./pages/StudentNews").then((m) => ({ default: m.StudentNews }))
+);
+const MyProfile = lazy(() => import("./pages/MyProfile").then((m) => ({ default: m.MyProfile })));
+
+/**
+ * Helper wrapper para Suspense + lazy components
+ */
+const withSuspense = (Component: React.LazyExoticComponent<() => JSX.Element>) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <Component />
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -38,84 +77,84 @@ export const router = createBrowserRouter([
           // Admin routes
           {
             path: "admin",
-            Component: AdminDashboard,
+            element: withSuspense(AdminDashboard),
           },
           {
             path: "admin/users",
-            Component: AdminUsers,
+            element: withSuspense(AdminUsers),
           },
           {
             path: "admin/enrolled",
-            Component: AdminEnrolled,
+            element: withSuspense(AdminEnrolled),
           },
           {
             path: "admin/appointments",
-            Component: AdminAppointments,
+            element: withSuspense(AdminAppointments),
           },
           {
             path: "admin/news",
-            Component: AdminNews,
+            element: withSuspense(AdminNews),
           },
           // Manager routes
           {
             path: "manager",
-            Component: ManagerDashboard,
+            element: withSuspense(ManagerDashboard),
           },
           {
             path: "manager/athletes",
-            Component: ManagerAthletes,
+            element: withSuspense(ManagerAthletes),
           },
           {
             path: "manager/teachers",
-            Component: ManagerDashboard,
+            element: withSuspense(ManagerDashboard),
           },
           {
             path: "manager/appointments",
-            Component: ManagerDashboard,
+            element: withSuspense(ManagerDashboard),
           },
           {
             path: "manager/add-teacher",
-            Component: AdminUsers,
+            element: withSuspense(AdminUsers),
           },
           {
             path: "manager/config",
-            Component: ManagerProfileConfig,
+            element: withSuspense(ManagerProfileConfig),
           },
           // Teacher routes
           {
             path: "teacher",
-            Component: TeacherSchedule,
+            element: withSuspense(TeacherSchedule),
           },
           {
             path: "teacher/students",
-            Component: TeacherStudents,
+            element: withSuspense(TeacherStudents),
           },
           // Booking route (shared for staff who are also students)
           {
             path: "booking",
-            Component: StudentBooking,
+            element: withSuspense(StudentBooking),
           },
           // Student routes
           {
             path: "student",
-            Component: StudentDashboard,
+            element: withSuspense(StudentDashboard),
           },
           {
             path: "student/booking",
-            Component: StudentBooking,
+            element: withSuspense(StudentBooking),
           },
           {
             path: "student/appointments",
-            Component: StudentAppointments,
+            element: withSuspense(StudentAppointments),
           },
           {
             path: "student/news",
-            Component: StudentNews,
+            element: withSuspense(StudentNews),
           },
           // Shared route - My Profile (all roles)
           {
             path: "profile",
-            Component: MyProfile,
+            element: withSuspense(MyProfile),
           },
         ],
       },

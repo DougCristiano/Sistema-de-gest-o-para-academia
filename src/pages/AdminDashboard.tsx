@@ -1,19 +1,8 @@
 import React, { useState } from "react";
 import { StatCard } from "../components/StatCard";
-import {
-  Users,
-  Calendar,
-  TrendingUp,
-  DollarSign,
-  GraduationCap,
-} from "lucide-react";
+import { Users , TrendingUp , GraduationCap } from "lucide-react";
 import { Card } from "../components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
+import { Tabs , TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Badge } from "../components/ui/badge";
 import {
   mockDashboardStats,
@@ -43,9 +32,7 @@ import {
 } from "recharts";
 
 export const AdminDashboard: React.FC = () => {
-  const [selectedProfile, setSelectedProfile] = useState<ProfileType | "all">(
-    "all",
-  );
+  const [selectedProfile, setSelectedProfile] = useState<ProfileType | "all">("all");
   const stats = mockDashboardStats[selectedProfile];
 
   const profiles: (ProfileType | "all")[] = [
@@ -66,33 +53,27 @@ export const AdminDashboard: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Dashboard Administrativo</h1>
-        <p className="text-gray-600">
-          Visão geral de todos os serviços da Huron
-        </p>
+        <p className="text-gray-600">Visão geral de todos os serviços da Huron</p>
       </div>
 
       {/* Profile Filters */}
       <div className="flex flex-wrap gap-2">
         {profiles.map((profile) => {
           const isActive = selectedProfile === profile;
-          const color =
-            profile === "all"
-              ? "#6b7280"
-              : PROFILE_COLORS[profile as ProfileType];
+          const color = profile === "all" ? "#6b7280" : PROFILE_COLORS[profile as ProfileType];
 
           return (
             <button
               key={profile}
               onClick={() => setSelectedProfile(profile)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                isActive
                   ? "text-white shadow-lg scale-105"
                   : "bg-white border border-gray-200 text-gray-700 hover:shadow-md"
-                }`}
+              }`}
               style={isActive ? { backgroundColor: color } : undefined}
             >
-              {profile === "all"
-                ? "Todos"
-                : PROFILE_NAMES[profile as ProfileType]}
+              {profile === "all" ? "Todos" : PROFILE_NAMES[profile as ProfileType]}
             </button>
           );
         })}
@@ -151,11 +132,7 @@ export const AdminDashboard: React.FC = () => {
           <h2 className="text-xl font-bold mb-4">Horários de Pico</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={mockPeakHours}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#e5e7eb"
-                vertical={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
@@ -178,16 +155,10 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Weekly Appointments */}
         <Card className="p-6">
-          <h2 className="text-xl font-bold mb-4">
-            Agendamentos por Dia da Semana
-          </h2>
+          <h2 className="text-xl font-bold mb-4">Agendamentos por Dia da Semana</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={mockWeeklyAppointments}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#e5e7eb"
-                vertical={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
               <XAxis dataKey="day" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
@@ -213,11 +184,7 @@ export const AdminDashboard: React.FC = () => {
           <h2 className="text-xl font-bold mb-4">Evolução de Alunos</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={mockMonthlyGrowth}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#e5e7eb"
-                vertical={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
@@ -282,22 +249,12 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Attendance Rate by Profile */}
         <Card className="p-6 lg:col-span-2">
-          <h2 className="text-xl font-bold mb-4">
-            Taxa de Presença por Serviço
-          </h2>
+          <h2 className="text-xl font-bold mb-4">Taxa de Presença por Serviço</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={mockAttendanceByProfile} layout="vertical">
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#e5e7eb"
-                horizontal={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
               <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12 }} />
-              <YAxis
-                dataKey="profile"
-                type="category"
-                tick={{ fontSize: 12 }}
-              />
+              <YAxis dataKey="profile" type="category" tick={{ fontSize: 12 }} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#fff",
@@ -307,11 +264,7 @@ export const AdminDashboard: React.FC = () => {
                 labelStyle={{ fontWeight: "bold" }}
                 formatter={(value) => `${value}%`}
               />
-              <Bar
-                dataKey="rate"
-                radius={[0, 8, 8, 0]}
-                name="Taxa de Presença (%)"
-              >
+              <Bar dataKey="rate" radius={[0, 8, 8, 0]} name="Taxa de Presença (%)">
                 {mockAttendanceByProfile.map((entry) => (
                   <Cell key={entry.id} fill={entry.fill} />
                 ))}
@@ -325,9 +278,7 @@ export const AdminDashboard: React.FC = () => {
       <Card className="p-6">
         <h2 className="text-xl font-bold mb-4">Agendamentos de Hoje</h2>
         {todayAppointments.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
-            Nenhum agendamento para hoje
-          </p>
+          <p className="text-gray-500 text-center py-8">Nenhum agendamento para hoje</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {todayAppointments.map((appointment) => (
@@ -347,13 +298,7 @@ export const AdminDashboard: React.FC = () => {
         <h2 className="text-xl font-bold mb-4">Visão por Serviço</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {(
-            [
-              "huron-areia",
-              "huron-personal",
-              "huron-recovery",
-              "htri",
-              "avitta",
-            ] as ProfileType[]
+            ["huron-areia", "huron-personal", "huron-recovery", "htri", "avitta"] as ProfileType[]
           ).map((profile) => {
             const profileStats = mockDashboardStats[profile];
             return (
@@ -372,21 +317,15 @@ export const AdminDashboard: React.FC = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Alunos:</span>
-                    <span className="font-medium">
-                      {profileStats.totalStudents}
-                    </span>
+                    <span className="font-medium">{profileStats.totalStudents}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Professores:</span>
-                    <span className="font-medium">
-                      {profileStats.totalTeachers}
-                    </span>
+                    <span className="font-medium">{profileStats.totalTeachers}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Presença:</span>
-                    <span className="font-medium">
-                      {profileStats.attendanceRate}%
-                    </span>
+                    <span className="font-medium">{profileStats.attendanceRate}%</span>
                   </div>
                 </div>
               </Card>

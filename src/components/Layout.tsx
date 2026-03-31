@@ -32,7 +32,7 @@ export const Layout: React.FC = () => {
   };
 
   const getMenuItems = () => {
-    if (!currentUser) return [];
+    if (!currentUser) {return [];}
     const hasStudentProfiles =
       currentUser.studentProfiles && currentUser.studentProfiles.length > 0;
 
@@ -118,8 +118,9 @@ export const Layout: React.FC = () => {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <aside
-        className={`${sidebarOpen ? "w-64" : "w-0"
-          } bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden flex flex-col`}
+        className={`${
+          sidebarOpen ? "w-64" : "w-0"
+        } bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden flex flex-col`}
       >
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
@@ -127,9 +128,7 @@ export const Layout: React.FC = () => {
             <div>
               <h1 className="font-bold text-lg">Huron Gestão</h1>
               {currentProfile && (
-                <p className="text-xs text-gray-500">
-                  {PROFILE_NAMES[currentProfile]}
-                </p>
+                <p className="text-xs text-gray-500">{PROFILE_NAMES[currentProfile]}</p>
               )}
             </div>
           </div>
@@ -145,12 +144,8 @@ export const Layout: React.FC = () => {
               {currentUser?.name.charAt(0)}
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <p className="font-medium text-sm truncate">
-                {currentUser?.name}
-              </p>
-              <p className="text-xs text-gray-500 capitalize">
-                {currentUser?.role}
-              </p>
+              <p className="font-medium text-sm truncate">{currentUser?.name}</p>
+              <p className="text-xs text-gray-500 capitalize">{currentUser?.role}</p>
             </div>
           </button>
         </div>
@@ -165,10 +160,11 @@ export const Layout: React.FC = () => {
                 <li key={item.path}>
                   <button
                     onClick={() => navigate(item.path)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                      ? "bg-[#22c55e]/10 text-[#22c55e] font-medium"
-                      : "text-gray-700 hover:bg-gray-100"
-                      }`}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? "bg-[#22c55e]/10 text-[#22c55e] font-medium"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
                   >
                     <Icon className="w-5 h-5" />
                     <span className="text-sm">{item.label}</span>
@@ -197,16 +193,8 @@ export const Layout: React.FC = () => {
         {/* Header */}
         <header className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              {sidebarOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-600">

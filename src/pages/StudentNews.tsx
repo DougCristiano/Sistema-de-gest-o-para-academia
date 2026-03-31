@@ -2,31 +2,19 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Card } from "../components/ui/card";
 import { NewsCard } from "../components/NewsCard";
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { Input } from "../components/ui/input";
-import {
-  Newspaper,
-  Gift,
-  Calendar,
-  Bell,
-  Search,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { Newspaper, Calendar, Search, Users, TrendingUp } from "lucide-react";
 import { mockNews } from "../data/mockData";
-import { NewsPost } from "../types";
 
 export const StudentNews: React.FC = () => {
   const { currentUser } = useAuth();
-  const [filter, setFilter] = useState<
-    "all" | "promotion" | "event" | "announcement"
-  >("all");
+  const [filter, setFilter] = useState<"all" | "promotion" | "event" | "announcement">("all");
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filtrar notícias relevantes para os serviços do aluno
   const userProfiles = currentUser?.profiles || [];
   const relevantNews = mockNews.filter((news) =>
-    news.profiles.some((profile) => userProfiles.includes(profile)),
+    news.profiles.some((profile) => userProfiles.includes(profile))
   );
 
   const filteredNews = relevantNews
@@ -35,14 +23,12 @@ export const StudentNews: React.FC = () => {
       (news) =>
         !searchTerm ||
         news.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        news.content.toLowerCase().includes(searchTerm.toLowerCase()),
+        news.content.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
   const promoCount = relevantNews.filter((n) => n.type === "promotion").length;
   const eventCount = relevantNews.filter((n) => n.type === "event").length;
-  const announcementCount = relevantNews.filter(
-    (n) => n.type === "announcement",
-  ).length;
+  const announcementCount = relevantNews.filter((n) => n.type === "announcement").length;
 
   const filterTabs = [
     {
@@ -76,19 +62,14 @@ export const StudentNews: React.FC = () => {
   ];
 
   const totalLikes = relevantNews.reduce((acc, n) => acc + n.likes, 0);
-  const totalComments = relevantNews.reduce(
-    (acc, n) => acc + n.comments.length,
-    0,
-  );
+  const totalComments = relevantNews.reduce((acc, n) => acc + n.comments.length, 0);
 
   return (
     <div className="max-w-3xl mx-auto space-y-5">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold mb-1">Feed da Comunidade</h1>
-        <p className="text-gray-500 text-sm">
-          Fique por dentro das novidades da Huron
-        </p>
+        <p className="text-gray-500 text-sm">Fique por dentro das novidades da Huron</p>
       </div>
 
       {/* Quick stats */}
@@ -174,9 +155,7 @@ export const StudentNews: React.FC = () => {
         <Card className="p-12">
           <div className="text-center">
             <Newspaper className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-1 text-gray-700">
-              Nenhum post encontrado
-            </h3>
+            <h3 className="text-lg font-semibold mb-1 text-gray-700">Nenhum post encontrado</h3>
             <p className="text-gray-400 text-sm">
               {searchTerm
                 ? "Tente buscar com outros termos"

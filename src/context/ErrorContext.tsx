@@ -16,10 +16,12 @@ interface ErrorContextType {
 
 const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
 
-export const ErrorProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const ErrorProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [errors, setErrors] = useState<ErrorMessage[]>([]);
+
+  const removeError = useCallback((id: string) => {
+    setErrors((prev) => prev.filter((e) => e.id !== id));
+  }, []);
 
   const addError = useCallback((message: string, duration = 5000) => {
     const id = `error-${Date.now()}`;
@@ -38,11 +40,7 @@ export const ErrorProvider: React.FC<{ children: ReactNode }> = ({
         removeError(id);
       }, duration);
     }
-  }, []);
-
-  const removeError = useCallback((id: string) => {
-    setErrors((prev) => prev.filter((e) => e.id !== id));
-  }, []);
+  }, [removeError]);
 
   const clearErrors = useCallback(() => {
     setErrors([]);

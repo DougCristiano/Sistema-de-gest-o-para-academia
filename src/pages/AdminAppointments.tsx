@@ -27,12 +27,10 @@ import {
 } from "../components/ui/select";
 
 export const AdminAppointments: React.FC = () => {
-  const [selectedProfile, setSelectedProfile] = useState<ProfileType | "all">(
-    "all",
-  );
+  const [selectedProfile, setSelectedProfile] = useState<ProfileType | "all">("all");
   const [selectedTeacher, setSelectedTeacher] = useState<string>("all");
   const [currentWeekStart, setCurrentWeekStart] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 0 }),
+    startOfWeek(new Date(), { weekStartsOn: 0 })
   );
   const [viewMode, setViewMode] = useState<"week" | "day">("week");
 
@@ -41,10 +39,8 @@ export const AdminAppointments: React.FC = () => {
 
   // Aplicar filtros
   const filteredAppointments = mockAppointments.filter((apt) => {
-    if (selectedProfile !== "all" && apt.profile !== selectedProfile)
-      return false;
-    if (selectedTeacher !== "all" && apt.teacherId !== selectedTeacher)
-      return false;
+    if (selectedProfile !== "all" && apt.profile !== selectedProfile) {return false;}
+    if (selectedTeacher !== "all" && apt.teacherId !== selectedTeacher) {return false;}
     return true;
   });
 
@@ -55,14 +51,12 @@ export const AdminAppointments: React.FC = () => {
   });
 
   // Dias da semana
-  const weekDays = Array.from({ length: 7 }, (_, i) =>
-    addDays(currentWeekStart, i),
-  );
+  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
 
   // Função para pegar agendamentos de um horário específico
   const getAppointmentsForSlot = (date: Date, timeSlot: string) => {
     return filteredAppointments.filter((apt) => {
-      if (!isSameDay(apt.date, date)) return false;
+      if (!isSameDay(apt.date, date)) {return false;}
       return apt.time.startsWith(timeSlot.split(":")[0]);
     });
   };
@@ -96,9 +90,7 @@ export const AdminAppointments: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Agenda de Aulas</h1>
-        <p className="text-gray-600">
-          Visualize os agendamentos em formato de agenda
-        </p>
+        <p className="text-gray-600">Visualize os agendamentos em formato de agenda</p>
       </div>
 
       {/* Controles e Filtros */}
@@ -119,11 +111,7 @@ export const AdminAppointments: React.FC = () => {
               <div className="ml-4">
                 <p className="font-semibold text-lg">
                   {format(currentWeekStart, "dd 'de' MMMM", { locale: ptBR })} -{" "}
-                  {format(
-                    addDays(currentWeekStart, 6),
-                    "dd 'de' MMMM 'de' yyyy",
-                    { locale: ptBR },
-                  )}
+                  {format(addDays(currentWeekStart, 6), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                 </p>
               </div>
             </div>
@@ -138,9 +126,7 @@ export const AdminAppointments: React.FC = () => {
               {/* Filtro de Serviço */}
               <Select
                 value={selectedProfile}
-                onValueChange={(value) =>
-                  setSelectedProfile(value as ProfileType | "all")
-                }
+                onValueChange={(value) => setSelectedProfile(value as ProfileType | "all")}
               >
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder="Todos os serviços" />
@@ -156,10 +142,7 @@ export const AdminAppointments: React.FC = () => {
               </Select>
 
               {/* Filtro de Professor */}
-              <Select
-                value={selectedTeacher}
-                onValueChange={setSelectedTeacher}
-              >
+              <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder="Todos os professores" />
                 </SelectTrigger>
@@ -196,9 +179,7 @@ export const AdminAppointments: React.FC = () => {
         <div className="min-w-[1000px]">
           {/* Cabeçalho dos dias */}
           <div className="grid grid-cols-8 gap-2 mb-4">
-            <div className="text-sm font-semibold text-gray-600 p-2">
-              Horário
-            </div>
+            <div className="text-sm font-semibold text-gray-600 p-2">Horário</div>
             {weekDays.map((day, index) => {
               const isToday = isSameDay(day, new Date());
               return (
@@ -209,12 +190,8 @@ export const AdminAppointments: React.FC = () => {
                   <div className="text-xs font-medium">
                     {format(day, "EEE", { locale: ptBR }).toUpperCase()}
                   </div>
-                  <div className="text-lg font-bold">
-                    {format(day, "dd", { locale: ptBR })}
-                  </div>
-                  <div className="text-xs">
-                    {format(day, "MMM", { locale: ptBR })}
-                  </div>
+                  <div className="text-lg font-bold">{format(day, "dd", { locale: ptBR })}</div>
+                  <div className="text-xs">{format(day, "MMM", { locale: ptBR })}</div>
                 </div>
               );
             })}
@@ -225,9 +202,7 @@ export const AdminAppointments: React.FC = () => {
             {timeSlots.map((timeSlot, slotIndex) => (
               <div key={slotIndex} className="grid grid-cols-8 gap-2">
                 {/* Coluna de horário */}
-                <div className="text-sm text-gray-600 font-medium p-2 text-right">
-                  {timeSlot}
-                </div>
+                <div className="text-sm text-gray-600 font-medium p-2 text-right">{timeSlot}</div>
 
                 {/* Colunas dos dias */}
                 {weekDays.map((day, dayIndex) => {
@@ -246,12 +221,8 @@ export const AdminAppointments: React.FC = () => {
                               className={`text-xs p-2 rounded border-l-4 ${getStatusColor(apt.status)} cursor-pointer hover:shadow-md transition-shadow`}
                               title={`${apt.studentName} - ${apt.teacherName}`}
                             >
-                              <div className="font-semibold truncate">
-                                {apt.time}
-                              </div>
-                              <div className="truncate text-gray-700">
-                                {apt.studentName}
-                              </div>
+                              <div className="font-semibold truncate">{apt.time}</div>
+                              <div className="truncate text-gray-700">{apt.studentName}</div>
                               <div className="truncate text-gray-600 text-[10px]">
                                 {apt.teacherName}
                               </div>

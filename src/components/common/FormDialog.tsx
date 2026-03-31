@@ -1,20 +1,9 @@
-import React, { ReactNode } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import React from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 interface FormField {
   name: string;
@@ -101,9 +90,7 @@ export function FormDialog({
                   id={field.name}
                   placeholder={field.placeholder}
                   value={formData[field.name] || ""}
-                  onChange={(e) =>
-                    handleFieldChange(field.name, e.target.value)
-                  }
+                  onChange={(e) => handleFieldChange(field.name, e.target.value)}
                   className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   required={field.required}
                 />
@@ -113,9 +100,7 @@ export function FormDialog({
                   type={field.type}
                   placeholder={field.placeholder}
                   value={formData[field.name] || ""}
-                  onChange={(e) =>
-                    handleFieldChange(field.name, e.target.value)
-                  }
+                  onChange={(e) => handleFieldChange(field.name, e.target.value)}
                   required={field.required}
                 />
               )}
@@ -123,12 +108,7 @@ export function FormDialog({
           ))}
 
           <div className="flex gap-2 justify-end pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-            >
+            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading}>

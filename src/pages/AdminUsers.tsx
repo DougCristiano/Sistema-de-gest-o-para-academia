@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { UserPlus, Search, Edit, Trash2 } from "lucide-react";
+import { UserPlus , Edit, Trash2 } from "lucide-react";
 import { mockUsers } from "../data/mockData";
 import { PROFILE_NAMES, ProfileType } from "../types";
 
@@ -36,7 +36,7 @@ export const AdminUsers: React.FC = () => {
     (user) =>
       user.role !== "student" &&
       (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())),
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleCreateUser = () => {
@@ -83,9 +83,7 @@ export const AdminUsers: React.FC = () => {
                 <Input
                   id="name"
                   value={newUser.name}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, name: e.target.value })
-                  }
+                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                   placeholder="João Silva"
                 />
               </div>
@@ -95,9 +93,7 @@ export const AdminUsers: React.FC = () => {
                   id="email"
                   type="email"
                   value={newUser.email}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, email: e.target.value })
-                  }
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                   placeholder="joao@academia.com"
                 />
               </div>
@@ -134,10 +130,11 @@ export const AdminUsers: React.FC = () => {
                       key={profile}
                       type="button"
                       onClick={() => toggleProfile(profile)}
-                      className={`px-3 py-1 rounded-full text-sm transition-all ${newUser.profiles.includes(profile)
+                      className={`px-3 py-1 rounded-full text-sm transition-all ${
+                        newUser.profiles.includes(profile)
                           ? "bg-green-500 text-white"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
+                      }`}
                     >
                       {PROFILE_NAMES[profile]}
                     </button>
@@ -191,11 +188,7 @@ export const AdminUsers: React.FC = () => {
                 <Button variant="ghost" size="icon">
                   <Edit className="w-4 h-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-red-600 hover:text-red-700"
-                >
+                <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-700">
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>

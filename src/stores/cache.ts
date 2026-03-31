@@ -27,7 +27,7 @@ class SimpleCache {
    */
   get<T>(key: string, ttl: number = 5 * 60 * 1000): T | null {
     const entry = this.cache.get(key);
-    if (!entry) return null;
+    if (!entry) {return null;}
 
     const age = Date.now() - entry.timestamp;
     if (age > ttl) {
@@ -43,7 +43,7 @@ class SimpleCache {
    */
   has(key: string, ttl: number = 5 * 60 * 1000): boolean {
     const entry = this.cache.get(key);
-    if (!entry) return false;
+    if (!entry) {return false;}
 
     const age = Date.now() - entry.timestamp;
     if (age > ttl) {

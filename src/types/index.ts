@@ -1,11 +1,6 @@
 export type UserRole = "admin" | "manager" | "teacher" | "student";
 
-export type ProfileType =
-  | "huron-areia"
-  | "huron-personal"
-  | "huron-recovery"
-  | "htri"
-  | "avitta";
+export type ProfileType = "huron-areia" | "huron-personal" | "huron-recovery" | "htri" | "avitta";
 
 export interface User {
   id: string;

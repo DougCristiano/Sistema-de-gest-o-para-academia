@@ -25,11 +25,11 @@ export function PaginationControls({
   hasPreviousPage,
   onNextPage,
   onPreviousPage,
-  onGoToPage,
+  _onGoToPage,
   itemsCount,
   pageSize,
 }: PaginationControlsProps) {
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1) {return null;}
 
   const startItem = (currentPage - 1) * (pageSize || 10) + 1;
   const endItem = Math.min(currentPage * (pageSize || 10), itemsCount || 0);
@@ -49,22 +49,12 @@ export function PaginationControls({
       </div>
 
       <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPreviousPage}
-          disabled={!hasPreviousPage}
-        >
+        <Button variant="outline" size="sm" onClick={onPreviousPage} disabled={!hasPreviousPage}>
           <ChevronLeft className="w-4 h-4" />
           Anterior
         </Button>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNextPage}
-          disabled={!hasNextPage}
-        >
+        <Button variant="outline" size="sm" onClick={onNextPage} disabled={!hasNextPage}>
           Próximo
           <ChevronRight className="w-4 h-4" />
         </Button>

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Card } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Input } from "./ui/input";
 import {
@@ -20,10 +18,9 @@ import {
   BookOpen,
   GraduationCap,
 } from "lucide-react";
-import { NewsPost, NewsComment, PROFILE_NAMES, UserRole } from "../types";
-import { format, formatDistanceToNow } from "date-fns";
+import { NewsPost , PROFILE_NAMES, UserRole } from "../types";
+import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
 
 interface NewsCardProps {
   news: NewsPost;
@@ -87,9 +84,7 @@ const CommentItem: React.FC<{ comment: NewsComment }> = ({ comment }) => {
   return (
     <div className="flex gap-3 group">
       <Avatar className="w-8 h-8 flex-shrink-0">
-        <AvatarFallback
-          className={`${getAvatarColor(comment.authorName)} text-white text-xs`}
-        >
+        <AvatarFallback className={`${getAvatarColor(comment.authorName)} text-white text-xs`}>
           {getInitials(comment.authorName)}
         </AvatarFallback>
       </Avatar>
@@ -98,9 +93,7 @@ const CommentItem: React.FC<{ comment: NewsComment }> = ({ comment }) => {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-sm">{comment.authorName}</span>
             {roleBadge && (
-              <span
-                className={`text-[10px] px-1.5 py-0.5 rounded-full ${roleBadge.color}`}
-              >
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${roleBadge.color}`}>
                 {roleBadge.label}
               </span>
             )}
@@ -116,8 +109,9 @@ const CommentItem: React.FC<{ comment: NewsComment }> = ({ comment }) => {
           </span>
           <button
             onClick={toggleLike}
-            className={`text-xs font-semibold transition-colors ${liked ? "text-red-500" : "text-gray-400 hover:text-gray-600"
-              }`}
+            className={`text-xs font-semibold transition-colors ${
+              liked ? "text-red-500" : "text-gray-400 hover:text-gray-600"
+            }`}
           >
             Curtir {likeCount > 0 && `(${likeCount})`}
           </button>
@@ -148,7 +142,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   };
 
   const handleComment = () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim()) {return;}
     const comment: NewsComment = {
       id: `comment-new-${Date.now()}`,
       authorId: "current-user",
@@ -213,9 +207,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="w-11 h-11">
-              <AvatarFallback
-                className={`${getAvatarColor(news.authorName)} text-white text-sm`}
-              >
+              <AvatarFallback className={`${getAvatarColor(news.authorName)} text-white text-sm`}>
                 {getInitials(news.authorName)}
               </AvatarFallback>
             </Avatar>
@@ -275,11 +267,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
       {/* Image */}
       {news.image && (
         <div className="w-full">
-          <img
-            src={news.image}
-            alt={news.title}
-            className="w-full h-64 sm:h-80 object-cover"
-          />
+          <img src={news.image} alt={news.title} className="w-full h-64 sm:h-80 object-cover" />
         </div>
       )}
 
@@ -298,8 +286,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
             onClick={() => setShowComments(!showComments)}
             className="hover:underline cursor-pointer"
           >
-            {comments.length}{" "}
-            {comments.length === 1 ? "comentário" : "comentários"}
+            {comments.length} {comments.length === 1 ? "comentário" : "comentários"}
           </button>
           <span>
             {shareCount} compartilhamento{shareCount !== 1 ? "s" : ""}
@@ -311,10 +298,11 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
       <div className="px-2 py-1 flex items-center border-b border-gray-100">
         <button
           onClick={toggleLike}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${liked
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            liked
               ? "text-red-500 hover:bg-red-50"
               : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-            }`}
+          }`}
         >
           <Heart
             className={`w-5 h-5 transition-transform ${liked ? "fill-red-500 scale-110" : ""}`}
@@ -348,9 +336,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
             >
               <ChevronDown className="w-4 h-4" />
               Ver{" "}
-              {hiddenCount > 1
-                ? `todos os ${comments.length} comentários`
-                : "mais 1 comentário"}
+              {hiddenCount > 1 ? `todos os ${comments.length} comentários` : "mais 1 comentário"}
             </button>
           )}
 
@@ -374,9 +360,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
           {/* New comment input */}
           <div className="flex items-center gap-3 pt-2">
             <Avatar className="w-8 h-8 flex-shrink-0">
-              <AvatarFallback className="bg-[#22c55e] text-white text-xs">
-                VC
-              </AvatarFallback>
+              <AvatarFallback className="bg-[#22c55e] text-white text-xs">VC</AvatarFallback>
             </Avatar>
             <div className="flex-1 flex items-center bg-gray-50 rounded-full px-4 py-1 border border-gray-200 focus-within:border-[#22c55e] focus-within:ring-1 focus-within:ring-[#22c55e]/20 transition-all">
               <Input
@@ -389,10 +373,11 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
               <button
                 onClick={handleComment}
                 disabled={!newComment.trim()}
-                className={`p-1.5 rounded-full transition-all ${newComment.trim()
+                className={`p-1.5 rounded-full transition-all ${
+                  newComment.trim()
                     ? "text-[#22c55e] hover:bg-[#22c55e]/10 cursor-pointer"
                     : "text-gray-300 cursor-not-allowed"
-                  }`}
+                }`}
               >
                 <Send className="w-4 h-4" />
               </button>

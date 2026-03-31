@@ -31,7 +31,7 @@ export function useFilter<T extends Record<string, any>>(
   const filtered = useMemo(() => {
     return data.filter((item) => {
       return Object.entries(filters).every(([key, value]) => {
-        if (value === undefined || value === null || value === "") return true;
+        if (value === undefined || value === null || value === "") {return true;}
 
         const itemValue = item[key];
 

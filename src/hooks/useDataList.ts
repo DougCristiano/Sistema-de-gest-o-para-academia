@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useFilter } from "./useFilter";
 import { useSearch } from "./useSearch";
 import { useSort } from "./useSort";

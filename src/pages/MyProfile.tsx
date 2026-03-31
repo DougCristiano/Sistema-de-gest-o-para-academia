@@ -26,7 +26,7 @@ import {
   Heart,
   CheckCircle2,
 } from "lucide-react";
-import { PROFILE_NAMES, PROFILE_COLORS, ProfileType, User } from "../types";
+import { PROFILE_NAMES, PROFILE_COLORS , User } from "../types";
 import { toast } from "sonner";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -94,7 +94,7 @@ export const MyProfile: React.FC = () => {
     }
   }, [currentUser]);
 
-  if (!currentUser) return null;
+  if (!currentUser) {return null;}
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -137,15 +137,12 @@ export const MyProfile: React.FC = () => {
 
   const formatCPF = (cpf: string) => cpf;
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return "";
+    if (!dateStr) {return "";}
     const [y, m, d] = dateStr.split("-");
     return `${d}/${m}/${y}`;
   };
 
-  const allProfiles = [
-    ...currentUser.profiles,
-    ...(currentUser.studentProfiles || []),
-  ];
+  const allProfiles = [...currentUser.profiles, ...(currentUser.studentProfiles || [])];
   const uniqueProfiles = [...new Set(allProfiles)];
 
   return (
@@ -204,11 +201,9 @@ export const MyProfile: React.FC = () => {
                   }}
                 >
                   {PROFILE_NAMES[p]}
-                  {currentUser.studentProfiles?.includes(p) &&
-                  !currentUser.profiles.includes(p)
+                  {currentUser.studentProfiles?.includes(p) && !currentUser.profiles.includes(p)
                     ? " (aluno)"
-                    : currentUser.studentProfiles?.includes(p) &&
-                        currentUser.profiles.includes(p)
+                    : currentUser.studentProfiles?.includes(p) && currentUser.profiles.includes(p)
                       ? " (staff + aluno)"
                       : ""}
                 </Badge>
@@ -227,10 +222,7 @@ export const MyProfile: React.FC = () => {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <p className="font-semibold text-sm">CPF</p>
-              <Badge
-                variant="outline"
-                className="text-[10px] border-amber-300 text-amber-600"
-              >
+              <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">
                 Não editável
               </Badge>
             </div>
@@ -306,9 +298,7 @@ export const MyProfile: React.FC = () => {
 
             {/* Birth Date */}
             <div>
-              <Label className="text-xs text-gray-500">
-                Data de Nascimento
-              </Label>
+              <Label className="text-xs text-gray-500">Data de Nascimento</Label>
               {isEditing ? (
                 <input
                   type="date"
@@ -339,15 +329,11 @@ export const MyProfile: React.FC = () => {
                     <SelectItem value="masculino">Masculino</SelectItem>
                     <SelectItem value="feminino">Feminino</SelectItem>
                     <SelectItem value="outro">Outro</SelectItem>
-                    <SelectItem value="prefiro-nao-informar">
-                      Prefiro não informar
-                    </SelectItem>
+                    <SelectItem value="prefiro-nao-informar">Prefiro não informar</SelectItem>
                   </SelectContent>
                 </Select>
               ) : (
-                <p className="mt-1 text-sm font-medium">
-                  {GENDER_LABELS[currentUser.gender]}
-                </p>
+                <p className="mt-1 text-sm font-medium">{GENDER_LABELS[currentUser.gender]}</p>
               )}
             </div>
           </div>
@@ -366,16 +352,12 @@ export const MyProfile: React.FC = () => {
                 <input
                   type="text"
                   value={formData.address?.zipCode || ""}
-                  onChange={(e) =>
-                    handleAddressChange("zipCode", e.target.value)
-                  }
+                  onChange={(e) => handleAddressChange("zipCode", e.target.value)}
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent text-sm"
                   placeholder="00000-000"
                 />
               ) : (
-                <p className="mt-1 text-sm font-medium">
-                  {currentUser.address.zipCode}
-                </p>
+                <p className="mt-1 text-sm font-medium">{currentUser.address.zipCode}</p>
               )}
             </div>
 
@@ -386,15 +368,11 @@ export const MyProfile: React.FC = () => {
                   <input
                     type="text"
                     value={formData.address?.street || ""}
-                    onChange={(e) =>
-                      handleAddressChange("street", e.target.value)
-                    }
+                    onChange={(e) => handleAddressChange("street", e.target.value)}
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent text-sm"
                   />
                 ) : (
-                  <p className="mt-1 text-sm font-medium">
-                    {currentUser.address.street}
-                  </p>
+                  <p className="mt-1 text-sm font-medium">{currentUser.address.street}</p>
                 )}
               </div>
               <div>
@@ -403,15 +381,11 @@ export const MyProfile: React.FC = () => {
                   <input
                     type="text"
                     value={formData.address?.number || ""}
-                    onChange={(e) =>
-                      handleAddressChange("number", e.target.value)
-                    }
+                    onChange={(e) => handleAddressChange("number", e.target.value)}
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent text-sm"
                   />
                 ) : (
-                  <p className="mt-1 text-sm font-medium">
-                    {currentUser.address.number}
-                  </p>
+                  <p className="mt-1 text-sm font-medium">{currentUser.address.number}</p>
                 )}
               </div>
             </div>
@@ -422,16 +396,12 @@ export const MyProfile: React.FC = () => {
                 <input
                   type="text"
                   value={formData.address?.complement || ""}
-                  onChange={(e) =>
-                    handleAddressChange("complement", e.target.value)
-                  }
+                  onChange={(e) => handleAddressChange("complement", e.target.value)}
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent text-sm"
-                  placeholder="Apto, Bloco, etc."
+                  placeholder="Apto , etc."
                 />
               ) : (
-                <p className="mt-1 text-sm font-medium">
-                  {currentUser.address.complement || "—"}
-                </p>
+                <p className="mt-1 text-sm font-medium">{currentUser.address.complement || "—"}</p>
               )}
             </div>
 
@@ -441,15 +411,11 @@ export const MyProfile: React.FC = () => {
                 <input
                   type="text"
                   value={formData.address?.neighborhood || ""}
-                  onChange={(e) =>
-                    handleAddressChange("neighborhood", e.target.value)
-                  }
+                  onChange={(e) => handleAddressChange("neighborhood", e.target.value)}
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent text-sm"
                 />
               ) : (
-                <p className="mt-1 text-sm font-medium">
-                  {currentUser.address.neighborhood}
-                </p>
+                <p className="mt-1 text-sm font-medium">{currentUser.address.neighborhood}</p>
               )}
             </div>
 
@@ -460,15 +426,11 @@ export const MyProfile: React.FC = () => {
                   <input
                     type="text"
                     value={formData.address?.city || ""}
-                    onChange={(e) =>
-                      handleAddressChange("city", e.target.value)
-                    }
+                    onChange={(e) => handleAddressChange("city", e.target.value)}
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent text-sm"
                   />
                 ) : (
-                  <p className="mt-1 text-sm font-medium">
-                    {currentUser.address.city}
-                  </p>
+                  <p className="mt-1 text-sm font-medium">{currentUser.address.city}</p>
                 )}
               </div>
               <div>
@@ -490,9 +452,7 @@ export const MyProfile: React.FC = () => {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <p className="mt-1 text-sm font-medium">
-                    {currentUser.address.state}
-                  </p>
+                  <p className="mt-1 text-sm font-medium">{currentUser.address.state}</p>
                 )}
               </div>
             </div>
@@ -514,15 +474,11 @@ export const MyProfile: React.FC = () => {
                 <input
                   type="text"
                   value={formData.emergencyContact?.name || ""}
-                  onChange={(e) =>
-                    handleEmergencyChange("name", e.target.value)
-                  }
+                  onChange={(e) => handleEmergencyChange("name", e.target.value)}
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent text-sm"
                 />
               ) : (
-                <p className="mt-1 text-sm font-medium">
-                  {currentUser.emergencyContact?.name}
-                </p>
+                <p className="mt-1 text-sm font-medium">{currentUser.emergencyContact?.name}</p>
               )}
             </div>
             <div>
@@ -531,9 +487,7 @@ export const MyProfile: React.FC = () => {
                 <input
                   type="tel"
                   value={formData.emergencyContact?.phone || ""}
-                  onChange={(e) =>
-                    handleEmergencyChange("phone", e.target.value)
-                  }
+                  onChange={(e) => handleEmergencyChange("phone", e.target.value)}
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent text-sm"
                 />
               ) : (
@@ -549,11 +503,9 @@ export const MyProfile: React.FC = () => {
                 <input
                   type="text"
                   value={formData.emergencyContact?.relationship || ""}
-                  onChange={(e) =>
-                    handleEmergencyChange("relationship", e.target.value)
-                  }
+                  onChange={(e) => handleEmergencyChange("relationship", e.target.value)}
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#22c55e] focus:border-transparent text-sm"
-                  placeholder="Ex: Mãe, Pai, Cônjuge..."
+                  placeholder="Ex: Mãe , Cônjuge..."
                 />
               ) : (
                 <p className="mt-1 text-sm font-medium">
@@ -565,9 +517,7 @@ export const MyProfile: React.FC = () => {
         ) : (
           <div className="text-center py-4 text-gray-400">
             <p className="text-sm">Nenhum contato de emergência cadastrado.</p>
-            <p className="text-xs mt-1">
-              Clique em "Editar Dados" para adicionar.
-            </p>
+            <p className="text-xs mt-1">Clique em "Editar Dados" para adicionar.</p>
           </div>
         )}
       </Card>

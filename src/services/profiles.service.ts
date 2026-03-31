@@ -9,24 +9,28 @@ import {
   mockCheckInHistory,
   mockRevenueGrowth,
 } from "../data/mockData";
+import { ProfileConfigSchema } from "../schemas";
 
 /**
  * Serviço de Perfis
  * Gerencia dados de configuração e análises de perfis de serviço
+ * Todos os dados são validados com Zod antes de retornar
  */
 
 export const profilesService = {
   /**
+   * Valida dados da configuração de perfil com Zod
+   * @throws Error se dados são inválidos
+   */
+  _validateProfileConfig: (config: unknown): ProfileConfig => {
+    return ProfileConfigSchema.parse(config);
+  },
+
+  /**
    * Retorna lista de todos os perfis
    */
   getAllProfiles: (): ProfileType[] => {
-    return [
-      "huron-areia",
-      "huron-personal",
-      "huron-recovery",
-      "htri",
-      "avitta",
-    ];
+    return ["huron-areia", "huron-personal", "huron-recovery", "htri", "avitta"];
   },
 
   /**
@@ -103,45 +107,33 @@ export const profilesService = {
    * Retorna configuração padrão de um perfil (mock)
    */
   getProfileConfig: (profile: ProfileType): ProfileConfig => {
-    return {
+    const config: ProfileConfig = {
       id: `config-${profile}`,
       profile,
       schedule: {
         segunda: {
           enabled: true,
-          timeBlocks: [
-            { id: "tb-1", startTime: "06:00", endTime: "22:00" },
-          ],
+          timeBlocks: [{ id: "tb-1", startTime: "06:00", endTime: "22:00" }],
         },
         terca: {
           enabled: true,
-          timeBlocks: [
-            { id: "tb-2", startTime: "06:00", endTime: "22:00" },
-          ],
+          timeBlocks: [{ id: "tb-2", startTime: "06:00", endTime: "22:00" }],
         },
         quarta: {
           enabled: true,
-          timeBlocks: [
-            { id: "tb-3", startTime: "06:00", endTime: "22:00" },
-          ],
+          timeBlocks: [{ id: "tb-3", startTime: "06:00", endTime: "22:00" }],
         },
         quinta: {
           enabled: true,
-          timeBlocks: [
-            { id: "tb-4", startTime: "06:00", endTime: "22:00" },
-          ],
+          timeBlocks: [{ id: "tb-4", startTime: "06:00", endTime: "22:00" }],
         },
         sexta: {
           enabled: true,
-          timeBlocks: [
-            { id: "tb-5", startTime: "06:00", endTime: "22:00" },
-          ],
+          timeBlocks: [{ id: "tb-5", startTime: "06:00", endTime: "22:00" }],
         },
         sabado: {
           enabled: true,
-          timeBlocks: [
-            { id: "tb-6", startTime: "08:00", endTime: "18:00" },
-          ],
+          timeBlocks: [{ id: "tb-6", startTime: "08:00", endTime: "18:00" }],
         },
         domingo: {
           enabled: false,
@@ -158,17 +150,28 @@ export const profilesService = {
       allowWaitlist: true,
       notes: "Configurações padrão do perfil",
     };
+
+    try {
+      return profilesService._validateProfileConfig(config);
+    } catch (error) {
+      console.error("Invalid profile config:", error);
+      return config;
+    }
   },
 
   /**
    * Atualiza configuração de um perfil (mock)
    */
-  updateProfileConfig: (
-    profile: ProfileType,
-    config: Partial<ProfileConfig>
-  ): ProfileConfig => {
+  updateProfileConfig: (profile: ProfileType, config: Partial<ProfileConfig>): ProfileConfig => {
     const currentConfig = profilesService.getProfileConfig(profile);
-    return { ...currentConfig, ...config };
+    const updatedConfig = { ...currentConfig, ...config };
+
+    try {
+      return profilesService._validateProfileConfig(updatedConfig);
+    } catch (error) {
+      console.error("Invalid profile config on update:", error);
+      return updatedConfig;
+    }
   },
 
   /**

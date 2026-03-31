@@ -14,10 +14,7 @@ interface ErrorBoundaryState {
  * Error Boundary component
  * Captura erros em React e renderiza fallback UI
  */
-export class ErrorBoundary extends React.Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -43,9 +40,7 @@ export class ErrorBoundary extends React.Component<
 
       return (
         <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-          <h2 className="text-lg font-semibold text-red-800 mb-2">
-            Oops! Algo deu errado
-          </h2>
+          <h2 className="text-lg font-semibold text-red-800 mb-2">Oops! Algo deu errado</h2>
           <p className="text-red-700 mb-4">{this.state.error.message}</p>
           <button
             onClick={this.resetError}

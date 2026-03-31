@@ -14,11 +14,7 @@ interface RequireRoleProps {
  * Valida se o usuário tem um dos roles permitidos
  * Se não autorizado, redireciona para login
  */
-export function RequireRole({
-  roles,
-  children,
-  fallback,
-}: RequireRoleProps) {
+export function RequireRole({ roles, children, fallback }: RequireRoleProps) {
   const { currentUser } = useAuth();
 
   if (!currentUser) {

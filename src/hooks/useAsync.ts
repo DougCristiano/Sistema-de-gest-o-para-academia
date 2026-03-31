@@ -33,7 +33,7 @@ export function useAsync<T>(
   run: () => Promise<void>;
   reset: () => void;
 } {
-  const { immediate = false, cacheKey } = options;
+  const { immediate = false, cacheKey: _cacheKey } = options;
 
   const [state, setState] = useState<UseAsyncState<T>>({
     data: null,
@@ -60,6 +60,7 @@ export function useAsync<T>(
   }, []);
 
   // Executar automaticamente no mount se immediate=true
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (immediate) {
       run();

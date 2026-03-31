@@ -18,7 +18,7 @@ export function useSort<T extends Record<string, any>>(
   const [sortDir, setSortDir] = useState<SortDirection>(defaultDirection);
 
   const sorted = useMemo(() => {
-    if (!sortField) return data;
+    if (!sortField) {return data;}
 
     return [...data].sort((a, b) => {
       const aValue = a[sortField];

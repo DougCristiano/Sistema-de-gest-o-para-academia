@@ -1,5 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from "react";
-import { User, UserRole, ProfileType } from "../types";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+  useEffect,
+} from "react";
+import { User, ProfileType } from "../types";
 import { mockUsers } from "../data/mockData";
 
 interface AuthContextType {
@@ -18,9 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const STORAGE_KEY = "huron_auth_user";
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentProfile, setCurrentProfile] = useState<ProfileType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,39 +50,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   // Login com async e persistência
-  const login = useCallback(
-    async (email: string, password: string): Promise<boolean> => {
-      setIsLoading(true);
-      setError(null);
+  const login = useCallback(async (email: string, _password: string): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
 
-      try {
-        // Simular delay de rede
-        await new Promise((resolve) => setTimeout(resolve, 300));
+    try {
+      // Simular delay de rede
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-        const user = mockUsers.find((u) => u.email === email);
-        if (!user) {
-          setError("Usuário não encontrado");
-          return false;
-        }
-
-        setCurrentUser(user);
-        if (user.profiles.length > 0) {
-          setCurrentProfile(user.profiles[0]);
-        }
-
-        // Persistir no localStorage
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-        return true;
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Erro ao fazer login";
-        setError(errorMessage);
+      const user = mockUsers.find((u) => u.email === email);
+      if (!user) {
+        setError("Usuário não encontrado");
         return false;
-      } finally {
-        setIsLoading(false);
       }
-    },
-    []
-  );
+
+      setCurrentUser(user);
+      if (user.profiles.length > 0) {
+        setCurrentProfile(user.profiles[0]);
+      }
+
+      // Persistir no localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Erro ao fazer login";
+      setError(errorMessage);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   // Logout com limpeza
   const logout = useCallback(() => {
@@ -104,7 +106,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   // Atualizar dados do usuário
   const updateUser = useCallback((updatedData: Partial<User>) => {
     setCurrentUser((prev) => {
-      if (!prev) return null;
+      if (!prev) {return null;}
       const updated = { ...prev, ...updatedData };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       return updated;

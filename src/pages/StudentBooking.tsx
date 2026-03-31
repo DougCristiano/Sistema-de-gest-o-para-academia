@@ -95,45 +95,17 @@ const SLOT_TEMPLATES: Record<
     teachers: ["Pedro Oliveira", "Fernanda Alves"],
   },
   "huron-recovery": {
-    times: [
-      "08:00",
-      "09:00",
-      "10:00",
-      "11:00",
-      "14:00",
-      "15:00",
-      "16:00",
-      "17:00",
-    ],
+    times: ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"],
     capacity: 6,
     teachers: ["Mariana Souza"],
   },
   htri: {
-    times: [
-      "05:30",
-      "06:30",
-      "07:30",
-      "09:00",
-      "16:00",
-      "17:00",
-      "18:00",
-      "19:00",
-    ],
+    times: ["05:30", "06:30", "07:30", "09:00", "16:00", "17:00", "18:00", "19:00"],
     capacity: 8,
     teachers: ["Lucas Ferreira"],
   },
   avitta: {
-    times: [
-      "07:00",
-      "08:00",
-      "09:00",
-      "10:00",
-      "15:00",
-      "16:00",
-      "17:00",
-      "18:00",
-      "19:00",
-    ],
+    times: ["07:00", "08:00", "09:00", "10:00", "15:00", "16:00", "17:00", "18:00", "19:00"],
     capacity: 10,
     teachers: ["Fernanda Alves"],
   },
@@ -148,7 +120,7 @@ function seededRandom(seed: number) {
 function generateSlotsForDay(date: Date, profile: ProfileType): TimeSlot[] {
   const template = SLOT_TEMPLATES[profile];
   const dayOfYear = Math.floor(
-    (date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000,
+    (date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000
   );
 
   return template.times.map((time, idx) => {
@@ -157,9 +129,7 @@ function generateSlotsForDay(date: Date, profile: ProfileType): TimeSlot[] {
     const rand = seededRandom(seed);
     const enrolled = Math.floor(rand * (template.capacity + 2)); // can occasionally be >= capacity (full)
     const clampedEnrolled = Math.min(enrolled, template.capacity);
-    const teacherIdx = Math.floor(
-      seededRandom(seed + 7) * template.teachers.length,
-    );
+    const teacherIdx = Math.floor(seededRandom(seed + 7) * template.teachers.length);
 
     return {
       id: `slot-${format(date, "yyyy-MM-dd")}-${time}-${profile}`,
@@ -178,29 +148,20 @@ function generateSlotsForDay(date: Date, profile: ProfileType): TimeSlot[] {
 const NOW = new Date(2026, 2, 6, 14, 30); // "hoje" conforme contexto do projeto
 
 function isSlotPast(date: Date, slot: TimeSlot): boolean {
-  const slotDateTime = setMinutes(
-    setHours(new Date(date), slot.hour),
-    slot.minute,
-  );
+  const slotDateTime = setMinutes(setHours(new Date(date), slot.hour), slot.minute);
   return isBefore(slotDateTime, NOW);
 }
 
 function isCutoffPassed(date: Date, slot: TimeSlot): boolean {
-  const slotDateTime = setMinutes(
-    setHours(new Date(date), slot.hour),
-    slot.minute,
-  );
+  const slotDateTime = setMinutes(setHours(new Date(date), slot.hour), slot.minute);
   const cutoff = addHours(slotDateTime, -1);
   return isBefore(cutoff, NOW) && !isBefore(slotDateTime, NOW);
 }
 
-function slotStatus(
-  date: Date,
-  slot: TimeSlot,
-): "available" | "full" | "cutoff" | "past" {
-  if (isSlotPast(date, slot)) return "past";
-  if (isCutoffPassed(date, slot)) return "cutoff";
-  if (slot.enrolled >= slot.capacity) return "full";
+function slotStatus(date: Date, slot: TimeSlot): "available" | "full" | "cutoff" | "past" {
+  if (isSlotPast(date, slot)) {return "past";}
+  if (isCutoffPassed(date, slot)) {return "cutoff";}
+  if (slot.enrolled >= slot.capacity) {return "full";}
   return "available";
 }
 
@@ -251,38 +212,32 @@ export const StudentBooking: React.FC = () => {
       : currentUser?.studentProfiles || [];
 
   const [selectedProfile, setSelectedProfile] = useState<ProfileType | "">(
-    userProfiles.length === 1 ? userProfiles[0] : "",
+    userProfiles.length === 1 ? userProfiles[0] : ""
   );
-  const [weekStart, setWeekStart] = useState(() =>
-    startOfWeek(NOW, { weekStartsOn: 1 }),
-  );
+  const [weekStart, setWeekStart] = useState(() => startOfWeek(NOW, { weekStartsOn: 1 }));
   const [selectedDay, setSelectedDay] = useState<Date>(NOW);
-  const [confirmModal, setConfirmModal] = useState<ConfirmModalData | null>(
-    null,
-  );
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalData | null>(null);
   const [bookedSlots, setBookedSlots] = useState<Set<string>>(new Set());
 
   // Week days array
   const weekDays = useMemo(
     () => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
-    [weekStart],
+    [weekStart]
   );
 
   // Slots for selected day + profile
   const daySlots = useMemo(() => {
-    if (!selectedProfile) return [];
+    if (!selectedProfile) {return [];}
     return generateSlotsForDay(selectedDay, selectedProfile);
   }, [selectedDay, selectedProfile]);
 
   // Summary counts per day
   const daySummaries = useMemo(() => {
-    if (!selectedProfile) return {};
+    if (!selectedProfile) {return {};}
     const map: Record<string, { available: number; total: number }> = {};
     weekDays.forEach((day) => {
       const slots = generateSlotsForDay(day, selectedProfile);
-      const available = slots.filter(
-        (s) => slotStatus(day, s) === "available",
-      ).length;
+      const available = slots.filter((s) => slotStatus(day, s) === "available").length;
       map[format(day, "yyyy-MM-dd")] = { available, total: slots.length };
     });
     return map;
@@ -290,8 +245,8 @@ export const StudentBooking: React.FC = () => {
 
   const handleSlotClick = (slot: TimeSlot) => {
     const status = slotStatus(selectedDay, slot);
-    if (status !== "available") return;
-    if (bookedSlots.has(slot.id)) return;
+    if (status !== "available") {return;}
+    if (bookedSlots.has(slot.id)) {return;}
     setConfirmModal({
       date: selectedDay,
       slot,
@@ -300,13 +255,12 @@ export const StudentBooking: React.FC = () => {
   };
 
   const confirmBooking = () => {
-    if (!confirmModal) return;
+    if (!confirmModal) {return;}
     setBookedSlots((prev) => new Set(prev).add(confirmModal.slot.id));
     setConfirmModal(null);
   };
 
-  const occupancyPercent = (slot: TimeSlot) =>
-    Math.round((slot.enrolled / slot.capacity) * 100);
+  const occupancyPercent = (slot: TimeSlot) => Math.round((slot.enrolled / slot.capacity) * 100);
 
   return (
     <div className="space-y-6">
@@ -314,9 +268,7 @@ export const StudentBooking: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-1">Agendar Aula</h1>
-          <p className="text-gray-500">
-            Escolha o serviço e navegue pela agenda para reservar
-          </p>
+          <p className="text-gray-500">Escolha o serviço e navegue pela agenda para reservar</p>
         </div>
 
         {/* Profile Selector */}
@@ -348,12 +300,9 @@ export const StudentBooking: React.FC = () => {
       {!selectedProfile ? (
         <Card className="p-12 flex flex-col items-center justify-center text-center">
           <CalendarPlus className="w-16 h-16 text-gray-300 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-500 mb-1">
-            Selecione um Serviço
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-500 mb-1">Selecione um Serviço</h3>
           <p className="text-sm text-gray-400 max-w-md">
-            Escolha o serviço no seletor acima para visualizar os horários
-            disponíveis na agenda.
+            Escolha o serviço no seletor acima para visualizar os horários disponíveis na agenda.
           </p>
         </Card>
       ) : (
@@ -389,8 +338,7 @@ export const StudentBooking: React.FC = () => {
                 const isSelected = isSameDay(day, selectedDay);
                 const isCurrentDay = isToday(day);
                 const isPastDay =
-                  isBefore(day, startOfWeek(NOW, { weekStartsOn: 1 })) &&
-                  !isSameDay(day, NOW);
+                  isBefore(day, startOfWeek(NOW, { weekStartsOn: 1 })) && !isSameDay(day, NOW);
 
                 return (
                   <button
@@ -420,9 +368,7 @@ export const StudentBooking: React.FC = () => {
                       <p className="text-[10px] sm:text-xs mt-1">
                         <span
                           className={`font-medium ${
-                            summary.available > 0
-                              ? "text-[#22c55e]"
-                              : "text-red-400"
+                            summary.available > 0 ? "text-[#22c55e]" : "text-red-400"
                           }`}
                         >
                           {summary.available}
@@ -467,18 +413,14 @@ export const StudentBooking: React.FC = () => {
               {format(selectedDay, "EEEE, dd 'de' MMMM", { locale: ptBR })}
             </h3>
             {isToday(selectedDay) && (
-              <Badge className="bg-[#22c55e] text-white text-[10px]">
-                Hoje
-              </Badge>
+              <Badge className="bg-[#22c55e] text-white text-[10px]">Hoje</Badge>
             )}
           </div>
 
           {/* Slots Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {daySlots.map((slot) => {
-              const status = bookedSlots.has(slot.id)
-                ? "available"
-                : slotStatus(selectedDay, slot);
+              const status = bookedSlots.has(slot.id) ? "available" : slotStatus(selectedDay, slot);
               const isBooked = bookedSlots.has(slot.id);
               const config = getStatusConfig(status);
               const occ = occupancyPercent(slot);
@@ -497,9 +439,7 @@ export const StudentBooking: React.FC = () => {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-gray-400" />
-                      <span className="text-lg font-bold text-gray-900">
-                        {slot.time}
-                      </span>
+                      <span className="text-lg font-bold text-gray-900">{slot.time}</span>
                     </div>
                     {isBooked ? (
                       <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#3b82f6]/15 text-[#3b82f6] font-medium flex items-center gap-1">
@@ -565,15 +505,13 @@ export const StudentBooking: React.FC = () => {
                   )}
 
                   {/* Remaining spots */}
-                  {status === "available" &&
-                    !isBooked &&
-                    slot.capacity - slot.enrolled <= 3 && (
-                      <div className="mt-2 text-[11px] text-orange-500 font-medium">
-                        ⚡ Apenas {slot.capacity - slot.enrolled} vaga
-                        {slot.capacity - slot.enrolled > 1 ? "s" : ""} restante
-                        {slot.capacity - slot.enrolled > 1 ? "s" : ""}
-                      </div>
-                    )}
+                  {status === "available" && !isBooked && slot.capacity - slot.enrolled <= 3 && (
+                    <div className="mt-2 text-[11px] text-orange-500 font-medium">
+                      ⚡ Apenas {slot.capacity - slot.enrolled} vaga
+                      {slot.capacity - slot.enrolled > 1 ? "s" : ""} restante
+                      {slot.capacity - slot.enrolled > 1 ? "s" : ""}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -581,9 +519,7 @@ export const StudentBooking: React.FC = () => {
 
           {daySlots.length === 0 && (
             <Card className="p-10 text-center">
-              <p className="text-gray-400">
-                Nenhum horário disponível para este dia.
-              </p>
+              <p className="text-gray-400">Nenhum horário disponível para este dia.</p>
             </Card>
           )}
         </>
@@ -595,11 +531,7 @@ export const StudentBooking: React.FC = () => {
           <Card className="w-full max-w-md p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold">Confirmar Agendamento</h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setConfirmModal(null)}
-              >
+              <Button variant="ghost" size="icon" onClick={() => setConfirmModal(null)}>
                 <X className="w-5 h-5" />
               </Button>
             </div>
@@ -609,8 +541,7 @@ export const StudentBooking: React.FC = () => {
                 <div
                   className="w-10 h-10 rounded-lg flex items-center justify-center"
                   style={{
-                    backgroundColor:
-                      PROFILE_COLORS[confirmModal.profile] + "20",
+                    backgroundColor: PROFILE_COLORS[confirmModal.profile] + "20",
                   }}
                 >
                   <CalendarDays
@@ -619,9 +550,7 @@ export const StudentBooking: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm">
-                    {PROFILE_NAMES[confirmModal.profile]}
-                  </p>
+                  <p className="font-semibold text-sm">{PROFILE_NAMES[confirmModal.profile]}</p>
                   <p className="text-xs text-gray-500">Serviço selecionado</p>
                 </div>
               </div>
@@ -637,40 +566,30 @@ export const StudentBooking: React.FC = () => {
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-500 mb-0.5">Horário</p>
-                  <p className="font-semibold text-sm">
-                    {confirmModal.slot.time}
-                  </p>
+                  <p className="font-semibold text-sm">{confirmModal.slot.time}</p>
                 </div>
               </div>
 
               <div className="p-3 bg-gray-50 rounded-lg">
                 <p className="text-xs text-gray-500 mb-0.5">Professor</p>
-                <p className="font-semibold text-sm">
-                  {confirmModal.slot.teacherName}
-                </p>
+                <p className="font-semibold text-sm">{confirmModal.slot.teacherName}</p>
               </div>
 
               <div className="p-3 bg-gray-50 rounded-lg flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500 mb-0.5">Vagas</p>
                   <p className="font-semibold text-sm">
-                    {confirmModal.slot.enrolled}/{confirmModal.slot.capacity}{" "}
-                    inscritos
+                    {confirmModal.slot.enrolled}/{confirmModal.slot.capacity} inscritos
                   </p>
                 </div>
                 <Badge className="bg-[#22c55e]/10 text-[#22c55e]">
-                  {confirmModal.slot.capacity - confirmModal.slot.enrolled}{" "}
-                  disponíveis
+                  {confirmModal.slot.capacity - confirmModal.slot.enrolled} disponíveis
                 </Badge>
               </div>
             </div>
 
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setConfirmModal(null)}
-              >
+              <Button variant="outline" className="flex-1" onClick={() => setConfirmModal(null)}>
                 Cancelar
               </Button>
               <Button

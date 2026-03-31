@@ -6,12 +6,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Switch } from "../components/ui/switch";
 import { Badge } from "../components/ui/badge";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
+import { Tabs , TabsList, TabsTrigger } from "../components/ui/tabs";
 import {
   Clock,
   Users,
@@ -31,13 +26,7 @@ import {
   Copy,
   ChevronsRight,
 } from "lucide-react";
-import {
-  ProfileConfig,
-  DaySchedule,
-  TimeBlock,
-  PROFILE_NAMES,
-  PROFILE_COLORS,
-} from "../types";
+import { ProfileConfig , TimeBlock, PROFILE_NAMES, PROFILE_COLORS } from "../types";
 import { Toaster, toast } from "sonner";
 
 const DAYS_OF_WEEK = [
@@ -115,7 +104,7 @@ function generateTimeSlotsForBlock(
   startTime: string,
   endTime: string,
   duration: number,
-  breakTime: number,
+  breakTime: number
 ): string[] {
   const slots: string[] = [];
   const [startH, startM] = startTime.split(":").map(Number);
@@ -133,21 +122,12 @@ function generateTimeSlotsForBlock(
 }
 
 // Generate all time slots for a day (multiple blocks)
-function generateDaySlots(
-  daySchedule: DaySchedule,
-  duration: number,
-  breakTime: number,
-): string[] {
-  if (!daySchedule?.enabled) return [];
+function generateDaySlots(daySchedule: DaySchedule, duration: number, breakTime: number): string[] {
+  if (!daySchedule?.enabled) {return [];}
   const allSlots: string[] = [];
   for (const block of daySchedule.timeBlocks) {
     allSlots.push(
-      ...generateTimeSlotsForBlock(
-        block.startTime,
-        block.endTime,
-        duration,
-        breakTime,
-      ),
+      ...generateTimeSlotsForBlock(block.startTime, block.endTime, duration, breakTime)
     );
   }
   return allSlots;
@@ -161,17 +141,11 @@ function formatBlocksSummary(blocks: TimeBlock[]): string {
 export const ManagerProfileConfig: React.FC = () => {
   const { currentProfile } = useAuth();
 
-  const [config, setConfig] = useState<ProfileConfig>(
-    getDefaultConfig(currentProfile || "htri"),
-  );
+  const [config, setConfig] = useState<ProfileConfig>(getDefaultConfig(currentProfile || "htri"));
   const [hasChanges, setHasChanges] = useState(false);
 
-  const profileColor = currentProfile
-    ? PROFILE_COLORS[currentProfile]
-    : "#92400e";
-  const profileName = currentProfile
-    ? PROFILE_NAMES[currentProfile]
-    : "Serviço";
+  const profileColor = currentProfile ? PROFILE_COLORS[currentProfile] : "#92400e";
+  const profileName = currentProfile ? PROFILE_NAMES[currentProfile] : "Serviço";
 
   const updateConfig = (updates: Partial<ProfileConfig>) => {
     setConfig((prev) => ({ ...prev, ...updates }));
@@ -220,7 +194,7 @@ export const ManagerProfileConfig: React.FC = () => {
   const removeTimeBlock = useCallback((dayKey: string, blockId: string) => {
     setConfig((prev) => {
       const day = prev.schedule[dayKey];
-      if (day.timeBlocks.length <= 1) return prev; // keep at least 1
+      if (day.timeBlocks.length <= 1) {return prev;} // keep at least 1
       return {
         ...prev,
         schedule: {
@@ -236,12 +210,7 @@ export const ManagerProfileConfig: React.FC = () => {
   }, []);
 
   const updateTimeBlock = useCallback(
-    (
-      dayKey: string,
-      blockId: string,
-      field: "startTime" | "endTime",
-      value: string,
-    ) => {
+    (dayKey: string, blockId: string, field: "startTime" | "endTime", value: string) => {
       setConfig((prev) => ({
         ...prev,
         schedule: {
@@ -249,14 +218,14 @@ export const ManagerProfileConfig: React.FC = () => {
           [dayKey]: {
             ...prev.schedule[dayKey],
             timeBlocks: prev.schedule[dayKey].timeBlocks.map((b) =>
-              b.id === blockId ? { ...b, [field]: value } : b,
+              b.id === blockId ? { ...b, [field]: value } : b
             ),
           },
         },
       }));
       setHasChanges(true);
     },
-    [],
+    []
   );
 
   const handleSave = () => {
@@ -289,29 +258,21 @@ export const ManagerProfileConfig: React.FC = () => {
     setConfig((prev) => ({ ...prev, schedule: newSchedule }));
     setHasChanges(true);
     toast.success(
-      `Horário de ${DAYS_OF_WEEK.find((d) => d.key === sourceDayKey)?.label} copiado para todos os dias.`,
+      `Horário de ${DAYS_OF_WEEK.find((d) => d.key === sourceDayKey)?.label} copiado para todos os dias.`
     );
   };
 
   // Count active days and total slots
-  const activeDays = DAYS_OF_WEEK.filter(
-    (d) => config.schedule[d.key]?.enabled,
-  ).length;
+  const activeDays = DAYS_OF_WEEK.filter((d) => config.schedule[d.key]?.enabled).length;
   const totalWeeklySlots = DAYS_OF_WEEK.reduce((total, day) => {
     return (
       total +
-      generateDaySlots(
-        config.schedule[day.key],
-        config.classDuration,
-        config.breakBetweenClasses,
-      ).length
+      generateDaySlots(config.schedule[day.key], config.classDuration, config.breakBetweenClasses)
+        .length
     );
   }, 0);
   const maxWeeklyCapacity =
-    totalWeeklySlots *
-    (config.allowGroupClasses
-      ? config.maxGroupSize
-      : config.maxStudentsPerSlot);
+    totalWeeklySlots * (config.allowGroupClasses ? config.maxGroupSize : config.maxStudentsPerSlot);
   const totalBlocks = DAYS_OF_WEEK.reduce((t, d) => {
     const ds = config.schedule[d.key];
     return t + (ds?.enabled ? ds.timeBlocks.length : 0);
@@ -325,10 +286,7 @@ export const ManagerProfileConfig: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: profileColor }}
-            />
+            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: profileColor }} />
             <h1 className="text-3xl font-bold">Configurar Serviço</h1>
           </div>
           <p className="text-gray-600">
@@ -339,11 +297,7 @@ export const ManagerProfileConfig: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            className="flex items-center gap-2"
-          >
+          <Button variant="outline" onClick={handleReset} className="flex items-center gap-2">
             <RotateCcw className="w-4 h-4" />
             Restaurar Padrão
           </Button>
@@ -364,8 +318,7 @@ export const ManagerProfileConfig: React.FC = () => {
         <div className="flex items-center gap-3 p-4 rounded-lg border-2 border-amber-300 bg-amber-50">
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
           <p className="text-sm text-amber-800">
-            Você tem alterações não salvas. Clique em "Salvar Configurações"
-            para aplicar.
+            Você tem alterações não salvas. Clique em "Salvar Configurações" para aplicar.
           </p>
         </div>
       )}
@@ -374,77 +327,54 @@ export const ManagerProfileConfig: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div
-              className="p-2.5 rounded-lg"
-              style={{ backgroundColor: `${profileColor}15` }}
-            >
-              <CalendarClock
-                className="w-5 h-5"
-                style={{ color: profileColor }}
-              />
+            <div className="p-2.5 rounded-lg" style={{ backgroundColor: `${profileColor}15` }}>
+              <CalendarClock className="w-5 h-5" style={{ color: profileColor }} />
             </div>
             <div>
               <p className="text-xs text-gray-500">Dias Ativos</p>
               <p className="text-xl font-bold">
-                {activeDays}{" "}
-                <span className="text-sm text-gray-400 font-normal">/ 7</span>
+                {activeDays} <span className="text-sm text-gray-400 font-normal">/ 7</span>
               </p>
             </div>
           </div>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div
-              className="p-2.5 rounded-lg"
-              style={{ backgroundColor: `${profileColor}15` }}
-            >
+            <div className="p-2.5 rounded-lg" style={{ backgroundColor: `${profileColor}15` }}>
               <Clock className="w-5 h-5" style={{ color: profileColor }} />
             </div>
             <div>
               <p className="text-xs text-gray-500">Blocos de Horário</p>
               <p className="text-xl font-bold">
-                {totalBlocks}{" "}
-                <span className="text-sm text-gray-400 font-normal">
-                  blocos
-                </span>
+                {totalBlocks} <span className="text-sm text-gray-400 font-normal">blocos</span>
               </p>
             </div>
           </div>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div
-              className="p-2.5 rounded-lg"
-              style={{ backgroundColor: `${profileColor}15` }}
-            >
+            <div className="p-2.5 rounded-lg" style={{ backgroundColor: `${profileColor}15` }}>
               <Timer className="w-5 h-5" style={{ color: profileColor }} />
             </div>
             <div>
               <p className="text-xs text-gray-500">Aulas na Semana</p>
               <p className="text-xl font-bold">
                 {totalWeeklySlots}{" "}
-                <span className="text-sm text-gray-400 font-normal">
-                  horários
-                </span>
+                <span className="text-sm text-gray-400 font-normal">horários</span>
               </p>
             </div>
           </div>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div
-              className="p-2.5 rounded-lg"
-              style={{ backgroundColor: `${profileColor}15` }}
-            >
+            <div className="p-2.5 rounded-lg" style={{ backgroundColor: `${profileColor}15` }}>
               <UserCheck className="w-5 h-5" style={{ color: profileColor }} />
             </div>
             <div>
               <p className="text-xs text-gray-500">Capacidade Semanal</p>
               <p className="text-xl font-bold">
                 {maxWeeklyCapacity}{" "}
-                <span className="text-sm text-gray-400 font-normal">
-                  alunos
-                </span>
+                <span className="text-sm text-gray-400 font-normal">alunos</span>
               </p>
             </div>
           </div>
@@ -482,9 +412,8 @@ export const ManagerProfileConfig: React.FC = () => {
                   Horários de Funcionamento
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  Configure os horários disponíveis para cada dia. Adicione
-                  múltiplos blocos para horários com intervalos (ex: manhã e
-                  noite).
+                  Configure os horários disponíveis para cada dia. Adicione múltiplos blocos para
+                  horários com intervalos (ex: manhã e noite).
                 </p>
               </div>
             </div>
@@ -493,11 +422,9 @@ export const ManagerProfileConfig: React.FC = () => {
             <div className="flex items-start gap-2.5 p-3 mb-6 rounded-lg bg-blue-50 border border-blue-200">
               <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
               <p className="text-xs text-blue-800">
-                <span className="font-semibold">Dica:</span> Use múltiplos
-                blocos de horário para dias com pausa. Exemplo:{" "}
-                <span className="font-medium">07:00–09:00</span> e{" "}
-                <span className="font-medium">17:00–21:00</span> para um dia com
-                manhã e noite.
+                <span className="font-semibold">Dica:</span> Use múltiplos blocos de horário para
+                dias com pausa. Exemplo: <span className="font-medium">07:00–09:00</span> e{" "}
+                <span className="font-medium">17:00–21:00</span> para um dia com manhã e noite.
               </p>
             </div>
 
@@ -507,7 +434,7 @@ export const ManagerProfileConfig: React.FC = () => {
                 const daySlots = generateDaySlots(
                   daySchedule,
                   config.classDuration,
-                  config.breakBetweenClasses,
+                  config.breakBetweenClasses
                 );
 
                 return (
@@ -524,9 +451,7 @@ export const ManagerProfileConfig: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <Switch
                           checked={daySchedule?.enabled}
-                          onCheckedChange={(checked) =>
-                            updateDayEnabled(day.key, checked)
-                          }
+                          onCheckedChange={(checked) => updateDayEnabled(day.key, checked)}
                         />
                         <div>
                           <p
@@ -537,17 +462,12 @@ export const ManagerProfileConfig: React.FC = () => {
                           {daySchedule?.enabled && (
                             <p className="text-xs text-gray-400 mt-0.5">
                               {daySchedule.timeBlocks.length}{" "}
-                              {daySchedule.timeBlocks.length === 1
-                                ? "bloco"
-                                : "blocos"}{" "}
-                              · {daySlots.length}{" "}
-                              {daySlots.length === 1 ? "horário" : "horários"}
+                              {daySchedule.timeBlocks.length === 1 ? "bloco" : "blocos"} ·{" "}
+                              {daySlots.length} {daySlots.length === 1 ? "horário" : "horários"}
                             </p>
                           )}
                           {!daySchedule?.enabled && (
-                            <p className="text-xs text-gray-400 mt-0.5 italic">
-                              Fechado
-                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5 italic">Fechado</p>
                           )}
                         </div>
                       </div>
@@ -562,9 +482,7 @@ export const ManagerProfileConfig: React.FC = () => {
                             title="Copiar para todos os dias"
                           >
                             <Copy className="w-3.5 h-3.5 mr-1" />
-                            <span className="hidden md:inline">
-                              Copiar p/ todos
-                            </span>
+                            <span className="hidden md:inline">Copiar p/ todos</span>
                           </Button>
                         </div>
                       )}
@@ -588,19 +506,12 @@ export const ManagerProfileConfig: React.FC = () => {
 
                             {/* Start time */}
                             <div className="flex items-center gap-1.5">
-                              <Label className="text-xs text-gray-400 hidden sm:block">
-                                De
-                              </Label>
+                              <Label className="text-xs text-gray-400 hidden sm:block">De</Label>
                               <Input
                                 type="time"
                                 value={block.startTime}
                                 onChange={(e) =>
-                                  updateTimeBlock(
-                                    day.key,
-                                    block.id,
-                                    "startTime",
-                                    e.target.value,
-                                  )
+                                  updateTimeBlock(day.key, block.id, "startTime", e.target.value)
                                 }
                                 className="w-28 h-9 text-sm"
                               />
@@ -610,19 +521,12 @@ export const ManagerProfileConfig: React.FC = () => {
 
                             {/* End time */}
                             <div className="flex items-center gap-1.5">
-                              <Label className="text-xs text-gray-400 hidden sm:block">
-                                Até
-                              </Label>
+                              <Label className="text-xs text-gray-400 hidden sm:block">Até</Label>
                               <Input
                                 type="time"
                                 value={block.endTime}
                                 onChange={(e) =>
-                                  updateTimeBlock(
-                                    day.key,
-                                    block.id,
-                                    "endTime",
-                                    e.target.value,
-                                  )
+                                  updateTimeBlock(day.key, block.id, "endTime", e.target.value)
                                 }
                                 className="w-28 h-9 text-sm"
                               />
@@ -635,7 +539,7 @@ export const ManagerProfileConfig: React.FC = () => {
                                   block.startTime,
                                   block.endTime,
                                   config.classDuration,
-                                  config.breakBetweenClasses,
+                                  config.breakBetweenClasses
                                 ).length
                               }{" "}
                               aulas
@@ -718,10 +622,7 @@ export const ManagerProfileConfig: React.FC = () => {
           {/* Break Between Classes */}
           <Card className="p-6">
             <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
-              <CalendarClock
-                className="w-5 h-5"
-                style={{ color: profileColor }}
-              />
+              <CalendarClock className="w-5 h-5" style={{ color: profileColor }} />
               Intervalo entre Aulas
             </h2>
             <p className="text-sm text-gray-500 mb-6">
@@ -731,9 +632,7 @@ export const ManagerProfileConfig: React.FC = () => {
               {BREAK_OPTIONS.map((option) => (
                 <button
                   key={option.value}
-                  onClick={() =>
-                    updateConfig({ breakBetweenClasses: option.value })
-                  }
+                  onClick={() => updateConfig({ breakBetweenClasses: option.value })}
                   className={`px-4 py-4 rounded-xl border-2 text-center transition-all ${
                     config.breakBetweenClasses === option.value
                       ? "border-current text-white shadow-lg scale-105"
@@ -748,9 +647,7 @@ export const ManagerProfileConfig: React.FC = () => {
                       : undefined
                   }
                 >
-                  <p className="text-lg font-bold">
-                    {option.value === 0 ? "—" : option.value}
-                  </p>
+                  <p className="text-lg font-bold">{option.value === 0 ? "—" : option.value}</p>
                   <p
                     className={`text-xs ${config.breakBetweenClasses === option.value ? "text-white/80" : "text-gray-500"}`}
                   >
@@ -781,10 +678,7 @@ export const ManagerProfileConfig: React.FC = () => {
                   <button
                     onClick={() =>
                       updateConfig({
-                        maxStudentsPerSlot: Math.max(
-                          1,
-                          config.maxStudentsPerSlot - 1,
-                        ),
+                        maxStudentsPerSlot: Math.max(1, config.maxStudentsPerSlot - 1),
                       })
                     }
                     className="w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 text-lg font-bold"
@@ -792,10 +686,7 @@ export const ManagerProfileConfig: React.FC = () => {
                     -
                   </button>
                   <div className="w-20 text-center">
-                    <span
-                      className="text-3xl font-bold"
-                      style={{ color: profileColor }}
-                    >
+                    <span className="text-3xl font-bold" style={{ color: profileColor }}>
                       {config.maxStudentsPerSlot}
                     </span>
                     <p className="text-xs text-gray-500">
@@ -805,10 +696,7 @@ export const ManagerProfileConfig: React.FC = () => {
                   <button
                     onClick={() =>
                       updateConfig({
-                        maxStudentsPerSlot: Math.min(
-                          20,
-                          config.maxStudentsPerSlot + 1,
-                        ),
+                        maxStudentsPerSlot: Math.min(20, config.maxStudentsPerSlot + 1),
                       })
                     }
                     className="w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 text-lg font-bold"
@@ -822,27 +710,20 @@ export const ManagerProfileConfig: React.FC = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-sm font-medium">
-                      Permitir aulas em grupo
-                    </Label>
+                    <Label className="text-sm font-medium">Permitir aulas em grupo</Label>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Ative para permitir que mais alunos participem de uma
-                      mesma aula
+                      Ative para permitir que mais alunos participem de uma mesma aula
                     </p>
                   </div>
                   <Switch
                     checked={config.allowGroupClasses}
-                    onCheckedChange={(checked) =>
-                      updateConfig({ allowGroupClasses: checked })
-                    }
+                    onCheckedChange={(checked) => updateConfig({ allowGroupClasses: checked })}
                   />
                 </div>
 
                 {config.allowGroupClasses && (
                   <div className="mt-4 p-4 rounded-lg bg-gray-50 border border-gray-200">
-                    <Label className="text-sm font-medium">
-                      Tamanho máximo do grupo
-                    </Label>
+                    <Label className="text-sm font-medium">Tamanho máximo do grupo</Label>
                     <div className="flex items-center gap-4 mt-2">
                       <button
                         onClick={() =>
@@ -855,10 +736,7 @@ export const ManagerProfileConfig: React.FC = () => {
                         -
                       </button>
                       <div className="w-20 text-center">
-                        <span
-                          className="text-3xl font-bold"
-                          style={{ color: profileColor }}
-                        >
+                        <span className="text-3xl font-bold" style={{ color: profileColor }}>
                           {config.maxGroupSize}
                         </span>
                         <p className="text-xs text-gray-500">alunos</p>
@@ -900,21 +778,16 @@ export const ManagerProfileConfig: React.FC = () => {
                     <CheckCircle2 className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium">
-                      Confirmação automática
-                    </Label>
+                    <Label className="text-sm font-medium">Confirmação automática</Label>
                     <p className="text-xs text-gray-500 mt-1">
-                      Quando ativado, as reservas são confirmadas
-                      automaticamente sem necessidade de aprovação do professor
-                      ou gerente
+                      Quando ativado, as reservas são confirmadas automaticamente sem necessidade de
+                      aprovação do professor ou gerente
                     </p>
                   </div>
                 </div>
                 <Switch
                   checked={config.autoConfirmBookings}
-                  onCheckedChange={(checked) =>
-                    updateConfig({ autoConfirmBookings: checked })
-                  }
+                  onCheckedChange={(checked) => updateConfig({ autoConfirmBookings: checked })}
                 />
               </div>
 
@@ -925,20 +798,15 @@ export const ManagerProfileConfig: React.FC = () => {
                     <Users className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium">
-                      Lista de espera
-                    </Label>
+                    <Label className="text-sm font-medium">Lista de espera</Label>
                     <p className="text-xs text-gray-500 mt-1">
-                      Permitir que alunos entrem em lista de espera quando o
-                      horário estiver lotado
+                      Permitir que alunos entrem em lista de espera quando o horário estiver lotado
                     </p>
                   </div>
                 </div>
                 <Switch
                   checked={config.allowWaitlist}
-                  onCheckedChange={(checked) =>
-                    updateConfig({ allowWaitlist: checked })
-                  }
+                  onCheckedChange={(checked) => updateConfig({ allowWaitlist: checked })}
                 />
               </div>
 
@@ -949,12 +817,9 @@ export const ManagerProfileConfig: React.FC = () => {
                     <AlertCircle className="w-5 h-5 text-amber-600" />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium">
-                      Prazo para cancelamento
-                    </Label>
+                    <Label className="text-sm font-medium">Prazo para cancelamento</Label>
                     <p className="text-xs text-gray-500 mt-1">
-                      Tempo mínimo de antecedência para o aluno cancelar uma
-                      aula sem penalidade
+                      Tempo mínimo de antecedência para o aluno cancelar uma aula sem penalidade
                     </p>
                   </div>
                 </div>
@@ -962,9 +827,7 @@ export const ManagerProfileConfig: React.FC = () => {
                   {CANCELLATION_OPTIONS.map((option) => (
                     <button
                       key={option.value}
-                      onClick={() =>
-                        updateConfig({ cancellationDeadline: option.value })
-                      }
+                      onClick={() => updateConfig({ cancellationDeadline: option.value })}
                       className={`px-3 py-3 rounded-lg border-2 text-center text-sm transition-all ${
                         config.cancellationDeadline === option.value
                           ? "text-white shadow-md"
@@ -1022,23 +885,13 @@ export const ManagerProfileConfig: React.FC = () => {
               <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
                 <p className="text-sm text-gray-500 mb-1">Duração da aula</p>
                 <p className="text-lg font-bold">
-                  {
-                    DURATION_OPTIONS.find(
-                      (o) => o.value === config.classDuration,
-                    )?.label
-                  }
+                  {DURATION_OPTIONS.find((o) => o.value === config.classDuration)?.label}
                 </p>
               </div>
               <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
-                <p className="text-sm text-gray-500 mb-1">
-                  Intervalo entre aulas
-                </p>
+                <p className="text-sm text-gray-500 mb-1">Intervalo entre aulas</p>
                 <p className="text-lg font-bold">
-                  {
-                    BREAK_OPTIONS.find(
-                      (o) => o.value === config.breakBetweenClasses,
-                    )?.label
-                  }
+                  {BREAK_OPTIONS.find((o) => o.value === config.breakBetweenClasses)?.label}
                 </p>
               </div>
               <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
@@ -1052,11 +905,7 @@ export const ManagerProfileConfig: React.FC = () => {
               <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
                 <p className="text-sm text-gray-500 mb-1">Cancelamento</p>
                 <p className="text-lg font-bold">
-                  {
-                    CANCELLATION_OPTIONS.find(
-                      (o) => o.value === config.cancellationDeadline,
-                    )?.label
-                  }
+                  {CANCELLATION_OPTIONS.find((o) => o.value === config.cancellationDeadline)?.label}
                 </p>
               </div>
             </div>
@@ -1095,45 +944,29 @@ export const ManagerProfileConfig: React.FC = () => {
                         key={day.key}
                         className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 opacity-50"
                       >
-                        <span className="font-medium text-sm w-12">
-                          {day.short}
-                        </span>
-                        <span className="text-sm text-gray-400 italic">
-                          Fechado
-                        </span>
+                        <span className="font-medium text-sm w-12">{day.short}</span>
+                        <span className="text-sm text-gray-400 italic">Fechado</span>
                       </div>
                     );
                   }
 
                   return (
-                    <div
-                      key={day.key}
-                      className="p-4 rounded-lg border border-gray-200"
-                    >
+                    <div key={day.key} className="p-4 rounded-lg border border-gray-200">
                       <div className="flex items-center gap-3 mb-3">
-                        <span className="font-medium text-sm w-12">
-                          {day.short}
-                        </span>
+                        <span className="font-medium text-sm w-12">{day.short}</span>
                         <div className="flex flex-wrap gap-1.5">
                           {daySchedule.timeBlocks.map((block, bi) => (
-                            <Badge
-                              key={block.id}
-                              variant="outline"
-                              className="text-xs font-normal"
-                            >
+                            <Badge key={block.id} variant="outline" className="text-xs font-normal">
                               {block.startTime}–{block.endTime}
                             </Badge>
                           ))}
                         </div>
-                        <Badge
-                          variant="outline"
-                          className="text-xs ml-auto shrink-0"
-                        >
+                        <Badge variant="outline" className="text-xs ml-auto shrink-0">
                           {
                             generateDaySlots(
                               daySchedule,
                               config.classDuration,
-                              config.breakBetweenClasses,
+                              config.breakBetweenClasses
                             ).length
                           }{" "}
                           horários
@@ -1147,15 +980,14 @@ export const ManagerProfileConfig: React.FC = () => {
                             block.startTime,
                             block.endTime,
                             config.classDuration,
-                            config.breakBetweenClasses,
+                            config.breakBetweenClasses
                           );
-                          if (blockSlots.length === 0) return null;
+                          if (blockSlots.length === 0) {return null;}
                           return (
                             <div key={block.id}>
                               {daySchedule.timeBlocks.length > 1 && (
                                 <p className="text-xs text-gray-400 mb-1">
-                                  Bloco {bi + 1}: {block.startTime}–
-                                  {block.endTime}
+                                  Bloco {bi + 1}: {block.startTime}–{block.endTime}
                                 </p>
                               )}
                               <div className="flex flex-wrap gap-1">

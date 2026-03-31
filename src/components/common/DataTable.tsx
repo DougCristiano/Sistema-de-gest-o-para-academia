@@ -1,5 +1,4 @@
 import React from "react";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
@@ -54,14 +53,13 @@ export function DataTable<T extends Record<string, any>>({
 
   const handleHeaderClick = (column: Column<T>) => {
     if (column.sortable && onSort) {
-      const newDir =
-        sortField === column.key && sortDir === "asc" ? "desc" : "asc";
+      const newDir = sortField === column.key && sortDir === "asc" ? "desc" : "asc";
       onSort(column.key, newDir);
     }
   };
 
   const getSortIcon = (column: Column<T>) => {
-    if (!column.sortable || sortField !== column.key) return null;
+    if (!column.sortable || sortField !== column.key) {return null;}
 
     return sortDir === "asc" ? (
       <ChevronUp className="w-4 h-4" />
@@ -91,9 +89,7 @@ export function DataTable<T extends Record<string, any>>({
               </th>
             ))}
             {actions && actions.length > 0 && (
-              <th className="text-left px-4 py-3 font-semibold text-sm">
-                Ações
-              </th>
+              <th className="text-left px-4 py-3 font-semibold text-sm">Ações</th>
             )}
           </tr>
         </thead>
@@ -112,9 +108,7 @@ export function DataTable<T extends Record<string, any>>({
                   className="px-4 py-3 text-sm"
                   style={{ width: column.width }}
                 >
-                  {column.render
-                    ? column.render(item[column.key], item)
-                    : String(item[column.key])}
+                  {column.render ? column.render(item[column.key], item) : String(item[column.key])}
                 </td>
               ))}
               {actions && actions.length > 0 && (

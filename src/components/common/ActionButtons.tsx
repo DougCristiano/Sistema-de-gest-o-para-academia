@@ -19,11 +19,8 @@ interface ActionButtonsProps {
  * Componente ActionButtons genérico
  * Renderiza botões de ação (edit, delete, etc)
  */
-export function ActionButtons({
-  actions,
-  layout = "horizontal",
-}: ActionButtonsProps) {
-  if (actions.length === 0) return null;
+export function ActionButtons({ actions, layout = "horizontal" }: ActionButtonsProps) {
+  if (actions.length === 0) {return null;}
 
   const containerClass = layout === "horizontal" ? "flex gap-2" : "flex flex-col gap-2";
 

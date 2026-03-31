@@ -10,7 +10,7 @@ import { AlertCircle, X } from "lucide-react";
 export function GlobalErrorToast() {
   const { errors, removeError } = useErrorHandler();
 
-  if (errors.length === 0) return null;
+  if (errors.length === 0) {return null;}
 
   return (
     <div className="fixed bottom-4 right-4 space-y-2 z-50">

@@ -22,7 +22,7 @@ export function useSearch<T extends Record<string, any>>(
     return data.filter((item) => {
       return searchFields.some((field) => {
         const value = item[field];
-        if (value === null || value === undefined) return false;
+        if (value === null || value === undefined) {return false;}
 
         const stringValue = String(value).toLowerCase();
         return stringValue.includes(term);

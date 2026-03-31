@@ -1,53 +1,110 @@
 import { Appointment, ProfileType } from "../types";
 import { mockAppointments } from "../data/mockData";
 import { isSameDay, isAfter, isBefore } from "date-fns";
+import { AppointmentSchema } from "../schemas";
 
 /**
  * Serviço de Agendamentos
  * Gerencia operações de agendamentos e aulas
+ * Todos os dados são validados com Zod antes de retornar
  */
 
 export const appointmentsService = {
   /**
+   * Valida dados do agendamento com Zod
+   * @throws Error se dados são inválidos
+   */
+  _validateAppointment: (appointment: unknown): Appointment => {
+    return AppointmentSchema.parse(appointment);
+  },
+
+  /**
+   * Valida e filtra array de agendamentos
+   */
+  _validateAppointments: (appointments: unknown[]): Appointment[] => {
+    return appointments.map((a) => appointmentsService._validateAppointment(a));
+  },
+
+  /**
    * Retorna todos os agendamentos
    */
   getAllAppointments: (): Appointment[] => {
-    return [...mockAppointments];
+    try {
+      return appointmentsService._validateAppointments(mockAppointments);
+    } catch (error) {
+      console.error("Invalid appointments data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna agendamento por ID
    */
   getAppointmentById: (id: string): Appointment | null => {
-    return mockAppointments.find((a) => a.id === id) || null;
+    const appointment = mockAppointments.find((a) => a.id === id);
+    if (!appointment) {return null;}
+    try {
+      return appointmentsService._validateAppointment(appointment);
+    } catch (error) {
+      console.error("Invalid appointment data:", error);
+      return null;
+    }
   },
 
   /**
    * Retorna agendamentos de um aluno
    */
   getAppointmentsByStudent: (studentId: string): Appointment[] => {
-    return mockAppointments.filter((a) => a.studentId === studentId);
+    try {
+      return appointmentsService._validateAppointments(
+        mockAppointments.filter((a) => a.studentId === studentId)
+      );
+    } catch (error) {
+      console.error("Invalid appointments data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna agendamentos de um professor
    */
   getAppointmentsByTeacher: (teacherId: string): Appointment[] => {
-    return mockAppointments.filter((a) => a.teacherId === teacherId);
+    try {
+      return appointmentsService._validateAppointments(
+        mockAppointments.filter((a) => a.teacherId === teacherId)
+      );
+    } catch (error) {
+      console.error("Invalid appointments data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna agendamentos de um perfil específico
    */
   getAppointmentsByProfile: (profile: ProfileType): Appointment[] => {
-    return mockAppointments.filter((a) => a.profile === profile);
+    try {
+      return appointmentsService._validateAppointments(
+        mockAppointments.filter((a) => a.profile === profile)
+      );
+    } catch (error) {
+      console.error("Invalid appointments data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna agendamentos de um dia específico
    */
   getAppointmentsByDate: (date: Date): Appointment[] => {
-    return mockAppointments.filter((a) => isSameDay(a.date, date));
+    try {
+      return appointmentsService._validateAppointments(
+        mockAppointments.filter((a) => isSameDay(a.date, date))
+      );
+    } catch (error) {
+      console.error("Invalid appointments data:", error);
+      return [];
+    }
   },
 
   /**
@@ -74,20 +131,31 @@ export const appointmentsService = {
    * Retorna agendamentos futuros
    */
   getUpcomingAppointments: (limit = 10): Appointment[] => {
-    const now = new Date();
-    return mockAppointments
-      .filter((a) => isAfter(a.date, now) && a.status === "scheduled")
-      .sort((a, b) => a.date.getTime() - b.date.getTime())
-      .slice(0, limit);
+    try {
+      const now = new Date();
+      const filtered = mockAppointments
+        .filter((a) => isAfter(a.date, now) && a.status === "scheduled")
+        .sort((a, b) => a.date.getTime() - b.date.getTime())
+        .slice(0, limit);
+      return appointmentsService._validateAppointments(filtered);
+    } catch (error) {
+      console.error("Invalid appointments data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna agendamentos por status
    */
-  getAppointmentsByStatus: (
-    status: "scheduled" | "completed" | "cancelled"
-  ): Appointment[] => {
-    return mockAppointments.filter((a) => a.status === status);
+  getAppointmentsByStatus: (status: "scheduled" | "completed" | "cancelled"): Appointment[] => {
+    try {
+      return appointmentsService._validateAppointments(
+        mockAppointments.filter((a) => a.status === status)
+      );
+    } catch (error) {
+      console.error("Invalid appointments data:", error);
+      return [];
+    }
   },
 
   /**
@@ -99,23 +167,32 @@ export const appointmentsService = {
       ...appointmentData,
       id: newId,
     };
-    mockAppointments.push(newAppointment);
-    return newAppointment;
+    try {
+      const validatedAppointment = appointmentsService._validateAppointment(newAppointment);
+      mockAppointments.push(validatedAppointment);
+      return validatedAppointment;
+    } catch (error) {
+      console.error("Invalid appointment data on creation:", error);
+      throw error;
+    }
   },
 
   /**
    * Atualiza agendamento existente
    */
-  updateAppointment: (
-    id: string,
-    updates: Partial<Appointment>
-  ): Appointment | null => {
+  updateAppointment: (id: string, updates: Partial<Appointment>): Appointment | null => {
     const appointmentIndex = mockAppointments.findIndex((a) => a.id === id);
-    if (appointmentIndex === -1) return null;
+    if (appointmentIndex === -1) {return null;}
 
     const updatedAppointment = { ...mockAppointments[appointmentIndex], ...updates };
-    mockAppointments[appointmentIndex] = updatedAppointment;
-    return updatedAppointment;
+    try {
+      const validatedAppointment = appointmentsService._validateAppointment(updatedAppointment);
+      mockAppointments[appointmentIndex] = validatedAppointment;
+      return validatedAppointment;
+    } catch (error) {
+      console.error("Invalid appointment data on update:", error);
+      return null;
+    }
   },
 
   /**
@@ -123,7 +200,7 @@ export const appointmentsService = {
    */
   deleteAppointment: (id: string): boolean => {
     const appointmentIndex = mockAppointments.findIndex((a) => a.id === id);
-    if (appointmentIndex === -1) return false;
+    if (appointmentIndex === -1) {return false;}
     mockAppointments.splice(appointmentIndex, 1);
     return true;
   },
@@ -152,43 +229,46 @@ export const appointmentsService = {
   /**
    * Retorna agendamentos com filtros múltiplos
    */
-  filterAppointments: (
-    filters: {
-      profile?: ProfileType;
-      studentId?: string;
-      teacherId?: string;
-      status?: "scheduled" | "completed" | "cancelled";
-      dateFrom?: Date;
-      dateTo?: Date;
-    }
-  ): Appointment[] => {
-    let results = [...mockAppointments];
+  filterAppointments: (filters: {
+    profile?: ProfileType;
+    studentId?: string;
+    teacherId?: string;
+    status?: "scheduled" | "completed" | "cancelled";
+    dateFrom?: Date;
+    dateTo?: Date;
+  }): Appointment[] => {
+    try {
+      let results = [...mockAppointments];
 
-    if (filters.profile) {
-      results = results.filter((a) => a.profile === filters.profile);
-    }
+      if (filters.profile) {
+        results = results.filter((a) => a.profile === filters.profile);
+      }
 
-    if (filters.studentId) {
-      results = results.filter((a) => a.studentId === filters.studentId);
-    }
+      if (filters.studentId) {
+        results = results.filter((a) => a.studentId === filters.studentId);
+      }
 
-    if (filters.teacherId) {
-      results = results.filter((a) => a.teacherId === filters.teacherId);
-    }
+      if (filters.teacherId) {
+        results = results.filter((a) => a.teacherId === filters.teacherId);
+      }
 
-    if (filters.status) {
-      results = results.filter((a) => a.status === filters.status);
-    }
+      if (filters.status) {
+        results = results.filter((a) => a.status === filters.status);
+      }
 
-    if (filters.dateFrom) {
-      results = results.filter((a) => isAfter(a.date, filters.dateFrom!));
-    }
+      if (filters.dateFrom) {
+        results = results.filter((a) => isAfter(a.date, filters.dateFrom!));
+      }
 
-    if (filters.dateTo) {
-      results = results.filter((a) => isBefore(a.date, filters.dateTo!));
-    }
+      if (filters.dateTo) {
+        results = results.filter((a) => isBefore(a.date, filters.dateTo!));
+      }
 
-    return results;
+      return appointmentsService._validateAppointments(results);
+    } catch (error) {
+      console.error("Invalid appointments data:", error);
+      return [];
+    }
   },
 
   /**

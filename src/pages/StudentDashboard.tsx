@@ -13,7 +13,7 @@ import {
   Activity,
   ArrowRight,
 } from "lucide-react";
-import { PROFILE_NAMES, PROFILE_COLORS, ProfileType } from "../types";
+import { PROFILE_NAMES, PROFILE_COLORS } from "../types";
 import { mockAthletes, mockAppointments } from "../data/mockData";
 import { useNavigate } from "react-router";
 
@@ -36,16 +36,12 @@ export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   // Find athlete data for current user
-  const myAthleteData = mockAthletes.find(
-    (a) => a.email === currentUser?.email,
-  );
+  const myAthleteData = mockAthletes.find((a) => a.email === currentUser?.email);
   const userProfiles = currentUser?.profiles || [];
 
   // Get upcoming appointments
   const myAppointments = mockAppointments
-    .filter(
-      (apt) => apt.studentId === currentUser?.id && apt.status === "scheduled",
-    )
+    .filter((apt) => apt.studentId === currentUser?.id && apt.status === "scheduled")
     .sort((a, b) => a.date.getTime() - b.date.getTime())
     .slice(0, 5);
 
@@ -59,9 +55,7 @@ export const StudentDashboard: React.FC = () => {
           <p className="text-gray-600 mb-6">
             Seus dados de treino aparecerão aqui assim que começar.
           </p>
-          <Button onClick={() => navigate("/student/booking")}>
-            Agendar Primeira Aula
-          </Button>
+          <Button onClick={() => navigate("/student/booking")}>Agendar Primeira Aula</Button>
         </Card>
       </div>
     );
@@ -69,15 +63,10 @@ export const StudentDashboard: React.FC = () => {
 
   const limit = PLAN_CHECKIN_LIMITS[myAthleteData.plan] || 20;
   const remaining = Math.max(0, limit - myAthleteData.checkInsThisMonth);
-  const checkinPct = Math.min(
-    100,
-    Math.round((myAthleteData.checkInsThisMonth / limit) * 100),
-  );
+  const checkinPct = Math.min(100, Math.round((myAthleteData.checkInsThisMonth / limit) * 100));
   const completionRate =
     myAthleteData.totalSessions > 0
-      ? Math.round(
-          (myAthleteData.completedSessions / myAthleteData.totalSessions) * 100,
-        )
+      ? Math.round((myAthleteData.completedSessions / myAthleteData.totalSessions) * 100)
       : 0;
   const profileColor = PROFILE_COLORS[myAthleteData.profile];
 
@@ -87,24 +76,18 @@ export const StudentDashboard: React.FC = () => {
       day: "2-digit",
       month: "2-digit",
     });
-  const formatTime = (d: Date) =>
-    d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-1">
-          Olá, {currentUser?.name?.split(" ")[0]}!
-        </h1>
+        <h1 className="text-3xl font-bold mb-1">Olá, {currentUser?.name?.split(" ")[0]}!</h1>
         <p className="text-gray-600">Veja seu progresso e próximas aulas</p>
       </div>
 
       {/* Enrolled Services */}
       <Card className="p-5 bg-gradient-to-r from-[#22c55e]/10 to-[#3b82f6]/10">
-        <h3 className="font-semibold mb-3 text-sm text-gray-700">
-          Seus Serviços Matriculados
-        </h3>
+        <h3 className="font-semibold mb-3 text-sm text-gray-700">Seus Serviços Matriculados</h3>
         <div className="flex flex-wrap gap-2">
           {userProfiles.map((profile) => (
             <Badge
@@ -156,17 +139,10 @@ export const StudentDashboard: React.FC = () => {
           {/* Check-in Progress */}
           <div className="bg-gray-50 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">
-                Check-ins este mês
-              </span>
-              <span
-                className="text-2xl font-bold"
-                style={{ color: profileColor }}
-              >
+              <span className="text-sm font-medium text-gray-700">Check-ins este mês</span>
+              <span className="text-2xl font-bold" style={{ color: profileColor }}>
                 {myAthleteData.checkInsThisMonth}{" "}
-                <span className="text-sm font-normal text-gray-400">
-                  / {limit}
-                </span>
+                <span className="text-sm font-normal text-gray-400">/ {limit}</span>
               </span>
             </div>
             <div className="w-full h-4 rounded-full bg-gray-200 overflow-hidden mb-3">
@@ -175,11 +151,7 @@ export const StudentDashboard: React.FC = () => {
                 style={{
                   width: `${checkinPct}%`,
                   backgroundColor:
-                    checkinPct >= 75
-                      ? "#22c55e"
-                      : checkinPct >= 50
-                        ? "#eab308"
-                        : "#ef4444",
+                    checkinPct >= 75 ? "#22c55e" : checkinPct >= 50 ? "#eab308" : "#ef4444",
                 }}
               />
             </div>
@@ -210,10 +182,7 @@ export const StudentDashboard: React.FC = () => {
             </div>
           </Card>
           <Card className="p-4 flex items-center gap-4">
-            <div
-              className="p-3 rounded-xl"
-              style={{ backgroundColor: `${profileColor}10` }}
-            >
+            <div className="p-3 rounded-xl" style={{ backgroundColor: `${profileColor}10` }}>
               <TrendingUp className="w-6 h-6" style={{ color: profileColor }} />
             </div>
             <div>
@@ -226,9 +195,7 @@ export const StudentDashboard: React.FC = () => {
               <CalendarCheck className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">
-                {myAthleteData.completedSessions}
-              </p>
+              <p className="text-2xl font-bold">{myAthleteData.completedSessions}</p>
               <p className="text-xs text-gray-500">Sessões realizadas</p>
             </div>
           </Card>
@@ -238,21 +205,15 @@ export const StudentDashboard: React.FC = () => {
       {/* Session breakdown */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-green-600">
-            {myAthleteData.completedSessions}
-          </p>
+          <p className="text-2xl font-bold text-green-600">{myAthleteData.completedSessions}</p>
           <p className="text-xs text-gray-500 mt-1">Realizadas</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-amber-600">
-            {myAthleteData.cancelledSessions}
-          </p>
+          <p className="text-2xl font-bold text-amber-600">{myAthleteData.cancelledSessions}</p>
           <p className="text-xs text-gray-500 mt-1">Canceladas</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-red-500">
-            {myAthleteData.noShowSessions}
-          </p>
+          <p className="text-2xl font-bold text-red-500">{myAthleteData.noShowSessions}</p>
           <p className="text-xs text-gray-500 mt-1">Faltas</p>
         </Card>
         <Card className="p-4 text-center">
@@ -298,15 +259,10 @@ export const StudentDashboard: React.FC = () => {
                   className="flex items-center gap-4 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
                 >
                   <div className="text-center min-w-[60px]">
-                    <p className="text-xs text-gray-500">
-                      {formatDate(apt.date)}
-                    </p>
+                    <p className="text-xs text-gray-500">{formatDate(apt.date)}</p>
                     <p className="text-lg font-bold">{apt.time}</p>
                   </div>
-                  <div
-                    className="w-1 h-10 rounded-full"
-                    style={{ backgroundColor: aptColor }}
-                  />
+                  <div className="w-1 h-10 rounded-full" style={{ backgroundColor: aptColor }} />
                   <div className="flex-1">
                     <p className="font-medium text-sm">{apt.teacherName}</p>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -344,9 +300,7 @@ export const StudentDashboard: React.FC = () => {
           </div>
           <div>
             <p className="font-semibold text-lg">{myAthleteData.teacher}</p>
-            <p className="text-sm text-gray-500">
-              {PROFILE_NAMES[myAthleteData.profile]}
-            </p>
+            <p className="text-sm text-gray-500">{PROFILE_NAMES[myAthleteData.profile]}</p>
           </div>
         </div>
       </Card>

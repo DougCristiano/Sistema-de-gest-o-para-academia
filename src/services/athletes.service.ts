@@ -1,72 +1,136 @@
 import { mockAthletes, MockAthlete } from "../data/mockData";
 import { ProfileType } from "../types";
+import { AthleteSchema } from "../schemas";
 
 /**
  * Serviço de Atletas
- * Gerencia operações de atletasinscritos (alunos com dados de treino)
+ * Gerencia operações de atletas inscritos (alunos com dados de treino)
+ * Todos os dados são validados com Zod antes de retornar
  */
 
 export const athletesService = {
   /**
+   * Valida dados do atleta com Zod
+   * @throws Error se dados são inválidos
+   */
+  _validateAthlete: (athlete: unknown): MockAthlete => {
+    return AthleteSchema.parse(athlete);
+  },
+
+  /**
+   * Valida e filtra array de atletas
+   */
+  _validateAthletes: (athletes: unknown[]): MockAthlete[] => {
+    return athletes.map((a) => athletesService._validateAthlete(a));
+  },
+
+  /**
    * Retorna todos os atletas
    */
   getAllAthletes: (): MockAthlete[] => {
-    return [...mockAthletes];
+    try {
+      return athletesService._validateAthletes(mockAthletes);
+    } catch (error) {
+      console.error("Invalid athletes data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna atleta por ID
    */
   getAthleteById: (id: string): MockAthlete | null => {
-    return mockAthletes.find((a) => a.id === id) || null;
+    const athlete = mockAthletes.find((a) => a.id === id);
+    if (!athlete) {return null;}
+    try {
+      return athletesService._validateAthlete(athlete);
+    } catch (error) {
+      console.error("Invalid athlete data:", error);
+      return null;
+    }
   },
 
   /**
    * Retorna atleta por email (user correspondente)
    */
   getAthleteByEmail: (email: string): MockAthlete | null => {
-    return mockAthletes.find((a) => a.email === email) || null;
+    const athlete = mockAthletes.find((a) => a.email === email);
+    if (!athlete) {return null;}
+    try {
+      return athletesService._validateAthlete(athlete);
+    } catch (error) {
+      console.error("Invalid athlete data:", error);
+      return null;
+    }
   },
 
   /**
    * Retorna atletas de um perfil específico
    */
   getAthletesByProfile: (profile: ProfileType): MockAthlete[] => {
-    return mockAthletes.filter((a) => a.profile === profile);
+    try {
+      return athletesService._validateAthletes(mockAthletes.filter((a) => a.profile === profile));
+    } catch (error) {
+      console.error("Invalid athletes data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna atletas por status (ativo, inativo, pendente)
    */
   getAthletesByStatus: (status: "ativo" | "inativo" | "pendente"): MockAthlete[] => {
-    return mockAthletes.filter((a) => a.status === status);
+    try {
+      return athletesService._validateAthletes(mockAthletes.filter((a) => a.status === status));
+    } catch (error) {
+      console.error("Invalid athletes data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna atletas de um professor específico
    */
   getAthletesByTeacher: (teacherName: string): MockAthlete[] => {
-    return mockAthletes.filter((a) => a.teacher === teacherName);
+    try {
+      return athletesService._validateAthletes(
+        mockAthletes.filter((a) => a.teacher === teacherName)
+      );
+    } catch (error) {
+      console.error("Invalid athletes data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna atletas ativos no momento
    */
   getAthletsTrainingNow: (): MockAthlete[] => {
-    return mockAthletes.filter((a) => a.isTrainingNow);
+    try {
+      return athletesService._validateAthletes(mockAthletes.filter((a) => a.isTrainingNow));
+    } catch (error) {
+      console.error("Invalid athletes data:", error);
+      return [];
+    }
   },
 
   /**
    * Busca atletas por termo (nome, email, teacher)
    */
   searchAthletes: (searchTerm: string): MockAthlete[] => {
-    const term = searchTerm.toLowerCase();
-    return mockAthletes.filter(
-      (a) =>
-        a.name.toLowerCase().includes(term) ||
-        a.email.toLowerCase().includes(term) ||
-        a.teacher.toLowerCase().includes(term)
-    );
+    try {
+      const term = searchTerm.toLowerCase();
+      const filtered = mockAthletes.filter(
+        (a) =>
+          a.name.toLowerCase().includes(term) ||
+          a.email.toLowerCase().includes(term) ||
+          a.teacher.toLowerCase().includes(term)
+      );
+      return athletesService._validateAthletes(filtered);
+    } catch (error) {
+      console.error("Invalid athletes data:", error);
+      return [];
+    }
   },
 
   /**
@@ -78,8 +142,14 @@ export const athletesService = {
       ...athleteData,
       id: newId,
     };
-    mockAthletes.push(newAthlete);
-    return newAthlete;
+    try {
+      const validatedAthlete = athletesService._validateAthlete(newAthlete);
+      mockAthletes.push(validatedAthlete);
+      return validatedAthlete;
+    } catch (error) {
+      console.error("Invalid athlete data on creation:", error);
+      throw error;
+    }
   },
 
   /**
@@ -87,11 +157,17 @@ export const athletesService = {
    */
   updateAthlete: (id: string, updates: Partial<MockAthlete>): MockAthlete | null => {
     const athleteIndex = mockAthletes.findIndex((a) => a.id === id);
-    if (athleteIndex === -1) return null;
+    if (athleteIndex === -1) {return null;}
 
     const updatedAthlete = { ...mockAthletes[athleteIndex], ...updates };
-    mockAthletes[athleteIndex] = updatedAthlete;
-    return updatedAthlete;
+    try {
+      const validatedAthlete = athletesService._validateAthlete(updatedAthlete);
+      mockAthletes[athleteIndex] = validatedAthlete;
+      return validatedAthlete;
+    } catch (error) {
+      console.error("Invalid athlete data on update:", error);
+      return null;
+    }
   },
 
   /**
@@ -99,7 +175,7 @@ export const athletesService = {
    */
   deleteAthlete: (id: string): boolean => {
     const athleteIndex = mockAthletes.findIndex((a) => a.id === id);
-    if (athleteIndex === -1) return false;
+    if (athleteIndex === -1) {return false;}
     mockAthletes.splice(athleteIndex, 1);
     return true;
   },
@@ -167,13 +243,6 @@ export const athletesService = {
    * Retorna distribuição de atletas por perfil
    */
   getAthleteDistributionByProfile: (): Record<ProfileType, number> => {
-    const profiles: ProfileType[] = [
-      "huron-areia",
-      "huron-personal",
-      "huron-recovery",
-      "htri",
-      "avitta",
-    ];
     const distribution: Record<ProfileType, number> = {
       "huron-areia": 0,
       "huron-personal": 0,

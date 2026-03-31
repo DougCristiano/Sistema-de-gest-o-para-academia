@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { StatCard } from "../components/StatCard";
 import { Card } from "../components/ui/card";
 import { AppointmentCard } from "../components/AppointmentCard";
-import { Users, Calendar, TrendingUp, DollarSign } from "lucide-react";
+import { Users , TrendingUp, DollarSign } from "lucide-react";
 import {
   mockDashboardStats,
   mockAppointments,
@@ -46,20 +46,15 @@ export const ManagerDashboard: React.FC = () => {
 
   // Filtrar professores do serviço
   const profileTeachers = mockUsers.filter(
-    (user) => user.role === "teacher" && user.profiles.includes(currentProfile),
+    (user) => user.role === "teacher" && user.profiles.includes(currentProfile)
   );
 
   return (
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <div
-            className="w-4 h-4 rounded-full"
-            style={{ backgroundColor: profileColor }}
-          />
-          <h1 className="text-3xl font-bold">
-            {PROFILE_NAMES[currentProfile]}
-          </h1>
+          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: profileColor }} />
+          <h1 className="text-3xl font-bold">{PROFILE_NAMES[currentProfile]}</h1>
         </div>
         <p className="text-gray-600">Dashboard de Gerenciamento</p>
       </div>
@@ -97,9 +92,7 @@ export const ManagerDashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600 mb-1">Receita Mensal</p>
-            <p className="text-3xl font-bold">
-              R$ {stats.revenue?.toLocaleString("pt-BR")}
-            </p>
+            <p className="text-3xl font-bold">R$ {stats.revenue?.toLocaleString("pt-BR")}</p>
             <p className="text-sm text-gray-500 mt-1">
               {stats.appointmentsWeek} agendamentos esta semana
             </p>
@@ -114,36 +107,16 @@ export const ManagerDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Peak Hours for Profile */}
         <Card className="p-6">
-          <h2 className="text-xl font-bold mb-4">
-            Horários de Pico do Serviço
-          </h2>
+          <h2 className="text-xl font-bold mb-4">Horários de Pico do Serviço</h2>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={mockPeakHours}>
               <defs>
-                <linearGradient
-                  id={`colorProfile-${currentProfile}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor={profileColor}
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={profileColor}
-                    stopOpacity={0.1}
-                  />
+                <linearGradient id={`colorProfile-${currentProfile}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={profileColor} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={profileColor} stopOpacity={0.1} />
                 </linearGradient>
               </defs>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#e5e7eb"
-                vertical={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
@@ -172,11 +145,7 @@ export const ManagerDashboard: React.FC = () => {
           <h2 className="text-xl font-bold mb-4">Agendamentos Semanais</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={mockWeeklyAppointments}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#e5e7eb"
-                vertical={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
               <XAxis dataKey="day" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
@@ -199,16 +168,10 @@ export const ManagerDashboard: React.FC = () => {
 
         {/* Revenue Growth */}
         <Card className="p-6 lg:col-span-2">
-          <h2 className="text-xl font-bold mb-4">
-            Evolução da Receita (Últimos 6 Meses)
-          </h2>
+          <h2 className="text-xl font-bold mb-4">Evolução da Receita (Últimos 6 Meses)</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={mockRevenueGrowth}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#e5e7eb"
-                vertical={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
@@ -259,9 +222,7 @@ export const ManagerDashboard: React.FC = () => {
       <Card className="p-6">
         <h2 className="text-xl font-bold mb-4">Próximos Agendamentos</h2>
         {profileAppointments.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
-            Nenhum agendamento encontrado
-          </p>
+          <p className="text-gray-500 text-center py-8">Nenhum agendamento encontrado</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {profileAppointments.slice(0, 6).map((appointment) => (

@@ -26,12 +26,7 @@ import { PROFILE_NAMES, PROFILE_COLORS, ProfileType } from "../types";
 import { mockAthletes, MockAthlete } from "../data/mockData";
 
 type StatusFilter = "todos" | "ativo" | "inativo" | "pendente";
-type SortField =
-  | "name"
-  | "checkInsThisMonth"
-  | "totalSessions"
-  | "streak"
-  | "profile";
+type SortField = "name" | "checkInsThisMonth" | "totalSessions" | "streak" | "profile";
 type SortDir = "asc" | "desc";
 
 const STATUS_CONFIG = {
@@ -50,9 +45,7 @@ const PLAN_LABELS: Record<string, string> = {
 export const AdminEnrolled: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
-  const [profileFilter, setProfileFilter] = useState<ProfileType | "all">(
-    "all",
-  );
+  const [profileFilter, setProfileFilter] = useState<ProfileType | "all">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
@@ -65,13 +58,11 @@ export const AdminEnrolled: React.FC = () => {
         (a) =>
           a.name.toLowerCase().includes(term) ||
           a.email.toLowerCase().includes(term) ||
-          a.teacher.toLowerCase().includes(term),
+          a.teacher.toLowerCase().includes(term)
       );
     }
-    if (statusFilter !== "todos")
-      filtered = filtered.filter((a) => a.status === statusFilter);
-    if (profileFilter !== "all")
-      filtered = filtered.filter((a) => a.profile === profileFilter);
+    if (statusFilter !== "todos") {filtered = filtered.filter((a) => a.status === statusFilter);}
+    if (profileFilter !== "all") {filtered = filtered.filter((a) => a.profile === profileFilter);}
 
     filtered.sort((a, b) => {
       let cmp = 0;
@@ -98,8 +89,7 @@ export const AdminEnrolled: React.FC = () => {
   }, [searchTerm, statusFilter, profileFilter, sortField, sortDir]);
 
   const toggleSort = (field: SortField) => {
-    if (sortField === field)
-      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+    if (sortField === field) {setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));}
     else {
       setSortField(field);
       setSortDir("desc");
@@ -107,35 +97,28 @@ export const AdminEnrolled: React.FC = () => {
   };
 
   const totalAthletes = mockAthletes.length;
-  const activeAthletes = mockAthletes.filter(
-    (a) => a.status === "ativo",
-  ).length;
+  const activeAthletes = mockAthletes.filter((a) => a.status === "ativo").length;
   const trainingNow = mockAthletes.filter((a) => a.isTrainingNow).length;
-  const totalCheckIns = mockAthletes.reduce(
-    (s, a) => s + a.checkInsThisMonth,
-    0,
-  );
+  const totalCheckIns = mockAthletes.reduce((s, a) => s + a.checkInsThisMonth, 0);
 
   const getCheckInTrend = (current: number, previous: number) => {
     if (current > previous)
-      return {
+      {return {
         icon: TrendingUp,
         color: "text-green-600",
         label: `+${current - previous}`,
-      };
+      };}
     if (current < previous)
-      return {
+      {return {
         icon: TrendingDown,
         color: "text-red-500",
         label: `${current - previous}`,
-      };
+      };}
     return { icon: Minus, color: "text-gray-400", label: "0" };
   };
 
   const completionRate = (a: MockAthlete) =>
-    a.totalSessions === 0
-      ? 0
-      : Math.round((a.completedSessions / a.totalSessions) * 100);
+    a.totalSessions === 0 ? 0 : Math.round((a.completedSessions / a.totalSessions) * 100);
   const formatDateTime = (d: Date | null) =>
     d
       ? d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) +
@@ -153,29 +136,19 @@ export const AdminEnrolled: React.FC = () => {
 
   // Per-service breakdown
   const serviceBreakdown = (
-    [
-      "huron-areia",
-      "huron-personal",
-      "huron-recovery",
-      "htri",
-      "avitta",
-    ] as ProfileType[]
+    ["huron-areia", "huron-personal", "huron-recovery", "htri", "avitta"] as ProfileType[]
   ).map((p) => ({
     profile: p,
     count: mockAthletes.filter((a) => a.profile === p).length,
-    active: mockAthletes.filter((a) => a.profile === p && a.status === "ativo")
-      .length,
-    training: mockAthletes.filter((a) => a.profile === p && a.isTrainingNow)
-      .length,
+    active: mockAthletes.filter((a) => a.profile === p && a.status === "ativo").length,
+    training: mockAthletes.filter((a) => a.profile === p && a.isTrainingNow).length,
   }));
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Todos os Matriculados</h1>
-        <p className="text-gray-600">
-          Visão geral de todos os atletas em todos os serviços
-        </p>
+        <p className="text-gray-600">Visão geral de todos os atletas em todos os serviços</p>
       </div>
 
       {/* Global Stats */}
@@ -241,22 +214,15 @@ export const AdminEnrolled: React.FC = () => {
             key={s.profile}
             className="p-3 cursor-pointer transition-all hover:shadow-md border-l-4"
             style={{ borderLeftColor: PROFILE_COLORS[s.profile] }}
-            onClick={() =>
-              setProfileFilter(profileFilter === s.profile ? "all" : s.profile)
-            }
+            onClick={() => setProfileFilter(profileFilter === s.profile ? "all" : s.profile)}
           >
-            <p
-              className="text-xs font-semibold"
-              style={{ color: PROFILE_COLORS[s.profile] }}
-            >
+            <p className="text-xs font-semibold" style={{ color: PROFILE_COLORS[s.profile] }}>
               {PROFILE_NAMES[s.profile]}
             </p>
             <p className="text-lg font-bold">{s.count}</p>
             <div className="flex gap-2 text-xs text-gray-500">
               <span>{s.active} ativos</span>
-              {s.training > 0 && (
-                <span className="text-green-600">{s.training} treinando</span>
-              )}
+              {s.training > 0 && <span className="text-green-600">{s.training} treinando</span>}
             </div>
           </Card>
         ))}
@@ -275,17 +241,15 @@ export const AdminEnrolled: React.FC = () => {
             />
           </div>
           <div className="flex gap-2 flex-wrap">
-            {(["todos", "ativo", "inativo", "pendente"] as StatusFilter[]).map(
-              (status) => (
-                <button
-                  key={status}
-                  onClick={() => setStatusFilter(status)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${statusFilter === status ? "bg-gray-800 text-white border-transparent" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}`}
-                >
-                  {status === "todos" ? "Todos" : STATUS_CONFIG[status].label}
-                </button>
-              ),
-            )}
+            {(["todos", "ativo", "inativo", "pendente"] as StatusFilter[]).map((status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${statusFilter === status ? "bg-gray-800 text-white border-transparent" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}`}
+              >
+                {status === "todos" ? "Todos" : STATUS_CONFIG[status].label}
+              </button>
+            ))}
             {profileFilter !== "all" && (
               <button
                 onClick={() => setProfileFilter("all")}
@@ -340,20 +304,14 @@ export const AdminEnrolled: React.FC = () => {
           <div className="divide-y divide-gray-100">
             {athletes.map((athlete) => {
               const isExpanded = expandedId === athlete.id;
-              const trend = getCheckInTrend(
-                athlete.checkInsThisMonth,
-                athlete.checkInsLastMonth,
-              );
+              const trend = getCheckInTrend(athlete.checkInsThisMonth, athlete.checkInsLastMonth);
               const TrendIcon = trend.icon;
               const rate = completionRate(athlete);
               const statusCfg = STATUS_CONFIG[athlete.status];
               const profileColor = PROFILE_COLORS[athlete.profile];
 
               return (
-                <div
-                  key={athlete.id}
-                  className="transition-colors hover:bg-gray-50/50"
-                >
+                <div key={athlete.id} className="transition-colors hover:bg-gray-50/50">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 px-6 py-4 items-center">
                     <div className="col-span-3 flex items-center gap-3">
                       <div className="relative">
@@ -371,12 +329,8 @@ export const AdminEnrolled: React.FC = () => {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-sm truncate">
-                          {athlete.name}
-                        </p>
-                        <p className="text-xs text-gray-500 truncate">
-                          {athlete.teacher}
-                        </p>
+                        <p className="font-medium text-sm truncate">{athlete.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{athlete.teacher}</p>
                       </div>
                     </div>
                     <div className="col-span-2 flex justify-center">
@@ -391,21 +345,15 @@ export const AdminEnrolled: React.FC = () => {
                       </Badge>
                     </div>
                     <div className="col-span-1 flex justify-center">
-                      <Badge className={`${statusCfg.color} text-xs`}>
-                        {statusCfg.label}
-                      </Badge>
+                      <Badge className={`${statusCfg.color} text-xs`}>{statusCfg.label}</Badge>
                     </div>
                     <div className="col-span-1 text-center text-xs text-gray-600">
                       {PLAN_LABELS[athlete.plan]}
                     </div>
                     <div className="col-span-2 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <span className="text-lg font-bold">
-                          {athlete.checkInsThisMonth}
-                        </span>
-                        <span
-                          className={`flex items-center gap-0.5 text-xs ${trend.color}`}
-                        >
+                        <span className="text-lg font-bold">{athlete.checkInsThisMonth}</span>
+                        <span className={`flex items-center gap-0.5 text-xs ${trend.color}`}>
                           <TrendIcon className="w-3.5 h-3.5" />
                           {trend.label}
                         </span>
@@ -415,23 +363,17 @@ export const AdminEnrolled: React.FC = () => {
                       <Flame
                         className={`w-4 h-4 ${athlete.streak >= 10 ? "text-orange-500" : athlete.streak >= 4 ? "text-amber-400" : "text-gray-300"}`}
                       />
-                      <span className="font-bold text-sm">
-                        {athlete.streak}
-                      </span>
+                      <span className="font-bold text-sm">{athlete.streak}</span>
                     </div>
                     <div className="col-span-1 text-center">
-                      <p className="font-bold text-sm">
-                        {athlete.completedSessions}
-                      </p>
+                      <p className="font-bold text-sm">{athlete.completedSessions}</p>
                       <p className="text-xs text-gray-400">{rate}%</p>
                     </div>
                     <div className="col-span-1 flex justify-center">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() =>
-                          setExpandedId(isExpanded ? null : athlete.id)
-                        }
+                        onClick={() => setExpandedId(isExpanded ? null : athlete.id)}
                         className="h-8 px-2"
                       >
                         {isExpanded ? (
@@ -478,17 +420,13 @@ export const AdminEnrolled: React.FC = () => {
                               <p className="text-lg font-bold text-green-600">
                                 {athlete.completedSessions}
                               </p>
-                              <p className="text-xs text-gray-500">
-                                Realizadas
-                              </p>
+                              <p className="text-xs text-gray-500">Realizadas</p>
                             </div>
                             <div className="p-2 rounded-lg bg-white border text-center">
                               <p className="text-lg font-bold text-amber-600">
                                 {athlete.cancelledSessions}
                               </p>
-                              <p className="text-xs text-gray-500">
-                                Canceladas
-                              </p>
+                              <p className="text-xs text-gray-500">Canceladas</p>
                             </div>
                             <div className="p-2 rounded-lg bg-white border text-center">
                               <p className="text-lg font-bold text-red-500">
@@ -497,10 +435,7 @@ export const AdminEnrolled: React.FC = () => {
                               <p className="text-xs text-gray-500">Faltas</p>
                             </div>
                             <div className="p-2 rounded-lg bg-white border text-center">
-                              <p
-                                className="text-lg font-bold"
-                                style={{ color: profileColor }}
-                              >
+                              <p className="text-lg font-bold" style={{ color: profileColor }}>
                                 {athlete.totalSessions}
                               </p>
                               <p className="text-xs text-gray-500">Total</p>
@@ -513,13 +448,8 @@ export const AdminEnrolled: React.FC = () => {
                           </h4>
                           <div className="p-3 rounded-lg bg-white border">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm text-gray-600">
-                                Taxa
-                              </span>
-                              <span
-                                className="text-lg font-bold"
-                                style={{ color: profileColor }}
-                              >
+                              <span className="text-sm text-gray-600">Taxa</span>
+                              <span className="text-lg font-bold" style={{ color: profileColor }}>
                                 {rate}%
                               </span>
                             </div>
@@ -533,8 +463,7 @@ export const AdminEnrolled: React.FC = () => {
                               />
                             </div>
                             <p className="text-xs text-gray-500 mt-2">
-                              Último check-in:{" "}
-                              {formatDateTime(athlete.lastCheckIn)}
+                              Último check-in: {formatDateTime(athlete.lastCheckIn)}
                             </p>
                           </div>
                         </div>

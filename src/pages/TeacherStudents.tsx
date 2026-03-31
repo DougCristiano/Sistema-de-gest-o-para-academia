@@ -53,16 +53,14 @@ export const TeacherStudents: React.FC = () => {
   const [showOnlyLowCheckins, setShowOnlyLowCheckins] = useState(false);
 
   const myStudents = useMemo(() => {
-    if (!currentUser) return [];
+    if (!currentUser) {return [];}
     const teacherName = currentUser.name;
     let students = mockAthletes.filter((a) => a.teacher === teacherName);
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       students = students.filter(
-        (a) =>
-          a.name.toLowerCase().includes(term) ||
-          a.email.toLowerCase().includes(term),
+        (a) => a.name.toLowerCase().includes(term) || a.email.toLowerCase().includes(term)
       );
     }
 
@@ -80,18 +78,14 @@ export const TeacherStudents: React.FC = () => {
     ? mockAthletes.filter((a) => a.teacher === currentUser.name).length
     : 0;
   const activeStudents = currentUser
-    ? mockAthletes.filter(
-        (a) => a.teacher === currentUser.name && a.status === "ativo",
-      ).length
+    ? mockAthletes.filter((a) => a.teacher === currentUser.name && a.status === "ativo").length
     : 0;
   const trainingNow = currentUser
-    ? mockAthletes.filter(
-        (a) => a.teacher === currentUser.name && a.isTrainingNow,
-      ).length
+    ? mockAthletes.filter((a) => a.teacher === currentUser.name && a.isTrainingNow).length
     : 0;
   const lowCheckinStudents = currentUser
     ? mockAthletes.filter((a) => {
-        if (a.teacher !== currentUser.name) return false;
+        if (a.teacher !== currentUser.name) {return false;}
         const limit = PLAN_CHECKIN_LIMITS[a.plan] || 20;
         return a.checkInsThisMonth < limit * 0.5 && a.status === "ativo";
       }).length
@@ -109,24 +103,22 @@ export const TeacherStudents: React.FC = () => {
 
   const getCheckInTrend = (current: number, previous: number) => {
     if (current > previous)
-      return {
+      {return {
         icon: TrendingUp,
         color: "text-green-600",
         label: `+${current - previous}`,
-      };
+      };}
     if (current < previous)
-      return {
+      {return {
         icon: TrendingDown,
         color: "text-red-500",
         label: `${current - previous}`,
-      };
+      };}
     return { icon: Minus, color: "text-gray-400", label: "0" };
   };
 
   const completionRate = (a: MockAthlete) =>
-    a.totalSessions === 0
-      ? 0
-      : Math.round((a.completedSessions / a.totalSessions) * 100);
+    a.totalSessions === 0 ? 0 : Math.round((a.completedSessions / a.totalSessions) * 100);
   const formatDate = (d: Date | null) =>
     d
       ? d.toLocaleDateString("pt-BR", {
@@ -192,9 +184,7 @@ export const TeacherStudents: React.FC = () => {
             </div>
           )}
         </Card>
-        <Card
-          className={`p-4 ${lowCheckinStudents > 0 ? "border-amber-300 border-2" : ""}`}
-        >
+        <Card className={`p-4 ${lowCheckinStudents > 0 ? "border-amber-300 border-2" : ""}`}>
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-lg bg-amber-50">
               <AlertTriangle className="w-5 h-5 text-amber-600" />
@@ -239,18 +229,13 @@ export const TeacherStudents: React.FC = () => {
         <div className="space-y-3">
           {myStudents.map((athlete) => {
             const isExpanded = expandedId === athlete.id;
-            const trend = getCheckInTrend(
-              athlete.checkInsThisMonth,
-              athlete.checkInsLastMonth,
-            );
+            const trend = getCheckInTrend(athlete.checkInsThisMonth, athlete.checkInsLastMonth);
             const TrendIcon = trend.icon;
             const profileColor = PROFILE_COLORS[athlete.profile];
             const remaining = getRemainingCheckins(athlete);
             const checkinPct = getCheckinPercentage(athlete);
             const limit = PLAN_CHECKIN_LIMITS[athlete.plan] || 20;
-            const isLow =
-              athlete.checkInsThisMonth < limit * 0.5 &&
-              athlete.status === "ativo";
+            const isLow = athlete.checkInsThisMonth < limit * 0.5 && athlete.status === "ativo";
             const rate = completionRate(athlete);
             const statusCfg = STATUS_CONFIG[athlete.status];
 
@@ -279,9 +264,7 @@ export const TeacherStudents: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold">{athlete.name}</p>
-                      <Badge className={`${statusCfg.color} text-xs`}>
-                        {statusCfg.label}
-                      </Badge>
+                      <Badge className={`${statusCfg.color} text-xs`}>{statusCfg.label}</Badge>
                       <Badge
                         style={{
                           backgroundColor: `${profileColor}15`,
@@ -293,8 +276,7 @@ export const TeacherStudents: React.FC = () => {
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-500">
-                      {PLAN_LABELS[athlete.plan]} ·{" "}
-                      {athlete.goal || "Sem objetivo definido"}
+                      {PLAN_LABELS[athlete.plan]} · {athlete.goal || "Sem objetivo definido"}
                     </p>
                   </div>
 
@@ -312,18 +294,12 @@ export const TeacherStudents: React.FC = () => {
                         style={{
                           width: `${checkinPct}%`,
                           backgroundColor:
-                            checkinPct >= 75
-                              ? "#22c55e"
-                              : checkinPct >= 50
-                                ? "#eab308"
-                                : "#ef4444",
+                            checkinPct >= 75 ? "#22c55e" : checkinPct >= 50 ? "#eab308" : "#ef4444",
                         }}
                       />
                     </div>
                     <div className="flex items-center justify-between text-xs mt-1">
-                      <span
-                        className={`flex items-center gap-0.5 ${trend.color}`}
-                      >
+                      <span className={`flex items-center gap-0.5 ${trend.color}`}>
                         <TrendIcon className="w-3 h-3" />
                         {trend.label}
                       </span>
@@ -349,16 +325,10 @@ export const TeacherStudents: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() =>
-                      setExpandedId(isExpanded ? null : athlete.id)
-                    }
+                    onClick={() => setExpandedId(isExpanded ? null : athlete.id)}
                     className="h-9 px-3"
                   >
-                    {isExpanded ? (
-                      <ChevronUp className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
+                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
 
@@ -417,15 +387,10 @@ export const TeacherStudents: React.FC = () => {
                             <p className="text-xs text-gray-500">Faltas</p>
                           </div>
                           <div className="p-2 rounded-lg bg-white border text-center">
-                            <p
-                              className="text-lg font-bold"
-                              style={{ color: profileColor }}
-                            >
+                            <p className="text-lg font-bold" style={{ color: profileColor }}>
                               {rate}%
                             </p>
-                            <p className="text-xs text-gray-500">
-                              Aproveitamento
-                            </p>
+                            <p className="text-xs text-gray-500">Aproveitamento</p>
                           </div>
                         </div>
                       </div>
@@ -436,13 +401,8 @@ export const TeacherStudents: React.FC = () => {
                         </h4>
                         <div className="p-3 rounded-lg bg-white border">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm text-gray-600">
-                              Usados
-                            </span>
-                            <span
-                              className="font-bold"
-                              style={{ color: profileColor }}
-                            >
+                            <span className="text-sm text-gray-600">Usados</span>
+                            <span className="font-bold" style={{ color: profileColor }}>
                               {athlete.checkInsThisMonth} / {limit}
                             </span>
                           </div>
@@ -463,19 +423,11 @@ export const TeacherStudents: React.FC = () => {
                           <div className="flex justify-between text-xs text-gray-500">
                             <span>
                               Restantes:{" "}
-                              <strong
-                                className={
-                                  remaining <= 5
-                                    ? "text-red-500"
-                                    : "text-gray-700"
-                                }
-                              >
+                              <strong className={remaining <= 5 ? "text-red-500" : "text-gray-700"}>
                                 {remaining}
                               </strong>
                             </span>
-                            <span>
-                              Último: {formatDateTime(athlete.lastCheckIn)}
-                            </span>
+                            <span>Último: {formatDateTime(athlete.lastCheckIn)}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 text-sm">

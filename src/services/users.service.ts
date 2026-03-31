@@ -1,61 +1,119 @@
 import { User, UserRole, ProfileType } from "../types";
 import { mockUsers } from "../data/mockData";
+import { UserSchema } from "../schemas";
 
 /**
  * Serviço de Usuários
  * Gerencia operações CRUD de usuários (Admin/Manager/Teacher)
+ * Todos os dados são validados com Zod antes de retornar
  */
 
 export const usersService = {
   /**
+   * Valida dados do usuário com Zod
+   * @throws Error se dados são inválidos
+   */
+  _validateUser: (user: unknown): User => {
+    return UserSchema.parse(user);
+  },
+
+  /**
+   * Valida e filtra array de usuários
+   */
+  _validateUsers: (users: unknown[]): User[] => {
+    return users.map((u) => usersService._validateUser(u));
+  },
+
+  /**
    * Retorna todos os usuários
    */
   getAllUsers: (): User[] => {
-    return [...mockUsers];
+    try {
+      return usersService._validateUsers(mockUsers);
+    } catch (error) {
+      console.error("Invalid users data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna usuários por role
    */
   getUsersByRole: (role: UserRole): User[] => {
-    return mockUsers.filter((user) => user.role === role);
+    try {
+      return usersService._validateUsers(mockUsers.filter((user) => user.role === role));
+    } catch (error) {
+      console.error("Invalid users data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna usuários excluindo alunos (para admin gerenciar)
    */
   getManageableUsers: (): User[] => {
-    return mockUsers.filter((user) => user.role !== "student");
+    try {
+      return usersService._validateUsers(mockUsers.filter((user) => user.role !== "student"));
+    } catch (error) {
+      console.error("Invalid users data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna usuário por ID
    */
   getUserById: (id: string): User | null => {
-    return mockUsers.find((user) => user.id === id) || null;
+    const user = mockUsers.find((user) => user.id === id);
+    if (!user) {return null;}
+    try {
+      return usersService._validateUser(user);
+    } catch (error) {
+      console.error("Invalid user data:", error);
+      return null;
+    }
   },
 
   /**
    * Retorna usuário por email
    */
   getUserByEmail: (email: string): User | null => {
-    return mockUsers.find((user) => user.email === email) || null;
+    const user = mockUsers.find((user) => user.email === email);
+    if (!user) {return null;}
+    try {
+      return usersService._validateUser(user);
+    } catch (error) {
+      console.error("Invalid user data:", error);
+      return null;
+    }
   },
 
   /**
    * Retorna usuários que trabalham em um perfil
    */
   getUsersByProfile: (profile: ProfileType): User[] => {
-    return mockUsers.filter((user) => user.profiles.includes(profile));
+    try {
+      return usersService._validateUsers(
+        mockUsers.filter((user) => user.profiles.includes(profile))
+      );
+    } catch (error) {
+      console.error("Invalid users data:", error);
+      return [];
+    }
   },
 
   /**
    * Retorna professores de um perfil específico
    */
   getTeachersByProfile: (profile: ProfileType): User[] => {
-    return mockUsers.filter(
-      (user) => user.role === "teacher" && user.profiles.includes(profile)
-    );
+    try {
+      return usersService._validateUsers(
+        mockUsers.filter((user) => user.role === "teacher" && user.profiles.includes(profile))
+      );
+    } catch (error) {
+      console.error("Invalid users data:", error);
+      return [];
+    }
   },
 
   /**
@@ -67,8 +125,14 @@ export const usersService = {
       ...userData,
       id: newId,
     };
-    mockUsers.push(newUser);
-    return newUser;
+    try {
+      const validatedUser = usersService._validateUser(newUser);
+      mockUsers.push(validatedUser);
+      return validatedUser;
+    } catch (error) {
+      console.error("Invalid user data on creation:", error);
+      throw error;
+    }
   },
 
   /**
@@ -76,11 +140,17 @@ export const usersService = {
    */
   updateUser: (id: string, updates: Partial<User>): User | null => {
     const userIndex = mockUsers.findIndex((user) => user.id === id);
-    if (userIndex === -1) return null;
+    if (userIndex === -1) {return null;}
 
     const updatedUser = { ...mockUsers[userIndex], ...updates };
-    mockUsers[userIndex] = updatedUser;
-    return updatedUser;
+    try {
+      const validatedUser = usersService._validateUser(updatedUser);
+      mockUsers[userIndex] = validatedUser;
+      return validatedUser;
+    } catch (error) {
+      console.error("Invalid user data on update:", error);
+      return null;
+    }
   },
 
   /**
@@ -88,7 +158,7 @@ export const usersService = {
    */
   deleteUser: (id: string): boolean => {
     const userIndex = mockUsers.findIndex((user) => user.id === id);
-    if (userIndex === -1) return false;
+    if (userIndex === -1) {return false;}
     mockUsers.splice(userIndex, 1);
     return true;
   },
@@ -97,18 +167,23 @@ export const usersService = {
    * Busca usuários por termo (nome ou email)
    */
   searchUsers: (searchTerm: string, role?: UserRole): User[] => {
-    let results = mockUsers;
+    try {
+      let results = mockUsers;
 
-    if (role) {
-      results = results.filter((user) => user.role === role);
+      if (role) {
+        results = results.filter((user) => user.role === role);
+      }
+
+      const term = searchTerm.toLowerCase();
+      const filtered = results.filter(
+        (user) => user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term)
+      );
+
+      return usersService._validateUsers(filtered);
+    } catch (error) {
+      console.error("Invalid users data on search:", error);
+      return [];
     }
-
-    const term = searchTerm.toLowerCase();
-    return results.filter(
-      (user) =>
-        user.name.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term)
-    );
   },
 
   /**
@@ -128,12 +203,18 @@ export const usersService = {
    */
   addProfileToUser: (userId: string, profile: ProfileType): User | null => {
     const user = mockUsers.find((u) => u.id === userId);
-    if (!user) return null;
+    if (!user) {return null;}
 
     if (!user.profiles.includes(profile)) {
       user.profiles.push(profile);
     }
-    return user;
+
+    try {
+      return usersService._validateUser(user);
+    } catch (error) {
+      console.error("Invalid user data after adding profile:", error);
+      return null;
+    }
   },
 
   /**
@@ -141,9 +222,15 @@ export const usersService = {
    */
   removeProfileFromUser: (userId: string, profile: ProfileType): User | null => {
     const user = mockUsers.find((u) => u.id === userId);
-    if (!user) return null;
+    if (!user) {return null;}
 
     user.profiles = user.profiles.filter((p) => p !== profile);
-    return user;
+
+    try {
+      return usersService._validateUser(user);
+    } catch (error) {
+      console.error("Invalid user data after removing profile:", error);
+      return null;
+    }
   },
 };
