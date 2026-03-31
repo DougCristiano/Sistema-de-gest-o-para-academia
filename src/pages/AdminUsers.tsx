@@ -64,7 +64,7 @@ export const AdminUsers: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">Gerenciar Usuários</h1>
-          <p className="text-gray-600">Gerentes e professores da academia</p>
+          <p className="text-gray-600">Gerentes e professores da Huron</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -134,11 +134,10 @@ export const AdminUsers: React.FC = () => {
                       key={profile}
                       type="button"
                       onClick={() => toggleProfile(profile)}
-                      className={`px-3 py-1 rounded-full text-sm transition-all ${
-                        newUser.profiles.includes(profile)
+                      className={`px-3 py-1 rounded-full text-sm transition-all ${newUser.profiles.includes(profile)
                           ? "bg-green-500 text-white"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
+                        }`}
                     >
                       {PROFILE_NAMES[profile]}
                     </button>

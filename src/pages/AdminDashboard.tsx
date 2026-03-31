@@ -67,7 +67,7 @@ export const AdminDashboard: React.FC = () => {
       <div>
         <h1 className="text-3xl font-bold mb-2">Dashboard Administrativo</h1>
         <p className="text-gray-600">
-          Visão geral de todos os serviços da academia
+          Visão geral de todos os serviços da Huron
         </p>
       </div>
 
@@ -84,11 +84,10 @@ export const AdminDashboard: React.FC = () => {
             <button
               key={profile}
               onClick={() => setSelectedProfile(profile)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                isActive
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive
                   ? "text-white shadow-lg scale-105"
                   : "bg-white border border-gray-200 text-gray-700 hover:shadow-md"
-              }`}
+                }`}
               style={isActive ? { backgroundColor: color } : undefined}
             >
               {profile === "all"

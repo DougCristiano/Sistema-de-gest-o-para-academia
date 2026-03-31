@@ -48,8 +48,8 @@ export const Login: React.FC = () => {
           <div className="flex justify-center mb-4">
             <img src={logo} alt="Logo do Sistema" className="h-24 object-contain" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Sistema de Gestão</h1>
-          <p className="text-gray-600">Academia - Gestão Integrada</p>
+          <h1 className="text-3xl font-bold mb-2">Huron Oficial</h1>
+          <p className="text-gray-600">Gestão Integrada</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -125,7 +125,7 @@ export const Layout: React.FC = () => {
           <div className="flex items-center gap-3">
             <img src={logo} alt="Logo" className="w-12 h-12 object-contain" />
             <div>
-              <h1 className="font-bold text-lg">Academia</h1>
+              <h1 className="font-bold text-lg">Huron Gestão</h1>
               {currentProfile && (
                 <p className="text-xs text-gray-500">
                   {PROFILE_NAMES[currentProfile]}
