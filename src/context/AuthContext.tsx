@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { User, ProfileType } from "../types";
 import { mockUsers } from "../data/mockData";
+import { profilesService } from "../services/profiles.service";
 
 interface AuthContextType {
   currentUser: User | null;
@@ -31,6 +32,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const resolveUserProfile = useCallback((user: User): ProfileType | null => {
+    if (user.role === "manager") {
+      const managedProfiles = profilesService
+        .getManagedServiceIds(user.id)
+        .filter((serviceId): serviceId is ProfileType => profilesService.isValidProfile(serviceId));
+
+      if (managedProfiles.length > 0) {
+        return managedProfiles[0];
+      }
+    }
+
+    return user.profiles.length > 0 ? user.profiles[0] : null;
+  }, []);
+
   // Carregar usuário do localStorage no mount
   useEffect(() => {
     try {
@@ -38,16 +53,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (saved) {
         const user = JSON.parse(saved);
         setCurrentUser(user);
-        if (user.profiles.length > 0) {
-          setCurrentProfile(user.profiles[0]);
-        }
+        setCurrentProfile(resolveUserProfile(user));
       }
     } catch (err) {
       console.error("Erro ao carregar usuário do localStorage:", err);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [resolveUserProfile]);
 
   // Login com async e persistência
   const login = useCallback(async (email: string, _password: string): Promise<boolean> => {
@@ -65,9 +78,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       setCurrentUser(user);
-      if (user.profiles.length > 0) {
-        setCurrentProfile(user.profiles[0]);
-      }
+      setCurrentProfile(resolveUserProfile(user));
 
       // Persistir no localStorage
       localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
@@ -79,7 +90,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [resolveUserProfile]);
 
   // Logout com limpeza
   const logout = useCallback(() => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -18,6 +18,8 @@ import { mockAppointments, mockUsers } from "../data/mockData";
 import { PROFILE_NAMES, PROFILE_COLORS, ProfileType } from "../types";
 import { format, addDays, startOfWeek, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useAuth } from "../context/AuthContext";
+import { profilesService } from "../services/profiles.service";
 import {
   Select,
   SelectContent,
@@ -27,6 +29,7 @@ import {
 } from "../components/ui/select";
 
 export const AdminAppointments: React.FC = () => {
+  const { currentUser } = useAuth();
   const [selectedProfile, setSelectedProfile] = useState<ProfileType | "all">("all");
   const [selectedTeacher, setSelectedTeacher] = useState<string>("all");
   const [currentWeekStart, setCurrentWeekStart] = useState(
@@ -34,11 +37,53 @@ export const AdminAppointments: React.FC = () => {
   );
   const [viewMode, setViewMode] = useState<"week" | "day">("week");
 
+  const managedProfiles = useMemo(() => {
+    if (currentUser?.role !== "manager") {
+      return [] as ProfileType[];
+    }
+
+    const managedServiceIds = profilesService.getManagedServiceIds(currentUser.id);
+    const managedProfileIds = managedServiceIds.filter((serviceId): serviceId is ProfileType =>
+      profilesService.isValidProfile(serviceId)
+    );
+
+    if (managedProfileIds.length > 0) {
+      return managedProfileIds;
+    }
+
+    return currentUser.profiles;
+  }, [currentUser]);
+
+  const profileOptions = currentUser?.role === "manager" ? managedProfiles : profilesService.getAllProfiles();
+
+  useEffect(() => {
+    if (currentUser?.role !== "manager") {
+      return;
+    }
+
+    if (managedProfiles.length === 1) {
+      setSelectedProfile(managedProfiles[0]);
+    }
+  }, [currentUser?.role, managedProfiles]);
+
   // Filtrar professores
-  const teachers = mockUsers.filter((user) => user.role === "teacher");
+  const teachers = mockUsers.filter((user) => {
+    if (user.role !== "teacher") {
+      return false;
+    }
+
+    if (currentUser?.role !== "manager") {
+      return true;
+    }
+
+    return user.profiles.some((profile) => managedProfiles.includes(profile));
+  });
 
   // Aplicar filtros
   const filteredAppointments = mockAppointments.filter((apt) => {
+    if (currentUser?.role === "manager" && !managedProfiles.includes(apt.profile)) {
+      return false;
+    }
     if (selectedProfile !== "all" && apt.profile !== selectedProfile) {return false;}
     if (selectedTeacher !== "all" && apt.teacherId !== selectedTeacher) {return false;}
     return true;
@@ -90,7 +135,11 @@ export const AdminAppointments: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Agenda de Aulas</h1>
-        <p className="text-gray-600">Visualize os agendamentos em formato de agenda</p>
+        <p className="text-gray-600">
+          {currentUser?.role === "manager"
+            ? "Gerencie a agenda dos seus serviços associados"
+            : "Visualize os agendamentos em formato de agenda"}
+        </p>
       </div>
 
       {/* Controles e Filtros */}
@@ -132,12 +181,12 @@ export const AdminAppointments: React.FC = () => {
                   <SelectValue placeholder="Todos os serviços" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos os serviços</SelectItem>
-                  <SelectItem value="huron-areia">Huron Areia</SelectItem>
-                  <SelectItem value="huron-personal">Huron Personal</SelectItem>
-                  <SelectItem value="huron-recovery">Huron Recovery</SelectItem>
-                  <SelectItem value="htri">HTRI</SelectItem>
-                  <SelectItem value="avitta">Avitta</SelectItem>
+                  {profileOptions.length > 1 && <SelectItem value="all">Todos os serviços</SelectItem>}
+                  {profileOptions.map((profile) => (
+                    <SelectItem key={profile} value={profile}>
+                      {PROFILE_NAMES[profile]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 

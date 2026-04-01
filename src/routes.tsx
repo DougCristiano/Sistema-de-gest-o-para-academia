@@ -22,6 +22,9 @@ const AdminServices = lazy(() =>
 const AdminAppointments = lazy(() =>
   import("./pages/AdminAppointments").then((m) => ({ default: m.AdminAppointments }))
 );
+const ServiceTeachersConfig = lazy(() =>
+  import("./pages/ServiceTeachersConfig").then((m) => ({ default: m.ServiceTeachersConfig }))
+);
 const ManagerDashboard = lazy(() =>
   import("./pages/ManagerDashboard").then((m) => ({ default: m.ManagerDashboard }))
 );
@@ -119,6 +122,10 @@ export const router = createBrowserRouter([
             path: "admin/services",
             element: withSuspense(AdminServices),
           },
+          {
+            path: "admin/service-teachers",
+            element: withSuspense(ServiceTeachersConfig),
+          },
           // Manager routes
           {
             path: "manager",
@@ -134,7 +141,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "manager/appointments",
-            element: withSuspense(ManagerDashboard),
+            element: withSuspense(AdminAppointments),
           },
           {
             path: "manager/add-teacher",
@@ -143,6 +150,10 @@ export const router = createBrowserRouter([
           {
             path: "manager/config",
             element: withSuspense(ManagerProfileConfig),
+          },
+          {
+            path: "manager/service-teachers",
+            element: withSuspense(ServiceTeachersConfig),
           },
           // Teacher routes
           {

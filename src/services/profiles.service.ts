@@ -8,6 +8,7 @@ import {
   mockAttendanceByProfile,
   mockCheckInHistory,
   mockRevenueGrowth,
+  mockUsers,
 } from "../data/mockData";
 import { ProfileConfigSchema } from "../schemas";
 
@@ -17,14 +18,64 @@ import { ProfileConfigSchema } from "../schemas";
  * Todos os dados são validados com Zod antes de retornar
  */
 
+export type ServiceWeekDayKey =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
+
+export interface ServiceTeacherDaySchedule {
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+}
+
+export type ServiceTeacherSchedule = Record<ServiceWeekDayKey, ServiceTeacherDaySchedule>;
+
+export interface ServiceTeacherAssignment {
+  teacherId: string;
+  schedule: ServiceTeacherSchedule;
+}
+
 export interface ServiceCatalogItem {
   id: string;
   name: string;
   color: string;
   active: boolean;
+  managerId: string | null;
+  teachers: ServiceTeacherAssignment[];
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ServiceManagerOption {
+  value: string;
+  label: string;
+  email: string;
+}
+
+export interface ServiceTeacherOption {
+  value: string;
+  label: string;
+  email: string;
+}
+
+export const SERVICE_WEEK_DAYS: Array<{
+  key: ServiceWeekDayKey;
+  label: string;
+  shortLabel: string;
+}> = [
+  { key: "monday", label: "Segunda", shortLabel: "Seg" },
+  { key: "tuesday", label: "Terca", shortLabel: "Ter" },
+  { key: "wednesday", label: "Quarta", shortLabel: "Qua" },
+  { key: "thursday", label: "Quinta", shortLabel: "Qui" },
+  { key: "friday", label: "Sexta", shortLabel: "Sex" },
+  { key: "saturday", label: "Sabado", shortLabel: "Sab" },
+  { key: "sunday", label: "Domingo", shortLabel: "Dom" },
+];
 
 const SERVICES_STORAGE_KEY = "huron_services_catalog";
 
@@ -48,6 +99,20 @@ const BASE_PROFILE_IDS: ProfileType[] = [
   "avitta",
 ];
 
+const DEFAULT_MANAGER_BY_PROFILE: Partial<Record<ProfileType, string>> = mockUsers
+  .filter((user) => user.role === "manager")
+  .reduce(
+    (acc, manager) => {
+      manager.profiles.forEach((profile) => {
+        if (!acc[profile]) {
+          acc[profile] = manager.id;
+        }
+      });
+      return acc;
+    },
+    {} as Partial<Record<ProfileType, string>>
+  );
+
 const DEFAULT_SERVICE_CATALOG: ServiceCatalogItem[] = BASE_PROFILE_IDS.map((id) => {
   const now = new Date().toISOString();
   return {
@@ -55,10 +120,14 @@ const DEFAULT_SERVICE_CATALOG: ServiceCatalogItem[] = BASE_PROFILE_IDS.map((id) 
     name: PROFILE_NAMES[id],
     color: PROFILE_COLORS[id],
     active: true,
+    managerId: DEFAULT_MANAGER_BY_PROFILE[id] || null,
+    teachers: [],
     createdAt: now,
     updatedAt: now,
   };
 });
+
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 const canUseStorage = (): boolean => {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -75,6 +144,87 @@ const normalizeServiceId = (value: string): string => {
     .replace(/-{2,}/g, "-");
 
   return normalized || "servico";
+};
+
+export const createDefaultTeacherSchedule = (): ServiceTeacherSchedule => ({
+  monday: { enabled: true, startTime: "06:00", endTime: "22:00" },
+  tuesday: { enabled: true, startTime: "06:00", endTime: "22:00" },
+  wednesday: { enabled: true, startTime: "06:00", endTime: "22:00" },
+  thursday: { enabled: true, startTime: "06:00", endTime: "22:00" },
+  friday: { enabled: true, startTime: "06:00", endTime: "22:00" },
+  saturday: { enabled: true, startTime: "08:00", endTime: "14:00" },
+  sunday: { enabled: false, startTime: "08:00", endTime: "12:00" },
+});
+
+const sanitizeTime = (value: unknown, fallback: string): string => {
+  if (typeof value === "string" && TIME_PATTERN.test(value)) {
+    return value;
+  }
+
+  return fallback;
+};
+
+const cloneTeacherSchedule = (schedule: ServiceTeacherSchedule): ServiceTeacherSchedule => {
+  return SERVICE_WEEK_DAYS.reduce((acc, day) => {
+    acc[day.key] = { ...schedule[day.key] };
+    return acc;
+  }, {} as ServiceTeacherSchedule);
+};
+
+const sanitizeTeacherSchedule = (value: unknown): ServiceTeacherSchedule => {
+  const defaultSchedule = createDefaultTeacherSchedule();
+
+  if (!value || typeof value !== "object") {
+    return defaultSchedule;
+  }
+
+  const candidate = value as Partial<Record<ServiceWeekDayKey, Partial<ServiceTeacherDaySchedule>>>;
+
+  return SERVICE_WEEK_DAYS.reduce((acc, day) => {
+    const candidateDay = candidate[day.key];
+    const fallback = defaultSchedule[day.key];
+
+    acc[day.key] = {
+      enabled:
+        typeof candidateDay?.enabled === "boolean" ? candidateDay.enabled : fallback.enabled,
+      startTime: sanitizeTime(candidateDay?.startTime, fallback.startTime),
+      endTime: sanitizeTime(candidateDay?.endTime, fallback.endTime),
+    };
+
+    return acc;
+  }, {} as ServiceTeacherSchedule);
+};
+
+const sanitizeTeacherAssignments = (value: unknown): ServiceTeacherAssignment[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const seenTeacherIds = new Set<string>();
+
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === "object")
+    .map((item) => ({
+      teacherId: typeof item.teacherId === "string" ? item.teacherId : "",
+      schedule: sanitizeTeacherSchedule(item.schedule),
+    }))
+    .filter((assignment) => {
+      if (!assignment.teacherId || seenTeacherIds.has(assignment.teacherId)) {
+        return false;
+      }
+
+      seenTeacherIds.add(assignment.teacherId);
+      return true;
+    });
+};
+
+const cloneTeacherAssignments = (
+  teachers: ServiceTeacherAssignment[]
+): ServiceTeacherAssignment[] => {
+  return teachers.map((assignment) => ({
+    teacherId: assignment.teacherId,
+    schedule: cloneTeacherSchedule(assignment.schedule),
+  }));
 };
 
 const parseServiceCatalog = (raw: string | null): ServiceCatalogItem[] | null => {
@@ -97,6 +247,8 @@ const parseServiceCatalog = (raw: string | null): ServiceCatalogItem[] | null =>
         name: typeof item.name === "string" ? item.name : "",
         color: typeof item.color === "string" ? item.color : SERVICE_COLOR_PALETTE[0],
         active: typeof item.active === "boolean" ? item.active : true,
+        managerId: typeof item.managerId === "string" ? item.managerId : null,
+        teachers: sanitizeTeacherAssignments(item.teachers),
         createdAt: typeof item.createdAt === "string" ? item.createdAt : now,
         updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : now,
       }))
@@ -161,6 +313,164 @@ export const profilesService = {
   },
 
   /**
+   * Lista managers para seleção
+   */
+  getManagerOptions: (): ServiceManagerOption[] => {
+    return mockUsers
+      .filter((user) => user.role === "manager")
+      .map((manager) => ({
+        value: manager.id,
+        label: manager.name,
+        email: manager.email,
+      }));
+  },
+
+  /**
+   * Lista professores para seleção
+   */
+  getTeacherOptions: (): ServiceTeacherOption[] => {
+    return mockUsers
+      .filter((user) => user.role === "teacher")
+      .map((teacher) => ({
+        value: teacher.id,
+        label: teacher.name,
+        email: teacher.email,
+      }));
+  },
+
+  /**
+   * Retorna nome do manager responsável por um serviço
+   */
+  getServiceManagerName: (serviceId: string): string | null => {
+    const service = profilesService.getServiceById(serviceId);
+    if (!service || !service.managerId) {
+      return null;
+    }
+
+    const manager = mockUsers.find((user) => user.id === service.managerId && user.role === "manager");
+    return manager ? manager.name : null;
+  },
+
+  /**
+   * Retorna nome do professor por id
+   */
+  getTeacherName: (teacherId: string): string | null => {
+    const teacher = mockUsers.find((user) => user.id === teacherId && user.role === "teacher");
+    return teacher ? teacher.name : null;
+  },
+
+  /**
+   * Lista ids dos serviços geridos por um manager
+   */
+  getManagedServiceIds: (managerId: string, includeInactive = false): string[] => {
+    const catalog = includeInactive
+      ? profilesService.getServiceCatalog()
+      : profilesService.getActiveServiceCatalog();
+
+    return catalog.filter((service) => service.managerId === managerId).map((service) => service.id);
+  },
+
+  /**
+   * Retorna lista de professores e horários de um serviço
+   */
+  getServiceTeachers: (serviceId: string): ServiceTeacherAssignment[] => {
+    const service = profilesService.getServiceById(serviceId);
+    if (!service) {
+      return [];
+    }
+
+    return cloneTeacherAssignments(service.teachers);
+  },
+
+  /**
+   * Retorna serviços atribuídos a um professor com seus horários
+   */
+  getTeacherServiceSchedules: (teacherId: string, onlyActive = true) => {
+    const catalog = onlyActive
+      ? profilesService.getActiveServiceCatalog()
+      : profilesService.getServiceCatalog();
+
+    return catalog.reduce<Array<{ service: ServiceCatalogItem; schedule: ServiceTeacherSchedule }>>(
+      (acc, service) => {
+        const assignment = service.teachers.find((teacher) => teacher.teacherId === teacherId);
+        if (!assignment) {
+          return acc;
+        }
+
+        acc.push({
+          service,
+          schedule: cloneTeacherSchedule(assignment.schedule),
+        });
+
+        return acc;
+      },
+      []
+    );
+  },
+
+  /**
+   * Define manager responsável por um serviço
+   */
+  setServiceManager: (serviceId: string, managerId: string | null): ServiceCatalogItem => {
+    const catalog = readServiceCatalog();
+    const target = catalog.find((service) => service.id === serviceId);
+
+    if (!target) {
+      throw new Error("Serviço não encontrado.");
+    }
+
+    if (managerId) {
+      const managerExists = mockUsers.some((user) => user.id === managerId && user.role === "manager");
+      if (!managerExists) {
+        throw new Error("Manager inválido para associação.");
+      }
+    }
+
+    const now = new Date().toISOString();
+    const updatedCatalog = catalog.map((service) =>
+      service.id === serviceId ? { ...service, managerId, updatedAt: now } : service
+    );
+
+    saveServiceCatalog(updatedCatalog);
+    return updatedCatalog.find((service) => service.id === serviceId) as ServiceCatalogItem;
+  },
+
+  /**
+   * Atualiza lista de professores e horários de um serviço
+   */
+  setServiceTeachers: (
+    serviceId: string,
+    teachers: ServiceTeacherAssignment[]
+  ): ServiceCatalogItem => {
+    const catalog = readServiceCatalog();
+    const target = catalog.find((service) => service.id === serviceId);
+
+    if (!target) {
+      throw new Error("Serviço não encontrado.");
+    }
+
+    const validTeacherIds = new Set(profilesService.getTeacherOptions().map((teacher) => teacher.value));
+    const normalizedTeachers = sanitizeTeacherAssignments(teachers).map((assignment) => {
+      if (!validTeacherIds.has(assignment.teacherId)) {
+        throw new Error("Professor inválido para associação.");
+      }
+
+      return {
+        teacherId: assignment.teacherId,
+        schedule: cloneTeacherSchedule(assignment.schedule),
+      };
+    });
+
+    const now = new Date().toISOString();
+    const updatedCatalog = catalog.map((service) =>
+      service.id === serviceId ? { ...service, teachers: normalizedTeachers, updatedAt: now } : service
+    );
+
+    saveServiceCatalog(updatedCatalog);
+    return updatedCatalog.find((service) => service.id === serviceId) as ServiceCatalogItem;
+  },
+
+  /**
    * Retorna nome exibível de um serviço por id
    */
   getServiceName: (serviceId: string): string => {
@@ -205,6 +515,8 @@ export const profilesService = {
       name: trimmedName,
       color: SERVICE_COLOR_PALETTE[catalog.length % SERVICE_COLOR_PALETTE.length],
       active: true,
+      managerId: null,
+      teachers: [],
       createdAt: now,
       updatedAt: now,
     };
@@ -296,6 +608,7 @@ export const profilesService = {
       label: service.name,
       color: service.color,
       active: service.active,
+      managerId: service.managerId,
     }));
   },
 

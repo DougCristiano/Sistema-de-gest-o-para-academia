@@ -26,8 +26,9 @@ import {
   Eye,
   ArrowUpDown,
 } from "lucide-react";
-import { PROFILE_NAMES, PROFILE_COLORS } from "../types";
+import { PROFILE_NAMES, PROFILE_COLORS, ProfileType } from "../types";
 import { mockAthletes, mockCheckInHistory, MockAthlete } from "../data/mockData";
+import { profilesService } from "../services/profiles.service";
 import { BarChart , XAxis , CartesianGrid , ResponsiveContainer } from "recharts";
 
 type StatusFilter = "todos" | "ativo" | "inativo" | "pendente";
@@ -60,7 +61,26 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 export const ManagerAthletes: React.FC = () => {
-  const { currentProfile } = useAuth();
+  const { currentProfile: authProfile, currentUser } = useAuth();
+
+  const managedProfiles = useMemo(() => {
+    if (currentUser?.role !== "manager") {
+      return [] as ProfileType[];
+    }
+
+    const managedServiceIds = profilesService.getManagedServiceIds(currentUser.id);
+    const validManagedProfiles = managedServiceIds.filter((serviceId): serviceId is ProfileType =>
+      profilesService.isValidProfile(serviceId)
+    );
+
+    if (validManagedProfiles.length > 0) {
+      return validManagedProfiles;
+    }
+
+    return currentUser.profiles;
+  }, [currentUser]);
+
+  const currentProfile = managedProfiles[0] || authProfile;
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [expandedAthleteId, setExpandedAthleteId] = useState<string | null>(null);

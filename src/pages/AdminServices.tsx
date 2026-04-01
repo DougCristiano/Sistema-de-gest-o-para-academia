@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -11,18 +12,28 @@ import {
 } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Edit, Plus, Power, RotateCcw, Search } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { CalendarClock, Edit, Plus, Power, RotateCcw, Search } from "lucide-react";
 import { profilesService, ServiceCatalogItem } from "../services/profiles.service";
 
 interface ServiceFormState {
   name: string;
+  managerId: string;
 }
 
 const INITIAL_FORM_STATE: ServiceFormState = {
   name: "",
+  managerId: "",
 };
 
 export const AdminServices: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<ServiceCatalogItem | null>(null);
@@ -61,6 +72,8 @@ export const AdminServices: React.FC = () => {
     );
   }, [searchTerm, services]);
 
+  const managerOptions = useMemo(() => profilesService.getManagerOptions(), []);
+
   const openCreateDialog = () => {
     setEditingService(null);
     setFormState(INITIAL_FORM_STATE);
@@ -70,7 +83,7 @@ export const AdminServices: React.FC = () => {
 
   const openEditDialog = (service: ServiceCatalogItem) => {
     setEditingService(service);
-    setFormState({ name: service.name });
+    setFormState({ name: service.name, managerId: service.managerId || "" });
     setErrorMessage(null);
     setIsDialogOpen(true);
   };
@@ -86,9 +99,13 @@ export const AdminServices: React.FC = () => {
     try {
       if (editingService) {
         profilesService.updateServiceName(editingService.id, formState.name);
+        profilesService.setServiceManager(editingService.id, formState.managerId || null);
         setSuccessMessage("Servico atualizado com sucesso.");
       } else {
-        profilesService.createService(formState.name);
+        const createdService = profilesService.createService(formState.name);
+        if (formState.managerId) {
+          profilesService.setServiceManager(createdService.id, formState.managerId);
+        }
         setSuccessMessage("Servico criado com sucesso.");
       }
 
@@ -144,9 +161,38 @@ export const AdminServices: React.FC = () => {
                 <Input
                   id="service-name"
                   value={formState.name}
-                  onChange={(e) => setFormState({ name: e.target.value })}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                   placeholder="Ex: Huron Pilates"
                 />
+              </div>
+              <div>
+                <Label htmlFor="service-manager">Manager Responsavel</Label>
+                <Select
+                  value={formState.managerId || "none"}
+                  onValueChange={(value) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      managerId: value === "none" ? "" : value,
+                    }))
+                  }
+                >
+                  <SelectTrigger id="service-manager">
+                    <SelectValue placeholder="Selecione um manager" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sem manager associado</SelectItem>
+                    {managerOptions.map((manager) => (
+                      <SelectItem key={manager.value} value={manager.value}>
+                        {manager.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               {errorMessage && (
                 <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
@@ -222,12 +268,24 @@ export const AdminServices: React.FC = () => {
                     </Badge>
                   </div>
                   <p className="text-sm text-gray-500 mb-1">Slug: {service.id}</p>
+                  <p className="text-sm text-gray-500 mb-1">
+                    Responsavel: {profilesService.getServiceManagerName(service.id) || "Nao associado"}
+                  </p>
                   <p className="text-xs text-gray-400">
                     Atualizado em {new Date(service.updatedAt).toLocaleDateString("pt-BR")}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/admin/service-teachers?service=${service.id}`)}
+                  >
+                    <CalendarClock className="w-4 h-4 mr-1" />
+                    Professores
+                  </Button>
+
                   <Button variant="outline" size="sm" onClick={() => openEditDialog(service)}>
                     <Edit className="w-4 h-4 mr-1" />
                     Editar

@@ -15,6 +15,7 @@ import {
   Activity,
   GraduationCap,
   CalendarPlus,
+  CalendarClock,
   UserCircle,
   Briefcase,
 } from "lucide-react";
@@ -43,6 +44,11 @@ export const Layout: React.FC = () => {
           { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
           { icon: Users, label: "Gerenciar Usuários", path: "/admin/users" },
           { icon: Briefcase, label: "Gerenciar Servicos", path: "/admin/services" },
+          {
+            icon: CalendarClock,
+            label: "Professores e Horarios",
+            path: "/admin/service-teachers",
+          },
           {
             icon: GraduationCap,
             label: "Matriculados",
@@ -78,6 +84,11 @@ export const Layout: React.FC = () => {
             icon: Settings,
             label: "Configurar Serviço",
             path: "/manager/config",
+          },
+          {
+            icon: CalendarClock,
+            label: "Professores e Horarios",
+            path: "/manager/service-teachers",
           },
           ...(hasStudentProfiles
             ? [{ icon: CalendarPlus, label: "Agendar Aula", path: "/booking" }]

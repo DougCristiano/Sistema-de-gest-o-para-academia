@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Card } from "../components/ui/card";
 import { AppointmentCard } from "../components/AppointmentCard";
@@ -8,10 +8,19 @@ import { mockAppointments, mockWeeklyAppointments } from "../data/mockData";
 import { format, isToday, isTomorrow, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BarChart, XAxis, YAxis, CartesianGrid, Tooltip, Bar, ResponsiveContainer } from "recharts";
+import { profilesService, SERVICE_WEEK_DAYS } from "../services/profiles.service";
 
 export const TeacherSchedule: React.FC = () => {
   const { currentUser } = useAuth();
   const [selectedDate, setSelectedDate] = useState<"today" | "tomorrow" | "week">("today");
+
+  const configuredServiceSchedules = useMemo(() => {
+    if (!currentUser) {
+      return [];
+    }
+
+    return profilesService.getTeacherServiceSchedules(currentUser.id, true);
+  }, [currentUser]);
 
   // Filtrar agendamentos do professor
   const myAppointments = mockAppointments.filter((apt) => apt.teacherId === currentUser?.id);
@@ -101,6 +110,40 @@ export const TeacherSchedule: React.FC = () => {
             <Bar dataKey="appointments" fill="#22c55e" radius={[8, 8, 0, 0]} name="Aulas" />
           </BarChart>
         </ResponsiveContainer>
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="text-xl font-bold mb-4">Disponibilidade Configurada por Servico</h2>
+        {configuredServiceSchedules.length === 0 ? (
+          <p className="text-sm text-gray-600">
+            Ainda nao ha horarios configurados para os servicos em que voce foi vinculado.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {configuredServiceSchedules.map(({ service, schedule }) => {
+              const enabledDays = SERVICE_WEEK_DAYS.filter((day) => schedule[day.key].enabled).map(
+                (day) => `${day.shortLabel} ${schedule[day.key].startTime}-${schedule[day.key].endTime}`
+              );
+
+              return (
+                <div key={service.id} className="border rounded-md p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span
+                      className="inline-block w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: service.color }}
+                    />
+                    <p className="font-semibold">{service.name}</p>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {enabledDays.length > 0
+                      ? enabledDays.join(" | ")
+                      : "Sem dias ativos para este servico."}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </Card>
 
       {/* Tabs */}
