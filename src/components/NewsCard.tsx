@@ -18,7 +18,7 @@ import {
   BookOpen,
   GraduationCap,
 } from "lucide-react";
-import { NewsPost , PROFILE_NAMES, UserRole } from "../types";
+import { NewsPost, NewsComment, PROFILE_NAMES, UserRole } from "../types";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -89,19 +89,19 @@ const CommentItem: React.FC<{ comment: NewsComment }> = ({ comment }) => {
         </AvatarFallback>
       </Avatar>
       <div className="flex-1 min-w-0">
-        <div className="bg-gray-50 rounded-2xl px-4 py-2.5">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl px-4 py-2.5 transition-colors">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-sm">{comment.authorName}</span>
+            <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">{comment.authorName}</span>
             {roleBadge && (
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${roleBadge.color}`}>
                 {roleBadge.label}
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-700 mt-0.5">{comment.content}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5">{comment.content}</p>
         </div>
         <div className="flex items-center gap-4 mt-1 px-2">
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-gray-400 dark:text-gray-500">
             {formatDistanceToNow(comment.date, {
               locale: ptBR,
               addSuffix: true,
@@ -110,7 +110,7 @@ const CommentItem: React.FC<{ comment: NewsComment }> = ({ comment }) => {
           <button
             onClick={toggleLike}
             className={`text-xs font-semibold transition-colors ${
-              liked ? "text-red-500" : "text-gray-400 hover:text-gray-600"
+              liked ? "text-red-500" : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
             }`}
           >
             Curtir {likeCount > 0 && `(${likeCount})`}
@@ -201,7 +201,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   const hiddenCount = comments.length - 2;
 
   return (
-    <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+    <Card className="overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg hover:scale-101 transition-all duration-300">
       {/* Header - Author info */}
       <div className="px-5 pt-5 pb-3">
         <div className="flex items-start justify-between">
@@ -248,15 +248,15 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
 
       {/* Content */}
       <div className="px-5 pb-3">
-        <h3 className="font-semibold text-base mb-1.5">{news.title}</h3>
-        <p className="text-sm text-gray-600 leading-relaxed">{news.content}</p>
+        <h3 className="font-semibold text-base mb-1.5 text-gray-900 dark:text-gray-100">{news.title}</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{news.content}</p>
 
         {/* Profile tags */}
         <div className="flex flex-wrap gap-1.5 mt-3">
           {news.profiles.map((profile) => (
             <span
               key={profile}
-              className="text-[11px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full"
+              className="text-[11px] px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full"
             >
               {PROFILE_NAMES[profile]}
             </span>
@@ -272,7 +272,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
       )}
 
       {/* Engagement stats */}
-      <div className="px-5 py-2.5 flex items-center justify-between text-xs text-gray-500 border-b border-gray-100">
+      <div className="px-5 py-2.5 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-1.5">
           <span className="flex items-center justify-center w-5 h-5 rounded-full bg-red-500">
             <Heart className="w-3 h-3 text-white fill-white" />
@@ -295,7 +295,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
       </div>
 
       {/* Action buttons */}
-      <div className="px-2 py-1 flex items-center border-b border-gray-100">
+      <div className="px-2 py-1 flex items-center border-b border-gray-100 dark:border-gray-800">
         <button
           onClick={toggleLike}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
@@ -327,12 +327,12 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
 
       {/* Comments section */}
       {showComments && (
-        <div className="px-5 py-4 space-y-4 bg-white">
+        <div className="px-5 py-4 space-y-4 bg-white dark:bg-gray-900">
           {/* Show more comments */}
           {hiddenCount > 0 && !showAllComments && (
             <button
               onClick={() => setShowAllComments(true)}
-              className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
+              className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               <ChevronDown className="w-4 h-4" />
               Ver{" "}
@@ -343,7 +343,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
           {showAllComments && hiddenCount > 0 && (
             <button
               onClick={() => setShowAllComments(false)}
-              className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
+              className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               <ChevronUp className="w-4 h-4" />
               Ocultar comentários
@@ -362,13 +362,13 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
             <Avatar className="w-8 h-8 flex-shrink-0">
               <AvatarFallback className="bg-[#22c55e] text-white text-xs">VC</AvatarFallback>
             </Avatar>
-            <div className="flex-1 flex items-center bg-gray-50 rounded-full px-4 py-1 border border-gray-200 focus-within:border-[#22c55e] focus-within:ring-1 focus-within:ring-[#22c55e]/20 transition-all">
+            <div className="flex-1 flex items-center bg-gray-50 dark:bg-gray-800 rounded-full px-4 py-1 border border-gray-200 dark:border-gray-700 focus-within:border-[#22c55e] focus-within:ring-1 focus-within:ring-[#22c55e]/20 transition-all">
               <Input
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleComment()}
                 placeholder="Escreva um comentário..."
-                className="border-0 shadow-none bg-transparent focus-visible:ring-0 text-sm px-0 h-9"
+                className="border-0 shadow-none bg-transparent focus-visible:ring-0 text-sm px-0 h-9 dark:text-gray-100 dark:placeholder-gray-500"
               />
               <button
                 onClick={handleComment}
@@ -376,7 +376,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
                 className={`p-1.5 rounded-full transition-all ${
                   newComment.trim()
                     ? "text-[#22c55e] hover:bg-[#22c55e]/10 cursor-pointer"
-                    : "text-gray-300 cursor-not-allowed"
+                    : "text-gray-300 dark:text-gray-600 cursor-not-allowed"
                 }`}
               >
                 <Send className="w-4 h-4" />

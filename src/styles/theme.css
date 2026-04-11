@@ -1,87 +1,139 @@
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================
+   HURON ACADEMY - DESIGN SYSTEM
+   Primary: Green (#22c55e)
+   Secondary: Blue (#3b82f6)
+   Accent: Yellow (#eab308)
+   ============================================ */
+
 :root {
   --font-size: 16px;
-  --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
-  --card: #ffffff;
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #030213;
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.0058 264.53);
-  --secondary-foreground: #030213;
-  --muted: #ececf0;
-  --muted-foreground: #717182;
-  --accent: #e9ebef;
-  --accent-foreground: #030213;
-  --destructive: #d4183d;
-  --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.1);
-  --input: transparent;
-  --input-background: #f3f3f5;
-  --switch-background: #cbced4;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+
+  /* === Brand Colors === */
   --huron-green: #22c55e;
+  --huron-green-light: #bbf7d0;
+  --huron-green-dark: #15803d;
   --huron-blue: #3b82f6;
+  --huron-blue-light: #bfdbfe;
+  --huron-blue-dark: #1e40af;
   --huron-yellow: #eab308;
+  --huron-yellow-light: #fef08a;
+  --huron-yellow-dark: #a16207;
   --huron-brown: #92400e;
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  /* === Surfaces === */
+  --background: #f0fdf4;
+  --foreground: #0f1b15;
+  --card: #ffffff;
+  --card-foreground: #1a2e23;
+  --popover: #ffffff;
+  --popover-foreground: #1a2e23;
+
+  /* === Primary (Green) === */
+  --primary: #22c55e;
+  --primary-foreground: #ffffff;
+
+  /* === Secondary (Blue tint) === */
+  --secondary: #eff6ff;
+  --secondary-foreground: #1e40af;
+
+  /* === Muted === */
+  --muted: #f0fdf4;
+  --muted-foreground: #4b6358;
+
+  /* === Accent (Yellow tint) === */
+  --accent: #fefce8;
+  --accent-foreground: #854d0e;
+
+  /* === Destructive === */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  /* === Borders & Inputs === */
+  --border: #d1e7dd;
+  --input: #d1e7dd;
+  --input-background: #f0fdf4;
+  --switch-background: #bbf7d0;
+  --ring: #22c55e;
+
+  /* === Typography weights === */
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+
+  /* === Charts === */
+  --chart-1: #22c55e;
+  --chart-2: #3b82f6;
+  --chart-3: #eab308;
+  --chart-4: #8b5cf6;
+  --chart-5: #ec4899;
+
+  /* === Radius === */
+  --radius: 0.625rem;
+
+  /* === Sidebar === */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a2e23;
+  --sidebar-primary: #22c55e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0fdf4;
+  --sidebar-accent-foreground: #15803d;
+  --sidebar-border: #d1e7dd;
+  --sidebar-ring: #22c55e;
 }
 
+/* ============================================
+   DARK MODE
+   Rich dark with green undertones
+   ============================================ */
+.dark {
+  --background: #0a1f13;
+  --foreground: #e8f5ee;
+  --card: #112b1a;
+  --card-foreground: #e8f5ee;
+  --popover: #112b1a;
+  --popover-foreground: #e8f5ee;
+
+  --primary: #22c55e;
+  --primary-foreground: #ffffff;
+
+  --secondary: #0c2340;
+  --secondary-foreground: #93c5fd;
+
+  --muted: #1a3d26;
+  --muted-foreground: #94b8a4;
+
+  --accent: #2a2000;
+  --accent-foreground: #fde047;
+
+  --destructive: #991b1b;
+  --destructive-foreground: #fecaca;
+
+  --border: #1e4d2e;
+  --input: #1e4d2e;
+  --input-background: #153322;
+  --switch-background: #1e4d2e;
+  --ring: #22c55e;
+
+  --chart-1: #4ade80;
+  --chart-2: #60a5fa;
+  --chart-3: #facc15;
+  --chart-4: #a78bfa;
+  --chart-5: #f472b6;
+
+  --sidebar: #0e2518;
+  --sidebar-foreground: #e8f5ee;
+  --sidebar-primary: #22c55e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a3d26;
+  --sidebar-accent-foreground: #4ade80;
+  --sidebar-border: #1e4d2e;
+  --sidebar-ring: #22c55e;
+}
+
+/* ============================================
+   TAILWIND THEME MAPPING
+   ============================================ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -127,6 +179,9 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ============================================
+   BASE STYLES
+   ============================================ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -136,37 +191,57 @@
     @apply bg-background text-foreground;
   }
 
-  /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
-
   html {
     font-size: var(--font-size);
+  }
+
+  /* Global cursor pointer for interactive elements */
+  button,
+  [role="button"],
+  a,
+  select,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"],
+  summary {
+    cursor: pointer;
+  }
+
+  /* Smooth transitions on all interactive elements */
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    transition: all 0.2s ease-out;
   }
 
   h1 {
     font-size: var(--text-2xl);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
+    @apply text-foreground;
   }
 
   h2 {
     font-size: var(--text-xl);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
+    @apply text-foreground;
   }
 
   h3 {
     font-size: var(--text-lg);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
+    @apply text-foreground;
   }
 
   h4 {
     font-size: var(--text-base);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
+    @apply text-foreground;
   }
 
   label {
@@ -185,5 +260,32 @@
     font-size: var(--text-base);
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
+  }
+
+  /* Selection color with brand */
+  ::selection {
+    background-color: #22c55e;
+    color: white;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+
+  /* Focus visible ring using brand color */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
   }
 }

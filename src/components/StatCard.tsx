@@ -14,18 +14,21 @@ export const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
   icon: Icon,
-  color = "bg-blue-500",
+  color = "#22c55e",
   subtitle,
 }) => {
   return (
-    <Card className="p-6">
+    <Card className="p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default group">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold mb-1">{value}</p>
-          {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+          <p className="text-sm text-muted-foreground mb-2 font-medium">{title}</p>
+          <p className="text-3xl font-bold text-foreground mb-1">{value}</p>
+          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
         </div>
-        <div className={`${color} p-3 rounded-lg`}>
+        <div
+          className="p-3.5 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-sm"
+          style={{ backgroundColor: color }}
+        >
           <Icon className="w-6 h-6 text-white" />
         </div>
       </div>

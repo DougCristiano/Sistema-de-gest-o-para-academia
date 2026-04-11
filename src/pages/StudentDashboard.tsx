@@ -82,12 +82,12 @@ export const StudentDashboard: React.FC = () => {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold mb-1">Olá, {currentUser?.name?.split(" ")[0]}!</h1>
-        <p className="text-gray-600">Veja seu progresso e próximas aulas</p>
+        <p className="text-muted-foreground">Veja seu progresso e próximas aulas</p>
       </div>
 
       {/* Enrolled Services */}
-      <Card className="p-5 bg-gradient-to-r from-[#22c55e]/10 to-[#3b82f6]/10">
-        <h3 className="font-semibold mb-3 text-sm text-gray-700">Seus Serviços Matriculados</h3>
+      <Card className="p-5 bg-gradient-to-r from-primary/10 to-[#3b82f6]/10 border-l-4 border-primary">
+        <h3 className="font-semibold mb-3 text-sm text-foreground">Seus Serviços Matriculados</h3>
         <div className="flex flex-wrap gap-2">
           {userProfiles.map((profile) => (
             <Badge
@@ -109,10 +109,10 @@ export const StudentDashboard: React.FC = () => {
       {/* Main Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Plan & Check-ins */}
-        <Card className="p-5 md:col-span-2">
+        <Card className="p-5 md:col-span-2 border-l-4" style={{ borderLeftColor: profileColor }}>
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h2 className="font-bold text-lg">Meu Plano</h2>
+              <h2 className="font-bold text-lg text-foreground">Meu Plano</h2>
               <div className="flex items-center gap-2 mt-1">
                 <Badge
                   style={{
@@ -137,9 +137,9 @@ export const StudentDashboard: React.FC = () => {
           </div>
 
           {/* Check-in Progress */}
-          <div className="bg-gray-50 rounded-xl p-4">
+          <div className="bg-muted rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Check-ins este mês</span>
+              <span className="text-sm font-medium text-foreground">Check-ins este mês</span>
               <span className="text-2xl font-bold" style={{ color: profileColor }}>
                 {myAthleteData.checkInsThisMonth}{" "}
                 <span className="text-sm font-normal text-gray-400">/ {limit}</span>
@@ -204,31 +204,31 @@ export const StudentDashboard: React.FC = () => {
 
       {/* Session breakdown */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="p-4 text-center">
+        <Card className="p-4 text-center hover:shadow-lg hover:scale-102 transition-all duration-300 border-t-4 border-t-green-500">
           <p className="text-2xl font-bold text-green-600">{myAthleteData.completedSessions}</p>
-          <p className="text-xs text-gray-500 mt-1">Realizadas</p>
+          <p className="text-xs text-muted-foreground mt-1 font-medium">Realizadas</p>
         </Card>
-        <Card className="p-4 text-center">
+        <Card className="p-4 text-center hover:shadow-lg hover:scale-102 transition-all duration-300 border-t-4 border-t-amber-500">
           <p className="text-2xl font-bold text-amber-600">{myAthleteData.cancelledSessions}</p>
-          <p className="text-xs text-gray-500 mt-1">Canceladas</p>
+          <p className="text-xs text-muted-foreground mt-1 font-medium">Canceladas</p>
         </Card>
-        <Card className="p-4 text-center">
+        <Card className="p-4 text-center hover:shadow-lg hover:scale-102 transition-all duration-300 border-t-4 border-t-red-500">
           <p className="text-2xl font-bold text-red-500">{myAthleteData.noShowSessions}</p>
-          <p className="text-xs text-gray-500 mt-1">Faltas</p>
+          <p className="text-xs text-muted-foreground mt-1 font-medium">Faltas</p>
         </Card>
-        <Card className="p-4 text-center">
+        <Card className="p-4 text-center hover:shadow-lg hover:scale-102 transition-all duration-300 border-t-4" style={{ borderTopColor: profileColor }}>
           <p className="text-2xl font-bold" style={{ color: profileColor }}>
             {myAthleteData.totalSessions}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Total de sessões</p>
+          <p className="text-xs text-muted-foreground mt-1 font-medium">Total de sessões</p>
         </Card>
       </div>
 
       {/* Upcoming Appointments */}
-      <Card className="p-5">
+      <Card className="p-5 border-l-4" style={{ borderLeftColor: profileColor }}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-lg flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-gray-600" />
+          <h2 className="font-bold text-lg flex items-center gap-2 text-foreground">
+            <Calendar className="w-5 h-5" style={{ color: profileColor }} />
             Próximas Aulas
           </h2>
           <Button
@@ -289,18 +289,18 @@ export const StudentDashboard: React.FC = () => {
       </Card>
 
       {/* Teacher Info */}
-      <Card className="p-5">
-        <h2 className="font-bold text-lg mb-3">Meu Professor</h2>
+      <Card className="p-5 border-l-4 hover:shadow-lg transition-all duration-300" style={{ borderLeftColor: profileColor }}>
+        <h2 className="font-bold text-lg mb-3 text-foreground">Meu Professor</h2>
         <div className="flex items-center gap-4">
           <div
-            className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl"
+            className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md hover:shadow-lg transition-shadow"
             style={{ backgroundColor: profileColor }}
           >
             {myAthleteData.teacher.charAt(0)}
           </div>
           <div>
-            <p className="font-semibold text-lg">{myAthleteData.teacher}</p>
-            <p className="text-sm text-gray-500">{PROFILE_NAMES[myAthleteData.profile]}</p>
+            <p className="font-semibold text-lg text-foreground">{myAthleteData.teacher}</p>
+            <p className="text-sm text-muted-foreground">{PROFILE_NAMES[myAthleteData.profile]}</p>
           </div>
         </div>
       </Card>

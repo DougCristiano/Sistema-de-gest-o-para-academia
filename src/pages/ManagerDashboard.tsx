@@ -56,7 +56,7 @@ export const ManagerDashboard: React.FC = () => {
           <div className="w-4 h-4 rounded-full" style={{ backgroundColor: profileColor }} />
           <h1 className="text-3xl font-bold">{PROFILE_NAMES[currentProfile]}</h1>
         </div>
-        <p className="text-gray-600">Dashboard de Gerenciamento</p>
+        <p className="text-muted-foreground">Dashboard de Gerenciamento</p>
       </div>
 
       {/* Stats Grid */}
@@ -65,40 +65,46 @@ export const ManagerDashboard: React.FC = () => {
           title="Total de Alunos"
           value={stats.totalStudents}
           icon={Users}
-          color="bg-[#3b82f6]"
+          color="#3b82f6"
         />
         <StatCard
           title="Professores"
           value={stats.totalTeachers}
           icon={Users}
-          color="bg-[#92400e]"
+          color="#92400e"
         />
         <StatCard
           title="Agendamentos Hoje"
           value={stats.appointmentsToday}
           icon={Calendar}
-          color="bg-[#22c55e]"
+          color="#22c55e"
         />
         <StatCard
           title="Taxa de Presença"
           value={`${stats.attendanceRate}%`}
           icon={TrendingUp}
-          color="bg-[#eab308]"
+          color="#eab308"
         />
       </div>
 
       {/* Revenue Card */}
-      <Card className="p-6" style={{ borderLeft: `4px solid ${profileColor}` }}>
+      <Card
+        className="p-6 bg-gradient-to-br hover:shadow-xl transition-all duration-300 hover:scale-102"
+        style={{
+          borderLeft: `4px solid ${profileColor}`,
+          backgroundImage: `linear-gradient(135deg, ${profileColor}08 0%, transparent 100%)`
+        }}
+      >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-600 mb-1">Receita Mensal</p>
-            <p className="text-3xl font-bold">R$ {stats.revenue?.toLocaleString("pt-BR")}</p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted-foreground mb-2 font-medium">Receita Mensal</p>
+            <p className="text-4xl font-bold text-foreground">R$ {stats.revenue?.toLocaleString("pt-BR")}</p>
+            <p className="text-sm text-muted-foreground mt-2">
               {stats.appointmentsWeek} agendamentos esta semana
             </p>
           </div>
-          <div className="bg-amber-100 p-4 rounded-lg">
-            <DollarSign className="w-8 h-8 text-amber-600" />
+          <div className="p-4 rounded-xl" style={{ backgroundColor: `${profileColor}15` }}>
+            <DollarSign className="w-8 h-8" style={{ color: profileColor }} />
           </div>
         </div>
       </Card>
@@ -106,8 +112,8 @@ export const ManagerDashboard: React.FC = () => {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Peak Hours for Profile */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold mb-4">Horários de Pico do Serviço</h2>
+        <Card className="p-6 border-l-4" style={{ borderLeftColor: profileColor }}>
+          <h2 className="text-xl font-bold mb-4 text-foreground">Horários de Pico do Serviço</h2>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={mockPeakHours}>
               <defs>
@@ -141,8 +147,8 @@ export const ManagerDashboard: React.FC = () => {
         </Card>
 
         {/* Weekly Appointments for Profile */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold mb-4">Agendamentos Semanais</h2>
+        <Card className="p-6 border-l-4" style={{ borderLeftColor: profileColor }}>
+          <h2 className="text-xl font-bold mb-4 text-foreground">Agendamentos Semanais</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={mockWeeklyAppointments}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
@@ -167,8 +173,8 @@ export const ManagerDashboard: React.FC = () => {
         </Card>
 
         {/* Revenue Growth */}
-        <Card className="p-6 lg:col-span-2">
-          <h2 className="text-xl font-bold mb-4">Evolução da Receita (Últimos 6 Meses)</h2>
+        <Card className="p-6 lg:col-span-2 border-l-4" style={{ borderLeftColor: profileColor }}>
+          <h2 className="text-xl font-bold mb-4 text-foreground">Evolução da Receita (Últimos 6 Meses)</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={mockRevenueGrowth}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
@@ -197,32 +203,32 @@ export const ManagerDashboard: React.FC = () => {
       </div>
 
       {/* Teachers List */}
-      <Card className="p-6">
-        <h2 className="text-xl font-bold mb-4">Professores do Serviço</h2>
+      <Card className="p-6 border-l-4" style={{ borderLeftColor: profileColor }}>
+        <h2 className="text-xl font-bold mb-4 text-foreground">Professores do Serviço</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {profileTeachers.map((teacher) => (
             <div
               key={teacher.id}
-              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg"
+              className="flex items-center gap-3 p-4 border border-border rounded-lg hover:shadow-md hover:scale-102 transition-all duration-300 bg-card"
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
                 {teacher.name.charAt(0)}
               </div>
               <div className="flex-1">
-                <p className="font-semibold">{teacher.name}</p>
-                <p className="text-sm text-gray-600">{teacher.email}</p>
+                <p className="font-semibold text-foreground">{teacher.name}</p>
+                <p className="text-sm text-muted-foreground">{teacher.email}</p>
               </div>
-              <Badge>Professor</Badge>
+              <Badge variant="secondary">Professor</Badge>
             </div>
           ))}
         </div>
       </Card>
 
       {/* Upcoming Appointments */}
-      <Card className="p-6">
-        <h2 className="text-xl font-bold mb-4">Próximos Agendamentos</h2>
+      <Card className="p-6 border-l-4" style={{ borderLeftColor: profileColor }}>
+        <h2 className="text-xl font-bold mb-4 text-foreground">Próximos Agendamentos</h2>
         {profileAppointments.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">Nenhum agendamento encontrado</p>
+          <p className="text-gray-500 text-muted-foreground text-center py-8">Nenhum agendamento encontrado</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {profileAppointments.slice(0, 6).map((appointment) => (

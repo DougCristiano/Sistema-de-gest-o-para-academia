@@ -42,14 +42,14 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#22c55e]/10 via-[#3b82f6]/10 to-[#eab308]/10 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#22c55e]/20 via-[#3b82f6]/10 to-[#eab308]/15 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md p-8 shadow-xl border-t-4 border-t-primary">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <img src={logo} alt="Logo do Sistema" className="h-24 object-contain" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Huron Oficial</h1>
-          <p className="text-gray-600">Gestão Integrada</p>
+          <h1 className="text-3xl font-bold mb-2 text-foreground">Huron Oficial</h1>
+          <p className="text-muted-foreground">Gestão Integrada</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -78,7 +78,7 @@ export const Login: React.FC = () => {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -88,8 +88,8 @@ export const Login: React.FC = () => {
           </Button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-600 mb-3 text-center">Login rápido para demonstração:</p>
+        <div className="mt-8 pt-6 border-t border-border">
+          <p className="text-sm text-muted-foreground mb-3 text-center">Login rápido para demonstração:</p>
           <div className="space-y-2">
             <Button
               type="button"

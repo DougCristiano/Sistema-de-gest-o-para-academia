@@ -53,7 +53,7 @@ export const AdminDashboard: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Dashboard Administrativo</h1>
-        <p className="text-gray-600">Visão geral de todos os serviços da Huron</p>
+        <p className="text-muted-foreground">Visão geral de todos os serviços da Huron</p>
       </div>
 
       {/* Profile Filters */}
@@ -66,10 +66,10 @@ export const AdminDashboard: React.FC = () => {
             <button
               key={profile}
               onClick={() => setSelectedProfile(profile)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive
                   ? "text-white shadow-lg scale-105"
-                  : "bg-white border border-gray-200 text-gray-700 hover:shadow-md"
+                  : "bg-card border border-border text-foreground hover:shadow-md hover:border-primary/30"
               }`}
               style={isActive ? { backgroundColor: color } : undefined}
             >
@@ -85,25 +85,25 @@ export const AdminDashboard: React.FC = () => {
           title="Total de Alunos"
           value={stats.totalStudents}
           icon={Users}
-          color="bg-[#3b82f6]"
+          color="#3b82f6"
         />
         <StatCard
           title="Professores"
           value={stats.totalTeachers}
           icon={GraduationCap}
-          color="bg-[#92400e]"
+          color="#92400e"
         />
         <StatCard
           title="Agendamentos Hoje"
           value={stats.appointmentsToday}
           icon={Calendar}
-          color="bg-[#22c55e]"
+          color="#22c55e"
         />
         <StatCard
           title="Receita Mensal"
           value={`R$ ${stats.revenue?.toLocaleString("pt-BR")}`}
           icon={DollarSign}
-          color="bg-[#eab308]"
+          color="#eab308"
         />
       </div>
 
@@ -113,14 +113,14 @@ export const AdminDashboard: React.FC = () => {
           title="Agendamentos esta Semana"
           value={stats.appointmentsWeek}
           icon={Calendar}
-          color="bg-[#3b82f6]"
+          color="#3b82f6"
           subtitle="Mantendo a consistência"
         />
         <StatCard
           title="Taxa de Presença"
           value={`${stats.attendanceRate}%`}
           icon={TrendingUp}
-          color="bg-[#22c55e]"
+          color="#22c55e"
           subtitle="Excelente engajamento"
         />
       </div>

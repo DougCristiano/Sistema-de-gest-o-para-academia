@@ -1,0 +1,66 @@
+/* ============================================
+   DARK MODE OVERRIDES
+   Adapts hardcoded gray/white classes to dark mode
+   ============================================ */
+
+/* Text colors - make grays readable on dark backgrounds */
+.dark .text-gray-300 { color: #94b8a4; }
+.dark .text-gray-400 { color: #7da38d; }
+.dark .text-gray-500 { color: #6b9478; }
+.dark .text-gray-600 { color: #94b8a4; }
+.dark .text-gray-700 { color: #b5d4c1; }
+.dark .text-gray-800 { color: #d0e8d8; }
+.dark .text-gray-900 { color: #e8f5ee; }
+
+/* Background colors - adapt to dark surfaces */
+.dark .bg-white { background-color: var(--card); }
+.dark .bg-gray-50 { background-color: var(--muted); }
+.dark .bg-gray-100 { background-color: var(--muted); }
+.dark .bg-gray-200 { background-color: #1a3d26; }
+
+/* Border colors */
+.dark .border-gray-100 { border-color: var(--border); }
+.dark .border-gray-200 { border-color: var(--border); }
+.dark .border-gray-300 { border-color: var(--border); }
+
+/* Colored backgrounds - soften for dark mode */
+.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+.dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.15); }
+.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.1); }
+.dark .bg-yellow-50 { background-color: rgba(234, 179, 8, 0.1); }
+.dark .bg-purple-50 { background-color: rgba(139, 92, 246, 0.15); }
+
+/* Hover states */
+.dark .hover\:bg-gray-50:hover { background-color: var(--muted); }
+.dark .hover\:bg-gray-100:hover { background-color: #1a3d26; }
+
+/* Placeholder text */
+.dark .placeholder-gray-400::placeholder { color: #6b9478; }
+.dark .placeholder-gray-500::placeholder { color: #6b9478; }
+
+/* Role badges in NewsCard - adapt for dark */
+.dark .bg-red-100 { background-color: rgba(239, 68, 68, 0.2); }
+.dark .text-red-700 { color: #fca5a5; }
+.dark .bg-blue-100 { background-color: rgba(59, 130, 246, 0.2); }
+.dark .text-blue-700 { color: #93c5fd; }
+.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.2); }
+.dark .text-green-700 { color: #86efac; }
+
+/* Chart tooltip - adapt for dark backgrounds */
+.dark .recharts-default-tooltip {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground) !important;
+}
+.dark .recharts-tooltip-label {
+  color: var(--foreground) !important;
+}
+.dark .recharts-cartesian-grid line {
+  stroke: var(--border) !important;
+}
+.dark .recharts-text {
+  fill: var(--foreground) !important;
+}
