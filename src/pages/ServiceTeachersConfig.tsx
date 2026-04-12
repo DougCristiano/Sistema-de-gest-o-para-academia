@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
-import { AlertCircle, CalendarClock, Save, UserPlus, Users } from "lucide-react";
+import { AlertCircle, CalendarClock, Save, Tag, UserPlus, Users } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -29,6 +29,7 @@ import {
 const cloneAssignments = (teachers: ServiceTeacherAssignment[]): ServiceTeacherAssignment[] => {
   return teachers.map((teacher) => ({
     teacherId: teacher.teacherId,
+    activityIds: [...teacher.activityIds],
     schedule: SERVICE_WEEK_DAYS.reduce((acc, day) => {
       acc[day.key] = { ...teacher.schedule[day.key] };
       return acc;
@@ -144,10 +145,27 @@ export const ServiceTeachersConfig: React.FC = () => {
       ...prev,
       {
         teacherId: selectedTeacherId,
+        activityIds: [],
         schedule: createDefaultTeacherSchedule(),
       },
     ]);
     setSelectedTeacherId("");
+    setErrorMessage(null);
+  };
+
+  const toggleTeacherActivity = (teacherId: string, activityId: string) => {
+    setAssignments((prev) =>
+      prev.map((assignment) => {
+        if (assignment.teacherId !== teacherId) { return assignment; }
+        const has = assignment.activityIds.includes(activityId);
+        return {
+          ...assignment,
+          activityIds: has
+            ? assignment.activityIds.filter((id) => id !== activityId)
+            : [...assignment.activityIds, activityId],
+        };
+      })
+    );
     setErrorMessage(null);
   };
 
@@ -361,6 +379,38 @@ export const ServiceTeachersConfig: React.FC = () => {
                         Remover
                       </Button>
                     </div>
+
+                    {/* Activities */}
+                    {selectedService && selectedService.activities.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Tag className="w-4 h-4 text-muted-foreground" />
+                          <p className="text-sm font-medium">Atividades que leciona</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedService.activities.map((activity) => {
+                            const isSelected = assignment.activityIds.includes(activity.id);
+                            return (
+                              <button
+                                key={activity.id}
+                                type="button"
+                                onClick={() => toggleTeacherActivity(assignment.teacherId, activity.id)}
+                                className={`px-3 py-1 rounded-full text-sm transition-all ${
+                                  isSelected
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                }`}
+                              >
+                                {activity.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {assignment.activityIds.length === 0 && (
+                          <p className="text-xs text-amber-600">Selecione ao menos uma atividade.</p>
+                        )}
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-1 lg:grid-cols-7 gap-3">
                       {SERVICE_WEEK_DAYS.map((day) => {

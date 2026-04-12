@@ -1,4 +1,5 @@
-import { ProfileType, ProfileConfig, PROFILE_NAMES, PROFILE_COLORS } from "../types";
+import { ProfileType, ProfileConfig, PROFILE_NAMES, PROFILE_COLORS, Activity } from "../types";
+export type { Activity };
 import {
   mockDashboardStats,
   mockPeakHours,
@@ -37,6 +38,7 @@ export type ServiceTeacherSchedule = Record<ServiceWeekDayKey, ServiceTeacherDay
 
 export interface ServiceTeacherAssignment {
   teacherId: string;
+  activityIds: string[];
   schedule: ServiceTeacherSchedule;
 }
 
@@ -46,6 +48,7 @@ export interface ServiceCatalogItem {
   color: string;
   active: boolean;
   managerId: string | null;
+  activities: Activity[];
   teachers: ServiceTeacherAssignment[];
   createdAt: string;
   updatedAt: string;
@@ -113,6 +116,30 @@ const DEFAULT_MANAGER_BY_PROFILE: Partial<Record<ProfileType, string>> = mockUse
     {} as Partial<Record<ProfileType, string>>
   );
 
+const DEFAULT_ACTIVITIES_BY_SERVICE: Record<string, Activity[]> = {
+  "huron-areia": [
+    { id: "huron-areia-futevolei", name: "Futevolei" },
+    { id: "huron-areia-volei-de-praia", name: "Vôlei de Praia" },
+    { id: "huron-areia-beach-tennis", name: "Beach Tennis" },
+  ],
+  "huron-personal": [
+    { id: "huron-personal-musculacao", name: "Musculação" },
+    { id: "huron-personal-crossfit", name: "Crossfit" },
+    { id: "huron-personal-pilates", name: "Pilates" },
+  ],
+  "huron-recovery": [
+    { id: "huron-recovery-fisioterapia", name: "Fisioterapia" },
+    { id: "huron-recovery-pilates-clinico", name: "Pilates Clínico" },
+  ],
+  "htri": [
+    { id: "htri-treinamento-funcional", name: "Treinamento Funcional" },
+  ],
+  "avitta": [
+    { id: "avitta-natacao", name: "Natação" },
+    { id: "avitta-hidroginastica", name: "Hidroginástica" },
+  ],
+};
+
 const DEFAULT_SERVICE_CATALOG: ServiceCatalogItem[] = BASE_PROFILE_IDS.map((id) => {
   const now = new Date().toISOString();
   return {
@@ -121,6 +148,7 @@ const DEFAULT_SERVICE_CATALOG: ServiceCatalogItem[] = BASE_PROFILE_IDS.map((id) 
     color: PROFILE_COLORS[id],
     active: true,
     managerId: DEFAULT_MANAGER_BY_PROFILE[id] || null,
+    activities: DEFAULT_ACTIVITIES_BY_SERVICE[id] || [],
     teachers: [],
     createdAt: now,
     updatedAt: now,
@@ -206,6 +234,9 @@ const sanitizeTeacherAssignments = (value: unknown): ServiceTeacherAssignment[] 
     .filter((item): item is Record<string, unknown> => !!item && typeof item === "object")
     .map((item) => ({
       teacherId: typeof item.teacherId === "string" ? item.teacherId : "",
+      activityIds: Array.isArray(item.activityIds)
+        ? item.activityIds.filter((id): id is string => typeof id === "string")
+        : [],
       schedule: sanitizeTeacherSchedule(item.schedule),
     }))
     .filter((assignment) => {
@@ -223,6 +254,7 @@ const cloneTeacherAssignments = (
 ): ServiceTeacherAssignment[] => {
   return teachers.map((assignment) => ({
     teacherId: assignment.teacherId,
+    activityIds: [...assignment.activityIds],
     schedule: cloneTeacherSchedule(assignment.schedule),
   }));
 };
@@ -242,16 +274,29 @@ const parseServiceCatalog = (raw: string | null): ServiceCatalogItem[] | null =>
 
     const sanitized = parsed
       .filter((item): item is Record<string, unknown> => !!item && typeof item === "object")
-      .map((item) => ({
-        id: typeof item.id === "string" ? item.id : "",
-        name: typeof item.name === "string" ? item.name : "",
-        color: typeof item.color === "string" ? item.color : SERVICE_COLOR_PALETTE[0],
-        active: typeof item.active === "boolean" ? item.active : true,
-        managerId: typeof item.managerId === "string" ? item.managerId : null,
-        teachers: sanitizeTeacherAssignments(item.teachers),
-        createdAt: typeof item.createdAt === "string" ? item.createdAt : now,
-        updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : now,
-      }))
+      .map((item) => {
+        const id = typeof item.id === "string" ? item.id : "";
+        const rawActivities = Array.isArray(item.activities)
+          ? item.activities
+              .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
+              .map((a) => ({
+                id: typeof a.id === "string" ? a.id : "",
+                name: typeof a.name === "string" ? a.name : "",
+              }))
+              .filter((a) => a.id.length > 0 && a.name.trim().length > 0)
+          : DEFAULT_ACTIVITIES_BY_SERVICE[id] || [];
+        return {
+          id,
+          name: typeof item.name === "string" ? item.name : "",
+          color: typeof item.color === "string" ? item.color : SERVICE_COLOR_PALETTE[0],
+          active: typeof item.active === "boolean" ? item.active : true,
+          managerId: typeof item.managerId === "string" ? item.managerId : null,
+          activities: rawActivities,
+          teachers: sanitizeTeacherAssignments(item.teachers),
+          createdAt: typeof item.createdAt === "string" ? item.createdAt : now,
+          updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : now,
+        };
+      })
       .filter((item) => item.id.length > 0 && item.name.trim().length > 0);
 
     return sanitized.length > 0 ? sanitized : null;
@@ -360,6 +405,85 @@ export const profilesService = {
   },
 
   /**
+   * Retorna atividades de um serviço
+   */
+  getActivitiesByService: (serviceId: string): Activity[] => {
+    const service = profilesService.getServiceById(serviceId);
+    return service ? [...service.activities] : [];
+  },
+
+  /**
+   * Cria nova atividade em um serviço
+   */
+  createActivity: (serviceId: string, name: string): ServiceCatalogItem => {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      throw new Error("O nome da atividade é obrigatório.");
+    }
+
+    const catalog = readServiceCatalog();
+    const target = catalog.find((s) => s.id === serviceId);
+    if (!target) {
+      throw new Error("Serviço não encontrado.");
+    }
+
+    const duplicate = target.activities.some(
+      (a) => a.name.trim().toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (duplicate) {
+      throw new Error("Já existe uma atividade com esse nome neste serviço.");
+    }
+
+    const baseId = normalizeServiceId(trimmedName);
+    let id = `${serviceId}-${baseId}`;
+    let suffix = 2;
+    while (target.activities.some((a) => a.id === id)) {
+      id = `${serviceId}-${baseId}-${suffix}`;
+      suffix += 1;
+    }
+
+    const newActivity: Activity = { id, name: trimmedName };
+    const now = new Date().toISOString();
+    const updatedCatalog = catalog.map((s) =>
+      s.id === serviceId
+        ? { ...s, activities: [...s.activities, newActivity], updatedAt: now }
+        : s
+    );
+
+    saveServiceCatalog(updatedCatalog);
+    return updatedCatalog.find((s) => s.id === serviceId) as ServiceCatalogItem;
+  },
+
+  /**
+   * Remove atividade de um serviço e limpa referências em professores
+   */
+  deleteActivity: (serviceId: string, activityId: string): ServiceCatalogItem => {
+    const catalog = readServiceCatalog();
+    const target = catalog.find((s) => s.id === serviceId);
+    if (!target) {
+      throw new Error("Serviço não encontrado.");
+    }
+
+    const now = new Date().toISOString();
+    const updatedCatalog = catalog.map((s) =>
+      s.id === serviceId
+        ? {
+            ...s,
+            activities: s.activities.filter((a) => a.id !== activityId),
+            teachers: s.teachers.map((t) => ({
+              ...t,
+              activityIds: t.activityIds.filter((id) => id !== activityId),
+            })),
+            updatedAt: now,
+          }
+        : s
+    );
+
+    saveServiceCatalog(updatedCatalog);
+    return updatedCatalog.find((s) => s.id === serviceId) as ServiceCatalogItem;
+  },
+
+  /**
    * Lista ids dos serviços geridos por um manager
    */
   getManagedServiceIds: (managerId: string, includeInactive = false): string[] => {
@@ -457,6 +581,7 @@ export const profilesService = {
 
       return {
         teacherId: assignment.teacherId,
+        activityIds: [...assignment.activityIds],
         schedule: cloneTeacherSchedule(assignment.schedule),
       };
     });
@@ -516,6 +641,7 @@ export const profilesService = {
       color: SERVICE_COLOR_PALETTE[catalog.length % SERVICE_COLOR_PALETTE.length],
       active: true,
       managerId: null,
+      activities: [],
       teachers: [],
       createdAt: now,
       updatedAt: now,

@@ -6,18 +6,20 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import { User, ProfileType } from "../types";
+import { User, ProfileType, UserRole } from "../types";
 import { mockUsers } from "../data/mockData";
 import { profilesService } from "../services/profiles.service";
 
 interface AuthContextType {
   currentUser: User | null;
   currentProfile: ProfileType | null;
+  activeRole: UserRole;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   switchProfile: (profile: ProfileType) => void;
+  switchRole: (role: UserRole) => void;
   updateUser: (updatedData: Partial<User>) => void;
   clearError: () => void;
 }
@@ -29,6 +31,7 @@ const STORAGE_KEY = "huron_auth_user";
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentProfile, setCurrentProfile] = useState<ProfileType | null>(null);
+  const [activeRole, setActiveRole] = useState<UserRole>("student");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,6 +82,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       setCurrentUser(user);
       setCurrentProfile(resolveUserProfile(user));
+      setActiveRole(user.role);
 
       // Persistir no localStorage
       localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
@@ -96,6 +100,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = useCallback(() => {
     setCurrentUser(null);
     setCurrentProfile(null);
+    setActiveRole("student");
     setError(null);
     localStorage.removeItem(STORAGE_KEY);
   }, []);
@@ -112,6 +117,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       return prev;
     });
+  }, []);
+
+  // Trocar contexto de role (ex: admin ↔ aluno)
+  const switchRole = useCallback((role: UserRole) => {
+    setActiveRole(role);
   }, []);
 
   // Atualizar dados do usuário
@@ -134,11 +144,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       value={{
         currentUser,
         currentProfile,
+        activeRole,
         isLoading,
         error,
         login,
         logout,
         switchProfile,
+        switchRole,
         updateUser,
         clearError,
       }}

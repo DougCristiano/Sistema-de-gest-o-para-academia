@@ -17,6 +17,7 @@ import {
   UserCircle,
   Briefcase,
   ChevronLeft,
+  CalendarCheck,
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import { PROFILE_NAMES } from "../types";
@@ -43,7 +44,7 @@ interface MenuItem {
 }
 
 export const Layout: React.FC = () => {
-  const { currentUser, logout, currentProfile } = useAuth();
+  const { currentUser, logout, currentProfile, activeRole, switchRole } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
@@ -53,46 +54,56 @@ export const Layout: React.FC = () => {
     navigate("/login");
   };
 
+  const hasStudentProfiles = !!(currentUser?.studentProfiles && currentUser.studentProfiles.length > 0);
+  const isMultiRole = hasStudentProfiles && currentUser?.role !== "student";
+
+  const handleSwitchRole = (role: typeof activeRole) => {
+    switchRole(role);
+    if (role === "student") {
+      navigate("/student");
+    } else {
+      switch (currentUser?.role) {
+        case "admin": navigate("/admin"); break;
+        case "manager": navigate("/manager"); break;
+        case "teacher": navigate("/teacher"); break;
+        default: break;
+      }
+    }
+  };
+
   const getMenuItems = (): MenuItem[] => {
     if (!currentUser) { return []; }
-    const hasStudentProfiles =
-      currentUser.studentProfiles && currentUser.studentProfiles.length > 0;
 
-    switch (currentUser.role) {
+    switch (activeRole) {
       case "admin":
         return [
           { icon: LayoutDashboard, label: "Dashboard", path: "/admin", group: "Principal" },
+          { icon: CalendarCheck, label: "Aulas de Hoje", path: "/admin/today", group: "Principal" },
           { icon: Users, label: "Colaboradores", path: "/admin/users", group: "Gestão" },
           { icon: Briefcase, label: "Serviços", path: "/admin/services", group: "Gestão" },
           { icon: CalendarClock, label: "Professores e Horários", path: "/admin/service-teachers", group: "Gestão" },
           { icon: GraduationCap, label: "Matriculados", path: "/admin/enrolled", group: "Gestão" },
           { icon: Calendar, label: "Agendamentos", path: "/admin/appointments", group: "Gestão" },
           { icon: Newspaper, label: "Feed de Notícias", path: "/admin/news", group: "Conteúdo" },
-          ...(hasStudentProfiles
-            ? [{ icon: CalendarPlus, label: "Agendar Aula", path: "/booking", group: "Aluno" }]
-            : []),
+          { icon: UserCircle, label: "Meu Perfil", path: "/profile", group: "Conta" },
         ];
       case "manager":
         return [
           { icon: LayoutDashboard, label: "Dashboard", path: "/manager", group: "Principal" },
+          { icon: CalendarCheck, label: "Aulas de Hoje", path: "/manager/today", group: "Principal" },
           { icon: Activity, label: "Atletas", path: "/manager/athletes", group: "Gestão" },
           { icon: Users, label: "Professores", path: "/manager/teachers", group: "Gestão" },
           { icon: Calendar, label: "Agendamentos", path: "/manager/appointments", group: "Gestão" },
           { icon: UserPlus, label: "Adicionar Professor", path: "/manager/add-teacher", group: "Gestão" },
           { icon: Settings, label: "Configurar Serviço", path: "/manager/config", group: "Configurações" },
           { icon: CalendarClock, label: "Professores e Horários", path: "/manager/service-teachers", group: "Configurações" },
-          ...(hasStudentProfiles
-            ? [{ icon: CalendarPlus, label: "Agendar Aula", path: "/booking", group: "Aluno" }]
-            : []),
           { icon: UserCircle, label: "Meu Perfil", path: "/profile", group: "Conta" },
         ];
       case "teacher":
         return [
           { icon: Calendar, label: "Minha Agenda", path: "/teacher", group: "Principal" },
+          { icon: CalendarCheck, label: "Aulas de Hoje", path: "/teacher/today", group: "Principal" },
           { icon: Users, label: "Meus Alunos", path: "/teacher/students", group: "Principal" },
-          ...(hasStudentProfiles
-            ? [{ icon: CalendarPlus, label: "Agendar Aula", path: "/booking", group: "Aluno" }]
-            : []),
           { icon: UserCircle, label: "Meu Perfil", path: "/profile", group: "Conta" },
         ];
       case "student":
@@ -136,7 +147,10 @@ export const Layout: React.FC = () => {
     "/manager/config": "Configurar Serviço",
     "/manager/service-teachers": "Professores e Horários",
     "/teacher": "Minha Agenda",
+    "/teacher/today": "Aulas de Hoje",
     "/teacher/students": "Meus Alunos",
+    "/manager/today": "Aulas de Hoje",
+    "/admin/today": "Aulas de Hoje",
     "/student": "Meu Painel",
     "/student/booking": "Agendar Aula",
     "/student/appointments": "Minhas Aulas",
@@ -198,15 +212,55 @@ export const Layout: React.FC = () => {
                 </p>
                 <span
                   className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full mt-0.5 ${
-                    ROLE_COLORS[currentUser?.role || "student"]
+                    ROLE_COLORS[activeRole]
                   }`}
                 >
-                  {ROLE_LABELS[currentUser?.role || "student"]}
+                  {ROLE_LABELS[activeRole]}
                 </span>
               </div>
             )}
           </button>
         </div>
+
+        {/* Role Switcher — visível apenas para usuários com múltiplos roles */}
+        {isMultiRole && !collapsed && (
+          <div className="px-3 py-2 border-b border-sidebar-border flex-shrink-0">
+            <div className="flex gap-1 p-1 bg-sidebar-accent rounded-lg">
+              <button
+                onClick={() => handleSwitchRole(currentUser!.role)}
+                className={`flex-1 text-xs py-1.5 px-2 rounded-md transition-all font-medium ${
+                  activeRole !== "student"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {ROLE_LABELS[currentUser!.role]}
+              </button>
+              <button
+                onClick={() => handleSwitchRole("student")}
+                className={`flex-1 text-xs py-1.5 px-2 rounded-md transition-all font-medium ${
+                  activeRole === "student"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Aluno
+              </button>
+            </div>
+          </div>
+        )}
+
+        {isMultiRole && collapsed && (
+          <div className="px-2 py-2 border-b border-sidebar-border flex-shrink-0 flex justify-center">
+            <button
+              title={activeRole === "student" ? `Voltar para ${ROLE_LABELS[currentUser!.role]}` : "Modo Aluno"}
+              onClick={() => handleSwitchRole(activeRole === "student" ? currentUser!.role : "student")}
+              className="p-2 rounded-lg bg-sidebar-accent hover:bg-sidebar-accent/80 transition-colors"
+            >
+              <GraduationCap className={`w-4 h-4 ${activeRole === "student" ? "text-primary" : "text-muted-foreground"}`} />
+            </button>
+          </div>
+        )}
 
         {/* Navigation */}
         <nav className={`flex-1 overflow-y-auto py-3 ${collapsed ? "px-2" : "px-3"}`}>

@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { CalendarClock, Edit, Plus, Power, RotateCcw, Search } from "lucide-react";
+import { Activity, CalendarClock, Edit, Plus, Power, RotateCcw, Search, X } from "lucide-react";
 import { profilesService, ServiceCatalogItem } from "../services/profiles.service";
 
 interface ServiceFormState {
@@ -41,6 +41,12 @@ export const AdminServices: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [services, setServices] = useState<ServiceCatalogItem[]>([]);
+
+  // Activity management
+  const [activityDialogOpen, setActivityDialogOpen] = useState(false);
+  const [activityServiceId, setActivityServiceId] = useState<string | null>(null);
+  const [newActivityName, setNewActivityName] = useState("");
+  const [activityError, setActivityError] = useState<string | null>(null);
 
   const refreshServices = () => {
     setServices(profilesService.getServiceCatalog());
@@ -74,6 +80,11 @@ export const AdminServices: React.FC = () => {
 
   const managerOptions = useMemo(() => profilesService.getManagerOptions(), []);
 
+  const activityService = useMemo(
+    () => services.find((s) => s.id === activityServiceId) || null,
+    [services, activityServiceId]
+  );
+
   const openCreateDialog = () => {
     setEditingService(null);
     setFormState(INITIAL_FORM_STATE);
@@ -100,19 +111,19 @@ export const AdminServices: React.FC = () => {
       if (editingService) {
         profilesService.updateServiceName(editingService.id, formState.name);
         profilesService.setServiceManager(editingService.id, formState.managerId || null);
-        setSuccessMessage("Servico atualizado com sucesso.");
+        setSuccessMessage("Serviço atualizado com sucesso.");
       } else {
         const createdService = profilesService.createService(formState.name);
         if (formState.managerId) {
           profilesService.setServiceManager(createdService.id, formState.managerId);
         }
-        setSuccessMessage("Servico criado com sucesso.");
+        setSuccessMessage("Serviço criado com sucesso.");
       }
 
       refreshServices();
       closeDialog();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Falha ao salvar servico.";
+      const message = error instanceof Error ? error.message : "Falha ao salvar serviço.";
       setErrorMessage(message);
     }
   };
@@ -121,16 +132,46 @@ export const AdminServices: React.FC = () => {
     try {
       if (service.active) {
         profilesService.deactivateService(service.id);
-        setSuccessMessage("Servico inativado com sucesso.");
+        setSuccessMessage("Serviço inativado com sucesso.");
       } else {
         profilesService.reactivateService(service.id);
-        setSuccessMessage("Servico reativado com sucesso.");
+        setSuccessMessage("Serviço reativado com sucesso.");
       }
 
       refreshServices();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Falha ao atualizar status.";
       setErrorMessage(message);
+    }
+  };
+
+  const openActivityDialog = (service: ServiceCatalogItem) => {
+    setActivityServiceId(service.id);
+    setNewActivityName("");
+    setActivityError(null);
+    setActivityDialogOpen(true);
+  };
+
+  const handleAddActivity = () => {
+    if (!activityServiceId || !newActivityName.trim()) { return; }
+    try {
+      profilesService.createActivity(activityServiceId, newActivityName);
+      setNewActivityName("");
+      setActivityError(null);
+      refreshServices();
+    } catch (error) {
+      setActivityError(error instanceof Error ? error.message : "Erro ao criar atividade.");
+    }
+  };
+
+  const handleDeleteActivity = (activityId: string) => {
+    if (!activityServiceId) { return; }
+    try {
+      profilesService.deleteActivity(activityServiceId, activityId);
+      setActivityError(null);
+      refreshServices();
+    } catch (error) {
+      setActivityError(error instanceof Error ? error.message : "Erro ao remover atividade.");
     }
   };
 
@@ -141,37 +182,34 @@ export const AdminServices: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Gerenciar Servicos</h1>
-          <p className="text-gray-600">Crie, edite e inative servicos para uso futuro no sistema.</p>
+          <h1 className="text-3xl font-bold mb-2">Gerenciar Serviços</h1>
+          <p className="text-muted-foreground">Crie, edite e inative serviços. Gerencie as atividades de cada um.</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openCreateDialog} className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Novo Servico
+              Novo Serviço
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>{editingService ? "Editar Servico" : "Criar Servico"}</DialogTitle>
+              <DialogTitle>{editingService ? "Editar Serviço" : "Criar Serviço"}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-2">
               <div>
-                <Label htmlFor="service-name">Nome do servico</Label>
+                <Label htmlFor="service-name">Nome do serviço</Label>
                 <Input
                   id="service-name"
                   value={formState.name}
                   onChange={(e) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      name: e.target.value,
-                    }))
+                    setFormState((prev) => ({ ...prev, name: e.target.value }))
                   }
                   placeholder="Ex: Huron Pilates"
                 />
               </div>
               <div>
-                <Label htmlFor="service-manager">Manager Responsavel</Label>
+                <Label htmlFor="service-manager">Gerente Responsável</Label>
                 <Select
                   value={formState.managerId || "none"}
                   onValueChange={(value) =>
@@ -182,10 +220,10 @@ export const AdminServices: React.FC = () => {
                   }
                 >
                   <SelectTrigger id="service-manager">
-                    <SelectValue placeholder="Selecione um manager" />
+                    <SelectValue placeholder="Selecione um gerente" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Sem manager associado</SelectItem>
+                    <SelectItem value="none">Sem gerente associado</SelectItem>
                     {managerOptions.map((manager) => (
                       <SelectItem key={manager.value} value={manager.value}>
                         {manager.label}
@@ -204,13 +242,76 @@ export const AdminServices: React.FC = () => {
                   Cancelar
                 </Button>
                 <Button onClick={handleSaveService}>
-                  {editingService ? "Salvar Alteracoes" : "Criar Servico"}
+                  {editingService ? "Salvar Alterações" : "Criar Serviço"}
                 </Button>
               </div>
             </div>
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Activity management dialog */}
+      <Dialog open={activityDialogOpen} onOpenChange={setActivityDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Atividades — {activityService?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Atividades são as modalidades oferecidas dentro deste serviço. Professores são vinculados a atividades específicas.
+            </p>
+
+            {/* Current activities */}
+            <div className="space-y-2">
+              {activityService && activityService.activities.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">Nenhuma atividade cadastrada.</p>
+              ) : (
+                activityService?.activities.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="flex items-center justify-between bg-muted/50 rounded-md px-3 py-2"
+                  >
+                    <span className="text-sm font-medium">{activity.name}</span>
+                    <button
+                      onClick={() => handleDeleteActivity(activity.id)}
+                      className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded"
+                      title="Remover atividade"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Add new activity */}
+            <div className="flex gap-2">
+              <Input
+                value={newActivityName}
+                onChange={(e) => setNewActivityName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { handleAddActivity(); } }}
+                placeholder="Nova atividade (ex: Futevolei)"
+                className="flex-1"
+              />
+              <Button
+                onClick={handleAddActivity}
+                disabled={!newActivityName.trim()}
+                size="sm"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {activityError && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                {activityError}
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {successMessage && (
         <div className="bg-green-50 border border-green-200 text-green-700 rounded-md px-4 py-3">
@@ -226,15 +327,15 @@ export const AdminServices: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Total de servicos</p>
+          <p className="text-sm text-muted-foreground">Total de serviços</p>
           <p className="text-2xl font-bold">{services.length}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Ativos</p>
+          <p className="text-sm text-muted-foreground">Ativos</p>
           <p className="text-2xl font-bold text-green-600">{activeCount}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-500">Inativos</p>
+          <p className="text-sm text-muted-foreground">Inativos</p>
           <p className="text-2xl font-bold text-amber-600">{inactiveCount}</p>
         </Card>
       </div>
@@ -251,15 +352,15 @@ export const AdminServices: React.FC = () => {
 
       <div className="space-y-3">
         {filteredServices.length === 0 ? (
-          <Card className="p-8 text-center text-gray-500">Nenhum servico encontrado.</Card>
+          <Card className="p-8 text-center text-muted-foreground">Nenhum serviço encontrado.</Card>
         ) : (
           filteredServices.map((service) => (
             <Card key={service.id} className="p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-2">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span
-                      className="inline-block w-3 h-3 rounded-full"
+                      className="inline-block w-3 h-3 rounded-full flex-shrink-0"
                       style={{ backgroundColor: service.color }}
                     />
                     <h3 className="font-semibold text-lg">{service.name}</h3>
@@ -267,16 +368,33 @@ export const AdminServices: React.FC = () => {
                       {service.active ? "Ativo" : "Inativo"}
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-500 mb-1">Slug: {service.id}</p>
-                  <p className="text-sm text-gray-500 mb-1">
-                    Responsavel: {profilesService.getServiceManagerName(service.id) || "Nao associado"}
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Gerente: {profilesService.getServiceManagerName(service.id) || "Não associado"}
                   </p>
-                  <p className="text-xs text-gray-400">
-                    Atualizado em {new Date(service.updatedAt).toLocaleDateString("pt-BR")}
-                  </p>
+                  {/* Activities */}
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {service.activities.length === 0 ? (
+                      <span className="text-xs text-muted-foreground italic">Sem atividades cadastradas</span>
+                    ) : (
+                      service.activities.map((activity) => (
+                        <Badge key={activity.id} variant="secondary" className="text-xs">
+                          {activity.name}
+                        </Badge>
+                      ))
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openActivityDialog(service)}
+                  >
+                    <Activity className="w-4 h-4 mr-1" />
+                    Atividades
+                  </Button>
+
                   <Button
                     variant="outline"
                     size="sm"

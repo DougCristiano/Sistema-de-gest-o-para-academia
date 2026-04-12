@@ -53,6 +53,9 @@ const StudentNews = lazy(() =>
   import("./pages/StudentNews").then((m) => ({ default: m.StudentNews }))
 );
 const MyProfile = lazy(() => import("./pages/MyProfile").then((m) => ({ default: m.MyProfile })));
+const TodayClasses = lazy(() =>
+  import("./pages/TodayClasses").then((m) => ({ default: m.TodayClasses }))
+);
 
 // Mobile pages (lazy-loaded)
 const MobileDashboard = lazy(() =>
@@ -126,6 +129,10 @@ export const router = createBrowserRouter([
             path: "admin/service-teachers",
             element: withSuspense(ServiceTeachersConfig),
           },
+          {
+            path: "admin/today",
+            element: withSuspense(TodayClasses),
+          },
           // Manager routes
           {
             path: "manager",
@@ -155,6 +162,10 @@ export const router = createBrowserRouter([
             path: "manager/service-teachers",
             element: withSuspense(ServiceTeachersConfig),
           },
+          {
+            path: "manager/today",
+            element: withSuspense(TodayClasses),
+          },
           // Teacher routes
           {
             path: "teacher",
@@ -163,6 +174,10 @@ export const router = createBrowserRouter([
           {
             path: "teacher/students",
             element: withSuspense(TeacherStudents),
+          },
+          {
+            path: "teacher/today",
+            element: withSuspense(TodayClasses),
           },
           // Booking route (shared for staff who are also students)
           {

@@ -2,6 +2,11 @@ export type UserRole = "admin" | "manager" | "teacher" | "student";
 
 export type ProfileType = "huron-areia" | "huron-personal" | "huron-recovery" | "htri" | "avitta";
 
+export interface Activity {
+  id: string;
+  name: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -179,4 +184,54 @@ export const SUBSCRIPTION_STATUS_COLORS: Record<SubscriptionStatus, string> = {
   expirado: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
   pendente: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/30",
   cancelado: "bg-slate-500/15 text-slate-600 dark:text-slate-400 border-slate-500/30",
+};
+
+// ============================================================
+// CHECK-IN
+// ============================================================
+
+export type CheckInStatus = "agendado" | "concluido" | "faltou" | "cancelado";
+export type CheckInType = "experimental" | "plano" | "avulso";
+
+export interface CheckIn {
+  id: string;
+  studentId: string;
+  studentName: string;
+  teacherId: string;
+  teacherName: string;
+  serviceId: ProfileType;
+  activityId?: string;
+  activityName?: string;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:MM"
+  duration: number; // minutes
+  status: CheckInStatus;
+  type: CheckInType;
+  notes?: string;
+}
+
+export const CHECK_IN_STATUS_LABELS: Record<CheckInStatus, string> = {
+  agendado: "Agendado",
+  concluido: "Concluído",
+  faltou: "Faltou",
+  cancelado: "Cancelado",
+};
+
+export const CHECK_IN_STATUS_COLORS: Record<CheckInStatus, string> = {
+  agendado: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30",
+  concluido: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30",
+  faltou: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
+  cancelado: "bg-slate-500/15 text-slate-600 dark:text-slate-400 border-slate-500/30",
+};
+
+export const CHECK_IN_TYPE_LABELS: Record<CheckInType, string> = {
+  experimental: "Experimental",
+  plano: "Plano",
+  avulso: "Avulso",
+};
+
+export const CHECK_IN_TYPE_COLORS: Record<CheckInType, string> = {
+  experimental: "bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30",
+  plano: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
+  avulso: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
 };
