@@ -68,19 +68,19 @@ export const AdminUsers: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Gerenciar Usuários</h1>
+          <h1 className="text-3xl font-bold mb-2">Gerenciar Colaboradores</h1>
           <p className="text-gray-600">Gerentes e professores da Huron</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
               <UserPlus className="w-4 h-4" />
-              Novo Usuário
+              Novo Colaborador
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Criar Novo Usuário</DialogTitle>
+              <DialogTitle>Criar Novo Colaborador</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
@@ -142,7 +142,7 @@ export const AdminUsers: React.FC = () => {
                 )}
               </div>
               <Button onClick={handleCreateUser} className="w-full">
-                Criar Usuário
+                Criar Colaborador
               </Button>
             </div>
           </DialogContent>

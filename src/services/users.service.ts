@@ -3,8 +3,8 @@ import { mockUsers } from "../data/mockData";
 import { UserSchema } from "../schemas";
 
 /**
- * Serviço de Usuários
- * Gerencia operações CRUD de usuários (Admin/Manager/Teacher)
+ * Serviço de Colaboradores
+ * Gerencia operações CRUD de colaboradores (Admin/Manager/Teacher)
  * Todos os dados são validados com Zod antes de retornar
  */
 

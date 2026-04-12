@@ -62,7 +62,7 @@ export const Layout: React.FC = () => {
       case "admin":
         return [
           { icon: LayoutDashboard, label: "Dashboard", path: "/admin", group: "Principal" },
-          { icon: Users, label: "Usuários", path: "/admin/users", group: "Gestão" },
+          { icon: Users, label: "Colaboradores", path: "/admin/users", group: "Gestão" },
           { icon: Briefcase, label: "Serviços", path: "/admin/services", group: "Gestão" },
           { icon: CalendarClock, label: "Professores e Horários", path: "/admin/service-teachers", group: "Gestão" },
           { icon: GraduationCap, label: "Matriculados", path: "/admin/enrolled", group: "Gestão" },
@@ -122,7 +122,7 @@ export const Layout: React.FC = () => {
   const FALLBACK_LABELS: Record<string, string> = {
     "/profile": "Meu Perfil",
     "/admin": "Dashboard",
-    "/admin/users": "Usuários",
+    "/admin/users": "Colaboradores",
     "/admin/services": "Serviços",
     "/admin/service-teachers": "Professores e Horários",
     "/admin/enrolled": "Matriculados",
