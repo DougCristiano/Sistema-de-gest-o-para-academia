@@ -23,7 +23,7 @@
   --huron-brown: #92400e;
 
   /* === Surfaces === */
-  --background: #f0fdf4;
+  --background: #f8fdfb;
   --foreground: #0f1b15;
   --card: #ffffff;
   --card-foreground: #1a2e23;
@@ -52,8 +52,8 @@
 
   /* === Borders & Inputs === */
   --border: #d1e7dd;
-  --input: #d1e7dd;
-  --input-background: #f0fdf4;
+  --input: #cbd5e1;
+  --input-background: #ffffff;
   --switch-background: #bbf7d0;
   --ring: #22c55e;
 
@@ -110,8 +110,8 @@
   --destructive-foreground: #fecaca;
 
   --border: #1e4d2e;
-  --input: #1e4d2e;
-  --input-background: #153322;
+  --input: #2a4535;
+  --input-background: #0f2318;
   --switch-background: #1e4d2e;
   --ring: #22c55e;
 

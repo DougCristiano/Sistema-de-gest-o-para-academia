@@ -139,3 +139,44 @@ export const PROFILE_COLORS: Record<ProfileType, string> = {
   htri: "#92400e", // marrom Huron
   avitta: "#8b5cf6", // roxo
 };
+
+// ============================================================
+// SUBSCRIPTIONS (Planos)
+// ============================================================
+
+export type PlanType = "mensal" | "trimestral" | "semestral" | "anual";
+export type SubscriptionStatus = "ativo" | "expirado" | "pendente" | "cancelado";
+
+export interface Subscription {
+  id: string;
+  userId: string;
+  profile: ProfileType;
+  planType: PlanType;
+  price: number;          // valor mensal efetivo
+  classesPerMonth: number; // total de aulas permitidas no mês
+  classesUsed: number;    // aulas realizadas no mês corrente
+  startDate: string;      // ISO "YYYY-MM-DD"
+  nextBillingDate: string; // ISO "YYYY-MM-DD"
+  status: SubscriptionStatus;
+}
+
+export const PLAN_LABELS: Record<PlanType, string> = {
+  mensal: "Mensal",
+  trimestral: "Trimestral",
+  semestral: "Semestral",
+  anual: "Anual",
+};
+
+export const SUBSCRIPTION_STATUS_LABELS: Record<SubscriptionStatus, string> = {
+  ativo: "Ativo",
+  expirado: "Expirado",
+  pendente: "Pendente",
+  cancelado: "Cancelado",
+};
+
+export const SUBSCRIPTION_STATUS_COLORS: Record<SubscriptionStatus, string> = {
+  ativo: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30",
+  expirado: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
+  pendente: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/30",
+  cancelado: "bg-slate-500/15 text-slate-600 dark:text-slate-400 border-slate-500/30",
+};

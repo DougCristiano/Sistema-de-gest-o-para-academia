@@ -1,4 +1,4 @@
-import { User, Appointment, NewsPost, ProfileType, DashboardStats } from "../types";
+import { User, Appointment, NewsPost, ProfileType, DashboardStats, Subscription } from "../types";
 
 export interface MockAthlete {
   id: string;
@@ -538,6 +538,130 @@ export const mockUsers: User[] = [
     },
   },
 ];
+
+// Mock Subscriptions (planos dos alunos)
+// Cobre todos os usuários que possuem studentProfiles ou são role="student"
+export const mockSubscriptions: Subscription[] = [
+  // João Pedro (student-1) — matriculado em huron-areia
+  {
+    id: "sub-1",
+    userId: "student-1",
+    profile: "huron-areia",
+    planType: "semestral",
+    price: 249,
+    classesPerMonth: 12,
+    classesUsed: 8,
+    startDate: "2025-10-01",
+    nextBillingDate: "2026-05-01",
+    status: "ativo",
+  },
+  // Maria Eduarda (student-2) — matriculada em huron-personal + huron-recovery
+  {
+    id: "sub-2",
+    userId: "student-2",
+    profile: "huron-personal",
+    planType: "mensal",
+    price: 450,
+    classesPerMonth: 8,
+    classesUsed: 5,
+    startDate: "2026-04-01",
+    nextBillingDate: "2026-05-01",
+    status: "ativo",
+  },
+  {
+    id: "sub-3",
+    userId: "student-2",
+    profile: "huron-recovery",
+    planType: "trimestral",
+    price: 320,
+    classesPerMonth: 8,
+    classesUsed: 8,
+    startDate: "2026-02-01",
+    nextBillingDate: "2026-05-01",
+    status: "ativo",
+  },
+  // Carlos Silva (admin-1) — studentProfiles: ["htri"]
+  {
+    id: "sub-4",
+    userId: "admin-1",
+    profile: "htri",
+    planType: "anual",
+    price: 199,
+    classesPerMonth: 16,
+    classesUsed: 10,
+    startDate: "2026-01-01",
+    nextBillingDate: "2027-01-01",
+    status: "ativo",
+  },
+  // Ana Santos (manager-1) — studentProfiles: ["huron-personal"]
+  {
+    id: "sub-5",
+    userId: "manager-1",
+    profile: "huron-personal",
+    planType: "semestral",
+    price: 390,
+    classesPerMonth: 8,
+    classesUsed: 3,
+    startDate: "2026-01-15",
+    nextBillingDate: "2026-07-15",
+    status: "ativo",
+  },
+  // Julia Costa (manager-3) — studentProfiles: ["huron-areia"]
+  {
+    id: "sub-6",
+    userId: "manager-3",
+    profile: "huron-areia",
+    planType: "mensal",
+    price: 299,
+    classesPerMonth: 12,
+    classesUsed: 12,
+    startDate: "2026-04-01",
+    nextBillingDate: "2026-05-01",
+    status: "ativo",
+  },
+  // Pedro Oliveira (teacher-1) — studentProfiles: ["huron-recovery"]
+  {
+    id: "sub-7",
+    userId: "teacher-1",
+    profile: "huron-recovery",
+    planType: "trimestral",
+    price: 310,
+    classesPerMonth: 8,
+    classesUsed: 2,
+    startDate: "2026-03-01",
+    nextBillingDate: "2026-06-01",
+    status: "ativo",
+  },
+  // Lucas Ferreira (teacher-3) — studentProfiles: ["huron-areia"]
+  {
+    id: "sub-8",
+    userId: "teacher-3",
+    profile: "huron-areia",
+    planType: "anual",
+    price: 229,
+    classesPerMonth: 12,
+    classesUsed: 6,
+    startDate: "2026-01-01",
+    nextBillingDate: "2027-01-01",
+    status: "ativo",
+  },
+  // Fernanda Alves (teacher-4) — studentProfiles: ["htri"]
+  {
+    id: "sub-9",
+    userId: "teacher-4",
+    profile: "htri",
+    planType: "mensal",
+    price: 219,
+    classesPerMonth: 16,
+    classesUsed: 0,
+    startDate: "2026-04-01",
+    nextBillingDate: "2026-05-01",
+    status: "pendente",
+  },
+];
+
+export const getUserSubscriptions = (userId: string): Subscription[] =>
+  mockSubscriptions.filter((s) => s.userId === userId);
 
 // Mock Appointments
 export const mockAppointments: Appointment[] = [
