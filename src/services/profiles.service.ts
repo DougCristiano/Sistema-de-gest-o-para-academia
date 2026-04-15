@@ -32,6 +32,15 @@ export interface ServiceTeacherDaySchedule {
   enabled: boolean;
   startTime: string;
   endTime: string;
+  maxStudents: number;
+}
+
+export interface ClassSlotOverride {
+  id: string;
+  teacherId: string;
+  date: string; // "YYYY-MM-DD"
+  maxStudents: number | null; // null = blocked for this date
+  notes?: string;
 }
 
 export type ServiceTeacherSchedule = Record<ServiceWeekDayKey, ServiceTeacherDaySchedule>;
@@ -50,6 +59,7 @@ export interface ServiceCatalogItem {
   managerId: string | null;
   activities: Activity[];
   teachers: ServiceTeacherAssignment[];
+  overrides: ClassSlotOverride[];
   createdAt: string;
   updatedAt: string;
 }
@@ -150,6 +160,7 @@ const DEFAULT_SERVICE_CATALOG: ServiceCatalogItem[] = BASE_PROFILE_IDS.map((id) 
     managerId: DEFAULT_MANAGER_BY_PROFILE[id] || null,
     activities: DEFAULT_ACTIVITIES_BY_SERVICE[id] || [],
     teachers: [],
+    overrides: [],
     createdAt: now,
     updatedAt: now,
   };
@@ -175,13 +186,13 @@ const normalizeServiceId = (value: string): string => {
 };
 
 export const createDefaultTeacherSchedule = (): ServiceTeacherSchedule => ({
-  monday: { enabled: true, startTime: "06:00", endTime: "22:00" },
-  tuesday: { enabled: true, startTime: "06:00", endTime: "22:00" },
-  wednesday: { enabled: true, startTime: "06:00", endTime: "22:00" },
-  thursday: { enabled: true, startTime: "06:00", endTime: "22:00" },
-  friday: { enabled: true, startTime: "06:00", endTime: "22:00" },
-  saturday: { enabled: true, startTime: "08:00", endTime: "14:00" },
-  sunday: { enabled: false, startTime: "08:00", endTime: "12:00" },
+  monday: { enabled: true, startTime: "06:00", endTime: "22:00", maxStudents: 10 },
+  tuesday: { enabled: true, startTime: "06:00", endTime: "22:00", maxStudents: 10 },
+  wednesday: { enabled: true, startTime: "06:00", endTime: "22:00", maxStudents: 10 },
+  thursday: { enabled: true, startTime: "06:00", endTime: "22:00", maxStudents: 10 },
+  friday: { enabled: true, startTime: "06:00", endTime: "22:00", maxStudents: 10 },
+  saturday: { enabled: true, startTime: "08:00", endTime: "14:00", maxStudents: 10 },
+  sunday: { enabled: false, startTime: "08:00", endTime: "12:00", maxStudents: 10 },
 });
 
 const sanitizeTime = (value: unknown, fallback: string): string => {
@@ -212,11 +223,16 @@ const sanitizeTeacherSchedule = (value: unknown): ServiceTeacherSchedule => {
     const candidateDay = candidate[day.key];
     const fallback = defaultSchedule[day.key];
 
+    const rawMax = (candidateDay as Record<string, unknown> | undefined)?.maxStudents;
     acc[day.key] = {
       enabled:
         typeof candidateDay?.enabled === "boolean" ? candidateDay.enabled : fallback.enabled,
       startTime: sanitizeTime(candidateDay?.startTime, fallback.startTime),
       endTime: sanitizeTime(candidateDay?.endTime, fallback.endTime),
+      maxStudents:
+        typeof rawMax === "number" && Number.isFinite(rawMax) && rawMax >= 1
+          ? Math.floor(rawMax)
+          : fallback.maxStudents,
     };
 
     return acc;
@@ -285,6 +301,21 @@ const parseServiceCatalog = (raw: string | null): ServiceCatalogItem[] | null =>
               }))
               .filter((a) => a.id.length > 0 && a.name.trim().length > 0)
           : DEFAULT_ACTIVITIES_BY_SERVICE[id] || [];
+        const rawOverrides = Array.isArray(item.overrides) ? item.overrides : [];
+        const parsedOverrides: ClassSlotOverride[] = rawOverrides
+          .filter((o): o is Record<string, unknown> => !!o && typeof o === "object")
+          .map((o) => ({
+            id: typeof o.id === "string" ? o.id : "",
+            teacherId: typeof o.teacherId === "string" ? o.teacherId : "",
+            date: typeof o.date === "string" ? o.date : "",
+            maxStudents:
+              typeof o.maxStudents === "number" && o.maxStudents >= 1
+                ? Math.floor(o.maxStudents as number)
+                : null,
+            notes: typeof o.notes === "string" ? o.notes : undefined,
+          }))
+          .filter((o) => o.id.length > 0 && o.teacherId.length > 0 && o.date.length > 0);
+
         return {
           id,
           name: typeof item.name === "string" ? item.name : "",
@@ -293,6 +324,7 @@ const parseServiceCatalog = (raw: string | null): ServiceCatalogItem[] | null =>
           managerId: typeof item.managerId === "string" ? item.managerId : null,
           activities: rawActivities,
           teachers: sanitizeTeacherAssignments(item.teachers),
+          overrides: parsedOverrides,
           createdAt: typeof item.createdAt === "string" ? item.createdAt : now,
           updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : now,
         };
@@ -736,6 +768,62 @@ export const profilesService = {
       active: service.active,
       managerId: service.managerId,
     }));
+  },
+
+  /**
+   * Retorna exceções pontuais de um serviço, opcionalmente filtradas por professor
+   */
+  getClassSlotOverrides: (serviceId: string, teacherId?: string): ClassSlotOverride[] => {
+    const service = profilesService.getServiceById(serviceId);
+    if (!service) { return []; }
+    const overrides = service.overrides || [];
+    return teacherId ? overrides.filter((o) => o.teacherId === teacherId) : [...overrides];
+  },
+
+  /**
+   * Adiciona exceção pontual a um serviço
+   */
+  addClassSlotOverride: (
+    serviceId: string,
+    override: Omit<ClassSlotOverride, "id">
+  ): ServiceCatalogItem => {
+    const catalog = readServiceCatalog();
+    const target = catalog.find((s) => s.id === serviceId);
+    if (!target) { throw new Error("Serviço não encontrado."); }
+
+    const id = `ovr-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const now = new Date().toISOString();
+    const updatedCatalog = catalog.map((s) =>
+      s.id === serviceId
+        ? { ...s, overrides: [...(s.overrides || []), { ...override, id }], updatedAt: now }
+        : s
+    );
+
+    saveServiceCatalog(updatedCatalog);
+    return updatedCatalog.find((s) => s.id === serviceId) as ServiceCatalogItem;
+  },
+
+  /**
+   * Remove exceção pontual de um serviço
+   */
+  removeClassSlotOverride: (serviceId: string, overrideId: string): ServiceCatalogItem => {
+    const catalog = readServiceCatalog();
+    const target = catalog.find((s) => s.id === serviceId);
+    if (!target) { throw new Error("Serviço não encontrado."); }
+
+    const now = new Date().toISOString();
+    const updatedCatalog = catalog.map((s) =>
+      s.id === serviceId
+        ? {
+            ...s,
+            overrides: (s.overrides || []).filter((o) => o.id !== overrideId),
+            updatedAt: now,
+          }
+        : s
+    );
+
+    saveServiceCatalog(updatedCatalog);
+    return updatedCatalog.find((s) => s.id === serviceId) as ServiceCatalogItem;
   },
 
   /**

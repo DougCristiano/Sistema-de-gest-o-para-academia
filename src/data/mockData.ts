@@ -1,4 +1,4 @@
-import { User, Appointment, NewsPost, ProfileType, DashboardStats, Subscription, CheckIn } from "../types";
+import { User, Appointment, NewsPost, ProfileType, DashboardStats, Subscription, CheckIn, Feedback, AppNotification } from "../types";
 
 export interface MockAthlete {
   id: string;
@@ -1226,6 +1226,127 @@ export const getStudentCheckIns = (studentId: string): CheckIn[] =>
 
 export const getTodayCheckIns = (date: string): CheckIn[] =>
   mockCheckIns.filter((ci) => ci.date === date);
+
+// Mock Feedbacks
+// TODAY = "2026-04-12". 3-day window = 2026-04-09 to 2026-04-12.
+// Feedbacks below cover concluido check-ins outside the window (already rated).
+// ci-s1-8 (2026-04-10) and ci-s2-7 (2026-04-09) are left unrated → can be rated in demo.
+export const mockFeedbacks: Feedback[] = [
+  // João Pedro (student-1) — huron-areia
+  {
+    id: "fb-1",
+    checkInId: "ci-s1-1",
+    authorId: "student-1",
+    teacherId: "teacher-1",
+    serviceId: "huron-areia",
+    rating: 5,
+    date: "2026-03-24",
+  },
+  {
+    id: "fb-2",
+    checkInId: "ci-s1-3",
+    authorId: "student-1",
+    teacherId: "teacher-1",
+    serviceId: "huron-areia",
+    rating: 4,
+    comment: "Aula incrível, ritmo perfeito!",
+    date: "2026-03-29",
+  },
+  {
+    id: "fb-3",
+    checkInId: "ci-s1-4",
+    authorId: "student-1",
+    teacherId: "teacher-1",
+    serviceId: "huron-areia",
+    rating: 5,
+    date: "2026-04-01",
+  },
+  {
+    id: "fb-4",
+    checkInId: "ci-s1-5",
+    authorId: "student-1",
+    teacherId: "teacher-1",
+    serviceId: "huron-areia",
+    rating: 5,
+    comment: "Evolução notável nos fundamentos.",
+    date: "2026-04-03",
+  },
+  // Maria Eduarda (student-2) — huron-personal + huron-recovery
+  {
+    id: "fb-5",
+    checkInId: "ci-s2-3",
+    authorId: "student-2",
+    teacherId: "teacher-1",
+    serviceId: "huron-personal",
+    rating: 5,
+    date: "2026-04-01",
+  },
+  {
+    id: "fb-6",
+    checkInId: "ci-s2-4",
+    authorId: "student-2",
+    teacherId: "teacher-2",
+    serviceId: "huron-recovery",
+    rating: 3,
+    comment: "Poderia ser um pouco mais dinâmico.",
+    date: "2026-04-02",
+  },
+  {
+    id: "fb-7",
+    checkInId: "ci-s2-6",
+    authorId: "student-2",
+    teacherId: "teacher-2",
+    serviceId: "huron-recovery",
+    rating: 4,
+    date: "2026-04-07",
+  },
+];
+
+export const getFeedbackByCheckIn = (checkInId: string): Feedback | undefined =>
+  mockFeedbacks.find((fb) => fb.checkInId === checkInId);
+
+export const getStudentFeedbacks = (studentId: string): Feedback[] =>
+  mockFeedbacks.filter((fb) => fb.authorId === studentId);
+
+export const getTeacherFeedbacks = (teacherId: string): Feedback[] =>
+  mockFeedbacks.filter((fb) => fb.teacherId === teacherId);
+
+// Trial helper — has the student already used their free experimental for this service?
+export const hasUsedTrial = (studentId: string, serviceId: ProfileType): boolean =>
+  mockCheckIns.some(
+    (ci) =>
+      ci.studentId === studentId &&
+      ci.serviceId === serviceId &&
+      ci.type === "experimental" &&
+      ci.status !== "cancelado"
+  );
+
+// Mock Notifications (reference: TODAY = "2026-04-12")
+export const mockNotifications: AppNotification[] = [
+  // student-1 (João Pedro)
+  { id: "notif-1", userId: "student-1", type: "class_reminder", title: "Aula amanhã às 09:00", body: "Futevolei com Pedro Oliveira — Huron Areia", date: "2026-04-11T18:00", read: false, actionPath: "/student/appointments" },
+  { id: "notif-2", userId: "student-1", type: "feedback_request", title: "Como foi a aula de 10/04?", body: "Avalie sua aula de Futevolei com Pedro Oliveira", date: "2026-04-10T09:30", read: false, actionPath: "/student/appointments" },
+  { id: "notif-3", userId: "student-1", type: "plan_expiry", title: "Plano vence em 19 dias", body: "Plano Huron Areia (Semestral) vence em 01/05/2026", date: "2026-04-10T10:00", read: true, actionPath: "/profile" },
+  { id: "notif-4", userId: "student-1", type: "booking_confirmed", title: "Aula confirmada", body: "Futevolei com Pedro Oliveira — 14/04 às 09:00", date: "2026-04-09T15:00", read: true, actionPath: "/student/appointments" },
+  // student-2 (Maria Eduarda)
+  { id: "notif-5", userId: "student-2", type: "feedback_request", title: "Como foi a aula de 09/04?", body: "Avalie sua aula de Musculação com Pedro Oliveira", date: "2026-04-11T08:00", read: false, actionPath: "/student/appointments" },
+  { id: "notif-6", userId: "student-2", type: "class_reminder", title: "Aula amanhã às 10:30", body: "Musculação com Pedro Oliveira — Huron Personal", date: "2026-04-11T18:00", read: false, actionPath: "/student/appointments" },
+  { id: "notif-7", userId: "student-2", type: "plan_expiry", title: "Plano no limite", body: "Plano Huron Recovery (8/8 aulas usadas este mês)", date: "2026-04-08T09:00", read: true },
+  // admin-1 (Carlos Silva)
+  { id: "notif-8", userId: "admin-1", type: "system", title: "Nova matrícula", body: "Fernanda Dias concluiu matrícula em Huron Areia", date: "2026-04-11T14:00", read: false, actionPath: "/admin/enrolled" },
+  { id: "notif-9", userId: "admin-1", type: "system", title: "Ausências registradas", body: "3 alunos faltaram hoje no Huron Areia", date: "2026-04-12T12:00", read: false, actionPath: "/admin/today" },
+  { id: "notif-10", userId: "admin-1", type: "class_reminder", title: "Sua aula às 06:00 hoje", body: "Treinamento Funcional com Lucas Ferreira — HTRI", date: "2026-04-12T06:00", read: true, actionPath: "/student/appointments" },
+  // teacher-1 (Pedro Oliveira)
+  { id: "notif-11", userId: "teacher-1", type: "class_reminder", title: "4 aulas hoje", body: "Primeiro horário: 09:00 com João Pedro — Huron Areia", date: "2026-04-12T07:00", read: false, actionPath: "/teacher/today" },
+  { id: "notif-12", userId: "teacher-1", type: "system", title: "Avaliação recebida ⭐⭐⭐⭐⭐", body: "João Pedro avaliou sua aula de Futevolei com 5 estrelas", date: "2026-04-10T09:35", read: false },
+  { id: "notif-13", userId: "teacher-1", type: "system", title: "Avaliação recebida ⭐⭐⭐⭐", body: "João Pedro avaliou Futevolei: \"Aula incrível!\"", date: "2026-04-03T15:00", read: true },
+  // manager-1 (Ana Santos)
+  { id: "notif-14", userId: "manager-1", type: "system", title: "Relatório semanal disponível", body: "Taxa de presença esta semana: 91% — Huron Areia", date: "2026-04-12T08:00", read: false, actionPath: "/manager/reports" },
+  { id: "notif-15", userId: "manager-1", type: "class_reminder", title: "Sua aula hoje às 11:30", body: "Crossfit com Pedro Oliveira — Huron Personal", date: "2026-04-12T09:00", read: false, actionPath: "/student/appointments" },
+];
+
+export const getNotificationsForUser = (userId: string): AppNotification[] =>
+  mockNotifications.filter((n) => n.userId === userId);
 
 // Mock News
 export const mockNews: NewsPost[] = [

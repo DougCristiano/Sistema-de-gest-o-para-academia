@@ -18,9 +18,11 @@ import {
   Briefcase,
   ChevronLeft,
   CalendarCheck,
+  BarChart2,
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import { PROFILE_NAMES } from "../types";
+import { NotificationBell } from "./NotificationBell";
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administrador",
@@ -85,6 +87,7 @@ export const Layout: React.FC = () => {
           { icon: GraduationCap, label: "Matriculados", path: "/admin/enrolled", group: "Gestão" },
           { icon: Calendar, label: "Agendamentos", path: "/admin/appointments", group: "Gestão" },
           { icon: Newspaper, label: "Feed de Notícias", path: "/admin/news", group: "Conteúdo" },
+          { icon: BarChart2, label: "Relatórios", path: "/admin/reports", group: "Análise" },
           { icon: UserCircle, label: "Meu Perfil", path: "/profile", group: "Conta" },
         ];
       case "manager":
@@ -97,6 +100,7 @@ export const Layout: React.FC = () => {
           { icon: UserPlus, label: "Adicionar Professor", path: "/manager/add-teacher", group: "Gestão" },
           { icon: Settings, label: "Configurar Serviço", path: "/manager/config", group: "Configurações" },
           { icon: CalendarClock, label: "Professores e Horários", path: "/manager/service-teachers", group: "Configurações" },
+          { icon: BarChart2, label: "Relatórios", path: "/manager/reports", group: "Análise" },
           { icon: UserCircle, label: "Meu Perfil", path: "/profile", group: "Conta" },
         ];
       case "teacher":
@@ -104,6 +108,7 @@ export const Layout: React.FC = () => {
           { icon: Calendar, label: "Minha Agenda", path: "/teacher", group: "Principal" },
           { icon: CalendarCheck, label: "Aulas de Hoje", path: "/teacher/today", group: "Principal" },
           { icon: Users, label: "Meus Alunos", path: "/teacher/students", group: "Principal" },
+          { icon: BarChart2, label: "Meu Desempenho", path: "/teacher/reports", group: "Principal" },
           { icon: UserCircle, label: "Meu Perfil", path: "/profile", group: "Conta" },
         ];
       case "student":
@@ -111,6 +116,7 @@ export const Layout: React.FC = () => {
           { icon: LayoutDashboard, label: "Meu Painel", path: "/student", group: "Principal" },
           { icon: CalendarPlus, label: "Agendar Aula", path: "/student/booking", group: "Aulas" },
           { icon: Calendar, label: "Minhas Aulas", path: "/student/appointments", group: "Aulas" },
+          { icon: BarChart2, label: "Meu Progresso", path: "/student/reports", group: "Análise" },
           { icon: Newspaper, label: "Notícias", path: "/student/news", group: "Conteúdo" },
           { icon: UserCircle, label: "Meu Perfil", path: "/profile", group: "Conta" },
         ];
@@ -149,11 +155,15 @@ export const Layout: React.FC = () => {
     "/teacher": "Minha Agenda",
     "/teacher/today": "Aulas de Hoje",
     "/teacher/students": "Meus Alunos",
+    "/teacher/reports": "Meu Desempenho",
     "/manager/today": "Aulas de Hoje",
+    "/manager/reports": "Relatórios",
     "/admin/today": "Aulas de Hoje",
+    "/admin/reports": "Relatórios",
     "/student": "Meu Painel",
     "/student/booking": "Agendar Aula",
     "/student/appointments": "Minhas Aulas",
+    "/student/reports": "Meu Progresso",
     "/student/news": "Notícias",
     "/booking": "Agendar Aula",
   };
@@ -344,6 +354,8 @@ export const Layout: React.FC = () => {
                   month: "long",
                 })}
               </span>
+              <div className="w-px h-5 bg-border" />
+              <NotificationBell />
               <div className="w-px h-5 bg-border" />
               <ThemeToggle />
             </div>

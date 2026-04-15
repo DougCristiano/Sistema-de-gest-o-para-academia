@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { Card } from "../components/ui/card";
 import { NewsCard } from "../components/NewsCard";
 import { Input } from "../components/ui/input";
-import { Newspaper, Calendar, Search, Users, TrendingUp } from "lucide-react";
+import { Newspaper, Calendar, Search, Users, TrendingUp, Gift, Bell } from "lucide-react";
 import { mockNews } from "../data/mockData";
 
 export const StudentNews: React.FC = () => {

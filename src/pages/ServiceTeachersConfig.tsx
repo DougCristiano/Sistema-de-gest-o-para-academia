@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
-import { AlertCircle, CalendarClock, Save, Tag, UserPlus, Users } from "lucide-react";
+import { AlertCircle, CalendarClock, ChevronDown, ChevronUp, Plus, Save, Tag, UserPlus, Users, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -16,6 +16,7 @@ import {
 } from "../components/ui/select";
 import { Switch } from "../components/ui/switch";
 import {
+  ClassSlotOverride,
   createDefaultTeacherSchedule,
   profilesService,
   SERVICE_WEEK_DAYS,
@@ -25,6 +26,20 @@ import {
   ServiceTeacherSchedule,
   ServiceWeekDayKey,
 } from "../services/profiles.service";
+
+interface OverrideFormState {
+  date: string;
+  maxStudents: string;
+  blocked: boolean;
+  notes: string;
+}
+
+const BLANK_OVERRIDE_FORM: OverrideFormState = {
+  date: "",
+  maxStudents: "10",
+  blocked: false,
+  notes: "",
+};
 
 const cloneAssignments = (teachers: ServiceTeacherAssignment[]): ServiceTeacherAssignment[] => {
   return teachers.map((teacher) => ({
@@ -46,6 +61,8 @@ export const ServiceTeachersConfig: React.FC = () => {
   const [assignments, setAssignments] = useState<ServiceTeacherAssignment[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [expandedOverrideTeacher, setExpandedOverrideTeacher] = useState<string | null>(null);
+  const [overrideForms, setOverrideForms] = useState<Record<string, OverrideFormState>>({});
 
   const isAdmin = currentUser?.role === "admin";
   const isManager = currentUser?.role === "manager";
@@ -198,6 +215,45 @@ export const ServiceTeachersConfig: React.FC = () => {
       })
     );
     setErrorMessage(null);
+  };
+
+  const getOverrideForm = (teacherId: string): OverrideFormState =>
+    overrideForms[teacherId] ?? BLANK_OVERRIDE_FORM;
+
+  const setOverrideForm = (teacherId: string, patch: Partial<OverrideFormState>) => {
+    setOverrideForms((prev) => ({
+      ...prev,
+      [teacherId]: { ...(prev[teacherId] ?? BLANK_OVERRIDE_FORM), ...patch },
+    }));
+  };
+
+  const handleAddOverride = (teacherId: string) => {
+    if (!selectedService) { return; }
+    const form = getOverrideForm(teacherId);
+    if (!form.date) { return; }
+
+    try {
+      profilesService.addClassSlotOverride(selectedService.id, {
+        teacherId,
+        date: form.date,
+        maxStudents: form.blocked ? null : Math.max(1, parseInt(form.maxStudents) || 1),
+        notes: form.notes.trim() || undefined,
+      });
+      setOverrideForms((prev) => ({ ...prev, [teacherId]: BLANK_OVERRIDE_FORM }));
+      refreshServices();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Erro ao adicionar exceção.");
+    }
+  };
+
+  const handleRemoveOverride = (overrideId: string) => {
+    if (!selectedService) { return; }
+    try {
+      profilesService.removeClassSlotOverride(selectedService.id, overrideId);
+      refreshServices();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Erro ao remover exceção.");
+    }
   };
 
   const handleSave = () => {
@@ -412,6 +468,160 @@ export const ServiceTeachersConfig: React.FC = () => {
                       </div>
                     )}
 
+                    {/* Overrides section */}
+                    {(() => {
+                      const teacherOverrides: ClassSlotOverride[] = selectedService
+                        ? profilesService.getClassSlotOverrides(selectedService.id, assignment.teacherId)
+                        : [];
+                      const form = getOverrideForm(assignment.teacherId);
+                      const isExpanded = expandedOverrideTeacher === assignment.teacherId;
+
+                      return (
+                        <div className="border rounded-md">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpandedOverrideTeacher(isExpanded ? null : assignment.teacherId)
+                            }
+                            className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium hover:bg-muted/50 transition-colors rounded-md"
+                          >
+                            <span className="flex items-center gap-2">
+                              Exceções pontuais
+                              {teacherOverrides.length > 0 && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {teacherOverrides.length}
+                                </Badge>
+                              )}
+                            </span>
+                            {isExpanded ? (
+                              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                            )}
+                          </button>
+
+                          {isExpanded && (
+                            <div className="px-4 pb-4 space-y-3 border-t pt-3">
+                              <p className="text-xs text-muted-foreground">
+                                Defina um limite diferente (ou bloqueio) para uma data específica, sobrepondo o limite recorrente do dia.
+                              </p>
+
+                              {teacherOverrides.length === 0 ? (
+                                <p className="text-sm text-muted-foreground italic">Nenhuma exceção cadastrada.</p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {teacherOverrides
+                                    .sort((a, b) => a.date.localeCompare(b.date))
+                                    .map((override) => (
+                                      <div
+                                        key={override.id}
+                                        className="flex items-center gap-3 bg-muted/40 rounded-md px-3 py-2 text-sm"
+                                      >
+                                        <span className="font-medium tabular-nums">
+                                          {override.date}
+                                        </span>
+                                        <span
+                                          className={
+                                            override.maxStudents === null
+                                              ? "text-red-600 dark:text-red-400 font-medium"
+                                              : "text-foreground"
+                                          }
+                                        >
+                                          {override.maxStudents === null
+                                            ? "Bloqueado"
+                                            : `${override.maxStudents} aluno${override.maxStudents !== 1 ? "s" : ""}`}
+                                        </span>
+                                        {override.notes && (
+                                          <span className="text-muted-foreground flex-1 truncate">
+                                            {override.notes}
+                                          </span>
+                                        )}
+                                        <button
+                                          onClick={() => handleRemoveOverride(override.id)}
+                                          className="ml-auto text-muted-foreground hover:text-destructive transition-colors p-1 rounded"
+                                          title="Remover exceção"
+                                        >
+                                          <X className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    ))}
+                                </div>
+                              )}
+
+                              {/* Add form */}
+                              <div className="flex flex-wrap gap-2 items-end pt-1">
+                                <div>
+                                  <p className="text-[10px] text-muted-foreground mb-1">Data</p>
+                                  <Input
+                                    type="date"
+                                    value={form.date}
+                                    onChange={(e) =>
+                                      setOverrideForm(assignment.teacherId, { date: e.target.value })
+                                    }
+                                    className="h-8 text-xs w-36"
+                                  />
+                                </div>
+
+                                <div>
+                                  <p className="text-[10px] text-muted-foreground mb-1">Máx. alunos</p>
+                                  <Input
+                                    type="number"
+                                    min={1}
+                                    max={999}
+                                    value={form.maxStudents}
+                                    onChange={(e) =>
+                                      setOverrideForm(assignment.teacherId, { maxStudents: e.target.value })
+                                    }
+                                    disabled={form.blocked}
+                                    className="h-8 text-xs w-20"
+                                  />
+                                </div>
+
+                                <div className="flex items-center gap-2 pb-0.5">
+                                  <Switch
+                                    id={`blocked-${assignment.teacherId}`}
+                                    checked={form.blocked}
+                                    onCheckedChange={(checked) =>
+                                      setOverrideForm(assignment.teacherId, { blocked: checked })
+                                    }
+                                  />
+                                  <Label
+                                    htmlFor={`blocked-${assignment.teacherId}`}
+                                    className="text-xs cursor-pointer"
+                                  >
+                                    Bloquear
+                                  </Label>
+                                </div>
+
+                                <div className="flex-1 min-w-[120px]">
+                                  <p className="text-[10px] text-muted-foreground mb-1">Observação (opcional)</p>
+                                  <Input
+                                    value={form.notes}
+                                    onChange={(e) =>
+                                      setOverrideForm(assignment.teacherId, { notes: e.target.value })
+                                    }
+                                    placeholder="Ex: Feriado, manutenção…"
+                                    className="h-8 text-xs"
+                                  />
+                                </div>
+
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  onClick={() => handleAddOverride(assignment.teacherId)}
+                                  disabled={!form.date}
+                                  className="h-8"
+                                >
+                                  <Plus className="w-3.5 h-3.5 mr-1" />
+                                  Adicionar
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
                     <div className="grid grid-cols-1 lg:grid-cols-7 gap-3">
                       {SERVICE_WEEK_DAYS.map((day) => {
                         const daySchedule = assignment.schedule[day.key];
@@ -448,6 +658,23 @@ export const ServiceTeachersConfig: React.FC = () => {
                                 }
                                 disabled={!daySchedule.enabled}
                               />
+                              {daySchedule.enabled && (
+                                <div>
+                                  <p className="text-[10px] text-muted-foreground mb-1">Máx. alunos</p>
+                                  <Input
+                                    type="number"
+                                    min={1}
+                                    max={999}
+                                    value={daySchedule.maxStudents ?? 10}
+                                    onChange={(event) =>
+                                      updateTeacherDay(assignment.teacherId, day.key, {
+                                        maxStudents: Math.max(1, parseInt(event.target.value) || 1),
+                                      })
+                                    }
+                                    className="h-7 text-xs"
+                                  />
+                                </div>
+                              )}
                             </div>
                           </div>
                         );

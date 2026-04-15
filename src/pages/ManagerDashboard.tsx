@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { StatCard } from "../components/StatCard";
 import { Card } from "../components/ui/card";
 import { AppointmentCard } from "../components/AppointmentCard";
-import { Users , TrendingUp, DollarSign } from "lucide-react";
+import { Users, TrendingUp, DollarSign, Calendar } from "lucide-react";
 import {
   mockDashboardStats,
   mockAppointments,

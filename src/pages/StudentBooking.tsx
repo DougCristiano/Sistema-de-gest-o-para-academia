@@ -22,9 +22,10 @@ import {
   Lock,
   User,
   CalendarPlus,
+  Sparkles,
 } from "lucide-react";
 import { PROFILE_NAMES, PROFILE_COLORS, ProfileType } from "../types";
-import { mockUsers } from "../data/mockData";
+import { mockUsers, hasUsedTrial } from "../data/mockData";
 import {
   format,
   addDays,
@@ -55,6 +56,7 @@ interface ConfirmModalData {
   date: Date;
   slot: TimeSlot;
   profile: ProfileType;
+  isExperimental: boolean;
 }
 
 // ─── Mock schedule data generator ────────────────────────────────────────────
@@ -219,6 +221,12 @@ export const StudentBooking: React.FC = () => {
   const [confirmModal, setConfirmModal] = useState<ConfirmModalData | null>(null);
   const [bookedSlots, setBookedSlots] = useState<Set<string>>(new Set());
 
+  // Trial eligibility: student hasn't yet used their free experimental for this service
+  const trialAvailable = useMemo(() => {
+    if (!selectedProfile || !currentUser) { return false; }
+    return !hasUsedTrial(currentUser.id, selectedProfile as ProfileType);
+  }, [selectedProfile, currentUser]);
+
   // Week days array
   const weekDays = useMemo(
     () => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
@@ -251,6 +259,7 @@ export const StudentBooking: React.FC = () => {
       date: selectedDay,
       slot,
       profile: selectedProfile as ProfileType,
+      isExperimental: trialAvailable,
     });
   };
 
@@ -405,6 +414,20 @@ export const StudentBooking: React.FC = () => {
               Agendado por você
             </span>
           </div>
+
+          {/* Trial banner */}
+          {trialAvailable && (
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-700 dark:text-purple-300">
+              <Sparkles className="w-5 h-5 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Aula Experimental Disponível!</p>
+                <p className="text-xs opacity-80">
+                  Você tem 1 aula experimental gratuita em{" "}
+                  {PROFILE_NAMES[selectedProfile as ProfileType]}. Agende qualquer horário para utilizá-la.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Day Heading */}
           <div className="flex items-center gap-3">
@@ -586,6 +609,15 @@ export const StudentBooking: React.FC = () => {
                   {confirmModal.slot.capacity - confirmModal.slot.enrolled} disponíveis
                 </Badge>
               </div>
+
+              {confirmModal.isExperimental && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-purple-500/10 border border-purple-500/30">
+                  <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                  <p className="text-xs font-medium text-purple-700 dark:text-purple-300">
+                    Esta será sua aula experimental gratuita em {PROFILE_NAMES[confirmModal.profile]}.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3">

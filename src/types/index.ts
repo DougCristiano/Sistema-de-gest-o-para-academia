@@ -235,3 +235,40 @@ export const CHECK_IN_TYPE_COLORS: Record<CheckInType, string> = {
   plano: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
   avulso: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
 };
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+export type NotificationType =
+  | "feedback_request"
+  | "plan_expiry"
+  | "class_reminder"
+  | "booking_confirmed"
+  | "system";
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  date: string; // "YYYY-MM-DDTHH:mm"
+  read: boolean;
+  actionPath?: string;
+}
+
+// ============================================================
+// FEEDBACK
+// ============================================================
+
+export interface Feedback {
+  id: string;
+  checkInId: string;
+  authorId: string; // studentId who submitted
+  teacherId: string;
+  serviceId: ProfileType;
+  rating: 1 | 2 | 3 | 4 | 5;
+  comment?: string;
+  date: string; // "YYYY-MM-DD" — submission date
+}

@@ -56,6 +56,9 @@ const MyProfile = lazy(() => import("./pages/MyProfile").then((m) => ({ default:
 const TodayClasses = lazy(() =>
   import("./pages/TodayClasses").then((m) => ({ default: m.TodayClasses }))
 );
+const Reports = lazy(() =>
+  import("./pages/Reports").then((m) => ({ default: m.Reports }))
+);
 
 // Mobile pages (lazy-loaded)
 const MobileDashboard = lazy(() =>
@@ -133,6 +136,10 @@ export const router = createBrowserRouter([
             path: "admin/today",
             element: withSuspense(TodayClasses),
           },
+          {
+            path: "admin/reports",
+            element: withSuspense(Reports),
+          },
           // Manager routes
           {
             path: "manager",
@@ -166,6 +173,10 @@ export const router = createBrowserRouter([
             path: "manager/today",
             element: withSuspense(TodayClasses),
           },
+          {
+            path: "manager/reports",
+            element: withSuspense(Reports),
+          },
           // Teacher routes
           {
             path: "teacher",
@@ -178,6 +189,10 @@ export const router = createBrowserRouter([
           {
             path: "teacher/today",
             element: withSuspense(TodayClasses),
+          },
+          {
+            path: "teacher/reports",
+            element: withSuspense(Reports),
           },
           // Booking route (shared for staff who are also students)
           {
@@ -200,6 +215,10 @@ export const router = createBrowserRouter([
           {
             path: "student/news",
             element: withSuspense(StudentNews),
+          },
+          {
+            path: "student/reports",
+            element: withSuspense(Reports),
           },
           // Shared route - My Profile (all roles)
           {
