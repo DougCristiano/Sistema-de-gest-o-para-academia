@@ -25,7 +25,8 @@ import {
   PROFILE_NAMES,
   PROFILE_COLORS,
 } from "../types";
-import { getStudentCheckIns, getStudentFeedbacks } from "../data/mockData";
+import { getStudentFeedbacks } from "../data/mockData";
+import { useCheckIns } from "../context/CheckInsContext";
 
 const TODAY = "2026-04-12";
 const THREE_DAYS_AGO = format(subDays(parseISO(TODAY), 3), "yyyy-MM-dd"); // "2026-04-09"
@@ -244,6 +245,7 @@ const HISTORY_FILTER_OPTIONS: { value: CheckInStatus | "todos"; label: string }[
 
 export const StudentAppointments: React.FC = () => {
   const { currentUser } = useAuth();
+  // getStudentCheckIns comes from context so allCheckIns re-computes when a booking is added
   const [historyFilter, setHistoryFilter] = useState<CheckInStatus | "todos">("todos");
   const [expandedFeedback, setExpandedFeedback] = useState<string | null>(null);
   const [feedbackDrafts, setFeedbackDrafts] = useState<Record<string, FeedbackDraft>>({});
@@ -254,8 +256,9 @@ export const StudentAppointments: React.FC = () => {
     return map;
   });
 
+  const { getStudentCheckIns } = useCheckIns();
   const studentId = currentUser?.id ?? "";
-  const allCheckIns = useMemo(() => getStudentCheckIns(studentId), [studentId]);
+  const allCheckIns = useMemo(() => getStudentCheckIns(studentId), [studentId, getStudentCheckIns]);
 
   const upcoming = useMemo(
     () =>

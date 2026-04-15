@@ -24,8 +24,9 @@ import {
   CalendarPlus,
   Sparkles,
 } from "lucide-react";
-import { PROFILE_NAMES, PROFILE_COLORS, ProfileType } from "../types";
+import { PROFILE_NAMES, PROFILE_COLORS, ProfileType, CheckIn } from "../types";
 import { mockUsers, hasUsedTrial } from "../data/mockData";
+import { useCheckIns } from "../context/CheckInsContext";
 import {
   format,
   addDays,
@@ -207,6 +208,7 @@ function getStatusConfig(status: "available" | "full" | "cutoff" | "past") {
 // ─── Component ───────────────────────────────────────────────────────────────
 export const StudentBooking: React.FC = () => {
   const { currentUser } = useAuth();
+  const { addCheckIn } = useCheckIns();
 
   const userProfiles =
     currentUser?.role === "student"
@@ -264,7 +266,21 @@ export const StudentBooking: React.FC = () => {
   };
 
   const confirmBooking = () => {
-    if (!confirmModal) {return;}
+    if (!confirmModal || !currentUser) {return;}
+    const newCheckIn: CheckIn = {
+      id: `ci-new-${Date.now()}`,
+      studentId: currentUser.id,
+      studentName: currentUser.name,
+      teacherId: confirmModal.slot.teacherId,
+      teacherName: confirmModal.slot.teacherName,
+      serviceId: confirmModal.profile,
+      date: format(confirmModal.date, "yyyy-MM-dd"),
+      time: confirmModal.slot.time,
+      duration: 60,
+      status: "agendado",
+      type: confirmModal.isExperimental ? "experimental" : "plano",
+    };
+    addCheckIn(newCheckIn);
     setBookedSlots((prev) => new Set(prev).add(confirmModal.slot.id));
     setConfirmModal(null);
   };

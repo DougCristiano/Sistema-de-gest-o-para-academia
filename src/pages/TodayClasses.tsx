@@ -20,7 +20,7 @@ import {
   PROFILE_COLORS,
   ProfileType,
 } from "../types";
-import { getTodayCheckIns } from "../data/mockData";
+import { useCheckIns } from "../context/CheckInsContext";
 
 const TODAY = "2026-04-12";
 
@@ -158,7 +158,8 @@ export const TodayClasses: React.FC = () => {
     "todos"
   );
 
-  const allToday = useMemo(() => getTodayCheckIns(TODAY), []);
+  const { getTodayCheckIns } = useCheckIns();
+  const allToday = useMemo(() => getTodayCheckIns(TODAY), [getTodayCheckIns]);
 
   // Filter by role
   const roleFiltered = useMemo(() => {
